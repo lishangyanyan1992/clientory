@@ -1,0 +1,11 @@
+.DS_Store
+**/.DS_Store
+
+# Frontend dependencies and build output
+Clientory Website/node_modules/
+Clientory Website/dist/
+Clientory Website/dist-ssr/
+
+# Local environment files
+Clientory Website/.env
+Clientory Website/.env.*

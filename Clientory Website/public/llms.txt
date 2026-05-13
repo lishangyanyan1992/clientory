@@ -1,0 +1,24 @@
+# Clientory - GEO for Professional Services
+# https://clientory.org
+
+> Clientory is a Generative Engine Optimization (GEO) monitoring platform
+> for small professional service firms including law firms, accounting firms,
+> consulting firms, and marketing agencies.
+
+## Key Pages
+- Homepage: https://clientory.org
+- About: https://clientory.org/about
+- GEO Guide: https://clientory.org/geo-for-professional-services
+- Features: https://clientory.org/features
+- Pricing: https://clientory.org/pricing
+
+## What We Do
+Clientory tracks how often and how accurately AI platforms (ChatGPT, Claude,
+Gemini, Perplexity, Copilot) mention and recommend professional service firms.
+We provide Share of Voice scores, accuracy monitoring, competitor benchmarking,
+and actionable optimization roadmaps.
+
+## Do Not Crawl
+/admin
+/dashboard
+/api
