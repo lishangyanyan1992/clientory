@@ -1,0 +1,307 @@
+Build the billing and access-control system for my existing SaaS product, Clientory.
+
+IMPORTANT: the core product is already built. Do not rebuild the app from scratch. First inspect the current codebase and existing architecture, then integrate billing into the current product with the least disruptive approach.
+
+## Product context
+Clientory helps users measure AI visibility for businesses.
+The product already does the core workflow:
+- collect business information
+- generate prompts
+- run prompts through multiple LLMs
+- return a final AI visibility report
+
+Now I want to tie payment directly to the product so usage is gated properly.
+
+## Core business rules
+Please implement billing based on these exact rules:
+
+### What counts as 1 scan
+1 scan = 1 full report run for 1 business/account, even if that internally hits many prompts and models.
+
+### Free usage
+- A user gets 1 free report total
+- After the free report is used, the user can still view that old report
+- But the user cannot run new scans or rerun reports unless they pay
+
+### Paid model
+Use subscription billing first.
+
+Pricing:
+- $5/month per business
+- Each paid business includes 4 scans per billing cycle
+- The product language can describe this as “up to 1 scan per week” but enforce it as 4 scans per billing cycle for now
+- Do not implement weekly scheduling logic right now
+- Users may run scans ad hoc
+- Structure the code so scheduled scans could be added later, but do not build monthly monitoring or automation now
+
+### Billing entity
+- Billing is tied to the user for now
+- But subscriptions are purchased per business profile
+- One user can have multiple businesses
+- Each business should have its own subscription state and scan allowance
+- Example: if a user has 3 businesses, they can pay $5/month for each business separately
+
+### Cancellation / failed payment behavior
+- If a subscription is canceled, keep paid access until the end of the billing cycle
+- If payment fails, also keep access until the end of the current billing cycle
+- After the billing period ends without an active paid subscription, block new scans and reruns
+- Prior reports should remain viewable in read-only mode
+
+### No trial beyond free report
+- No free trial
+- No tax handling for now
+- No invoice customization needed for now
+
+## Value sold
+The product is selling AI visibility monitoring, not raw API usage.
+The UX and copy should reflect that.
+
+## Feature entitlements
+Please enforce these feature rules:
+
+### Free user
+- Can submit email and verify it
+- Can create/use the product enough to get 1 free report
+- Can view that free report later
+- Cannot rerun scans after the free report is used
+- Cannot create additional paid-only business tracking flows unless unlocked
+- Does not get paid exports/features
+
+### Paid business subscription
+For each paid business subscription, allow:
+- up to 4 scans per billing cycle
+- report history
+- export PDF/CSV
+- recommendations
+- saved business profiles
+
+When the business reaches 4 scans in the cycle:
+- block new scans
+- show a clear limit message
+- do not run any LLM jobs once blocked
+
+## Product/UX requirements
+Build a strong MVP billing UX with:
+
+1. Pricing page
+2. Settings / Billing page
+3. Upgrade modal when a user is blocked from scanning
+
+### Pricing page
+Should clearly explain:
+- 1 free report
+- Then $5/month per business
+- 4 scans per billing cycle
+- includes report history, exports, recommendations, and saved profiles
+
+### Billing/settings page
+Show:
+- current businesses
+- whether each business is free or paid
+- subscription status per business
+- scans used this billing cycle per business
+- scans remaining per business
+- renewal/reset date
+- manage billing button
+- subscribe button for unpaid businesses
+
+### Upgrade modal
+When a blocked user tries to run a scan:
+- explain why they are blocked
+- explain whether they used their free report or hit their plan limit
+- offer upgrade path for that specific business
+
+Use clear product copy like:
+- “You’ve already used your free report.”
+- “Subscribe to continue monitoring this business in AI search results.”
+- “You’ve used 4 of 4 scans for this billing cycle.”
+- “Your scan allowance resets on [date].”
+
+## Important implementation requirements
+
+### 1. Inspect the existing codebase first
+Before coding, first determine:
+- frontend stack
+- backend stack
+- database
+- auth/email verification flow
+- existing business/profile models
+- existing scan/report workflow
+- where best to insert entitlement checks
+
+Do not assume a stack until you inspect the code.
+
+### 2. Add lightweight account structure if needed
+Right now the product only collects email and asks the user to verify it, but there is no formal account system yet.
+
+Please inspect what exists and implement the minimum account structure needed to support:
+- user identity
+- verified email
+- ownership of businesses
+- entitlement checks
+- billing state
+- report history
+
+Do this in the most lightweight way possible, using the current architecture and tools already in the app where possible.
+
+### 3. Stripe integration
+Use Stripe for billing.
+
+Implement:
+- Stripe Checkout for subscribing to a business
+- Stripe Customer Portal for managing billing
+- create/reuse Stripe customer for the user
+- create a subscription per paid business
+- save Stripe customer ID and subscription ID(s)
+- support one user having multiple subscriptions if they subscribe for multiple businesses
+
+Handle webhooks for:
+- checkout.session.completed
+- customer.subscription.created
+- customer.subscription.updated
+- customer.subscription.deleted
+- invoice.paid
+- invoice.payment_failed
+
+Keep app database synced with Stripe state.
+
+### 4. Business-level subscriptions
+This is important:
+- subscription records should be linked to both user and business
+- each business has its own entitlement state
+- each business has its own scan usage counter per billing cycle
+
+### 5. Backend enforcement
+All scan limits and payment gates must be enforced on the backend, not only in the frontend.
+
+Before any scan starts:
+- validate whether the business is entitled to run
+- if blocked, do not trigger expensive LLM calls
+- return structured error states for the frontend
+
+Use structured states like:
+- FREE_REPORT_ALREADY_USED
+- SUBSCRIPTION_REQUIRED
+- BUSINESS_PLAN_LIMIT_REACHED
+- SUBSCRIPTION_INACTIVE
+- BILLING_PERIOD_ENDED
+
+### 6. Data model / schema
+Add or update schema as needed.
+
+I expect models/tables roughly like this, but adapt to the current codebase:
+
+User
+- id
+- email
+- email_verified
+- stripe_customer_id
+- created_at
+- updated_at
+
+Business
+- id
+- user_id
+- name
+- website
+- status
+- created_at
+- updated_at
+
+BusinessSubscription
+- id
+- user_id
+- business_id
+- stripe_subscription_id
+- stripe_price_id
+- status
+- current_period_start
+- current_period_end
+- cancel_at_period_end
+- created_at
+- updated_at
+
+BusinessUsage
+- id
+- business_id
+- billing_period_start
+- billing_period_end
+- scans_used
+- scans_limit
+- created_at
+- updated_at
+
+Report
+- id
+- user_id
+- business_id
+- is_free_report
+- created_at
+- report metadata fields
+
+You may rename these to fit the existing codebase, but preserve the business logic.
+
+### 7. Free report logic
+Implement the free report carefully:
+- 1 free report total per user OR clearly tie it to the first business created, depending on what best fits the existing product flow
+- if needed, create a simple flag such as free_report_used_at on the user
+- once free report is used, further scans require a paid subscription for the business being scanned
+- user can still open the old report
+
+If there is ambiguity during implementation, prefer this rule:
+- each user gets only 1 free report total across the whole account
+
+### 8. Paid feature gating
+In addition to scan gating, gate these features by business subscription entitlement:
+- report history
+- export PDF/CSV
+- recommendations
+- saved business profiles
+
+Free users should see locked states or upgrade prompts where appropriate.
+
+### 9. Maintainability
+Please keep the implementation production-ready, simple, and extensible.
+
+I want:
+- clean folder structure
+- reusable billing service/helpers
+- centralized plan config/constants
+- minimal fragility
+- comments only where useful
+- no unnecessary abstractions
+
+Create a single place where I can later change:
+- monthly price
+- scans per billing cycle
+- feature entitlements
+- future plan tiers
+
+## Deliverables
+After implementation, provide:
+
+1. Summary of files changed
+2. Summary of detected stack/architecture
+3. Database/schema changes
+4. Environment variables required
+5. Where to put Stripe keys and Stripe price IDs
+6. Local testing instructions
+7. Exact billing flow:
+   - email verified
+   - first free report
+   - blocked rerun
+   - upgrade for one business
+   - paid subscription active
+   - scan counting
+   - billing cycle reset
+   - cancel at period end
+8. Where I can edit pricing and limits later
+
+## Execution instructions
+Before writing code, first output:
+1. what stack/frameworks you found in the codebase
+2. which files you plan to change
+3. schema changes you recommend
+4. the billing/entitlement flow in plain English
+
+Then implement the full solution.

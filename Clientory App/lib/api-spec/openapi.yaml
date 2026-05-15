@@ -1,0 +1,1174 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: scans
+    description: AI visibility scan operations
+  - name: auth
+    description: Email OTP authentication
+  - name: businesses
+    description: Business profile management
+  - name: billing
+    description: Billing and subscription management
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /auth/send-otp:
+    post:
+      operationId: sendOtp
+      tags: [auth]
+      summary: Send OTP verification code
+      description: Sends a 6-digit verification code to the provided email.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendOtpBody"
+      responses:
+        "200":
+          description: OTP sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SendOtpResponse"
+        "400":
+          description: Invalid input or CAPTCHA failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateLimitResponse"
+  /auth/verify-otp:
+    post:
+      operationId: verifyOtp
+      tags: [auth]
+      summary: Verify OTP code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyOtpBody"
+      responses:
+        "200":
+          description: OTP verified, email token returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerifyOtpResponse"
+        "400":
+          description: Invalid or expired code
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /scans:
+    post:
+      operationId: createScan
+      tags: [scans]
+      summary: Create a new AI visibility scan
+      parameters:
+        - name: x-email-token
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateScanBody"
+      responses:
+        "201":
+          description: Scan created and started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Scan"
+        "200":
+          description: Cached scan returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CachedScan"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "402":
+          description: Entitlement check failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntitlementErrorResponse"
+        "422":
+          description: Input validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Email verification required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateLimitResponse"
+  /scans/{id}:
+    get:
+      operationId: getScan
+      tags: [scans]
+      summary: Get scan results
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Scan details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScanDetail"
+        "404":
+          description: Scan not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /scans/{id}/stream:
+    get:
+      operationId: streamScanProgress
+      tags: [scans]
+      summary: Stream scan progress via SSE
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: SSE stream of scan progress events
+          content:
+            text/event-stream:
+              schema:
+                type: string
+  /businesses/suggest-competitors:
+    post:
+      operationId: suggestCompetitors
+      tags: [businesses]
+      summary: Suggest likely competitors using AI
+      description: Uses Claude Haiku to suggest 3-5 likely competitors. No auth required. IP rate limited.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SuggestCompetitorsBody"
+      responses:
+        "200":
+          description: Competitor suggestions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuggestCompetitorsResponse"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateLimitResponse"
+  /businesses:
+    post:
+      operationId: createBusiness
+      tags: [businesses]
+      summary: Create or update a firm profile
+      parameters:
+        - name: x-email-token
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBusinessBody"
+      responses:
+        "201":
+          description: Business created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Business"
+        "200":
+          description: Business updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Business"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    get:
+      operationId: listBusinesses
+      tags: [businesses]
+      summary: List user businesses with subscription state
+      parameters:
+        - name: x-email-token
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of businesses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BusinessListResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /businesses/{id}/prompt-sets/generate:
+    post:
+      operationId: generatePromptSet
+      tags: [businesses]
+      summary: Generate a locked prompt set for a firm
+      description: Generates 10 prompts across 5 categories. Idempotent — returns existing set if already generated.
+      parameters:
+        - name: x-email-token
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "201":
+          description: New prompt set generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PromptSet"
+        "200":
+          description: Existing prompt set returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PromptSet"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Business not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /businesses/{id}/prompt-sets/current:
+    get:
+      operationId: getPromptSet
+      tags: [businesses]
+      summary: Get the current locked prompt set for a firm
+      parameters:
+        - name: x-email-token
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Current prompt set
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PromptSet"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: No prompt set found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /businesses/{id}/prompt-sets/regenerate:
+    post:
+      operationId: regeneratePromptSet
+      tags: [businesses]
+      summary: Archive current prompt set and generate a new one
+      description: Only allowed if the firm profile has been updated since the last generation.
+      parameters:
+        - name: x-email-token
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "201":
+          description: New prompt set generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PromptSet"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Business not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Profile not updated since last generation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /billing/subscribe:
+    post:
+      operationId: subscribeBusiness
+      tags: [billing]
+      summary: Create a Stripe Checkout or Portal session for a business
+      parameters:
+        - name: x-email-token
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubscribeBody"
+      responses:
+        "200":
+          description: Checkout or portal URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BillingRedirectResponse"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /billing/portal:
+    post:
+      operationId: createBillingPortal
+      tags: [billing]
+      summary: Create a Stripe Customer Portal session
+      parameters:
+        - name: x-email-token
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Portal URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BillingPortalResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /billing/status/{businessId}:
+    get:
+      operationId: getBillingStatus
+      tags: [billing]
+      summary: Get billing status for a business
+      parameters:
+        - name: x-email-token
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Billing status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BillingStatus"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Business not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+    EntitlementErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        entitlementCode:
+          type: string
+          enum:
+            - FREE_REPORT_ALREADY_USED
+            - SUBSCRIPTION_REQUIRED
+            - BUSINESS_PLAN_LIMIT_REACHED
+            - SUBSCRIPTION_INACTIVE
+            - BILLING_PERIOD_ENDED
+        periodEnd:
+          type: string
+          format: date-time
+          nullable: true
+        scansUsed:
+          type: number
+          nullable: true
+        scansLimit:
+          type: number
+          nullable: true
+      required:
+        - error
+        - entitlementCode
+    RateLimitResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        retryAfter:
+          type: number
+      required:
+        - error
+    SendOtpBody:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        turnstileToken:
+          type: string
+      required:
+        - email
+    SendOtpResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required:
+        - success
+        - message
+    VerifyOtpBody:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        code:
+          type: string
+      required:
+        - email
+        - code
+    VerifyOtpResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        emailToken:
+          type: string
+        userId:
+          type: string
+          nullable: true
+      required:
+        - success
+        - emailToken
+    CreateScanBody:
+      type: object
+      properties:
+        businessName:
+          type: string
+        businessType:
+          type: string
+        location:
+          type: string
+        description:
+          type: string
+        website:
+          type: string
+        businessId:
+          type: string
+      required:
+        - businessName
+        - businessType
+        - location
+        - businessId
+    Scan:
+      type: object
+      properties:
+        id:
+          type: string
+        businessName:
+          type: string
+        businessType:
+          type: string
+        location:
+          type: string
+        description:
+          type: string
+          nullable: true
+        website:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [pending, generating_prompts, scanning, completed, failed]
+        score:
+          type: number
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        businessId:
+          type: string
+          nullable: true
+        isFreeReport:
+          type: boolean
+      required:
+        - id
+        - businessName
+        - businessType
+        - location
+        - status
+        - createdAt
+    CachedScan:
+      type: object
+      properties:
+        id:
+          type: string
+        businessName:
+          type: string
+        businessType:
+          type: string
+        location:
+          type: string
+        description:
+          type: string
+          nullable: true
+        website:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [pending, generating_prompts, scanning, completed, failed]
+        score:
+          type: number
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        cached:
+          type: boolean
+      required:
+        - id
+        - businessName
+        - businessType
+        - location
+        - status
+        - createdAt
+        - cached
+    ScanPrompt:
+      type: object
+      properties:
+        id:
+          type: string
+        scanId:
+          type: string
+        prompt:
+          type: string
+        category:
+          type: string
+        audience:
+          type: string
+          enum: [individual, business]
+          nullable: true
+      required:
+        - id
+        - scanId
+        - prompt
+        - category
+    ScanResult:
+      type: object
+      properties:
+        id:
+          type: string
+        scanPromptId:
+          type: string
+        provider:
+          type: string
+          enum: [openai, anthropic, gemini]
+        response:
+          type: string
+        mentioned:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - scanPromptId
+        - provider
+        - response
+        - mentioned
+        - createdAt
+    ScanDetail:
+      type: object
+      properties:
+        scan:
+          $ref: "#/components/schemas/Scan"
+        prompts:
+          type: array
+          items:
+            type: object
+            properties:
+              prompt:
+                $ref: "#/components/schemas/ScanPrompt"
+              results:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ScanResult"
+            required:
+              - prompt
+              - results
+        recommendations:
+          type: array
+          items:
+            type: string
+      required:
+        - scan
+        - prompts
+        - recommendations
+    FirmLocation:
+      type: object
+      properties:
+        city:
+          type: string
+        state:
+          type: string
+        neighborhood:
+          type: string
+          nullable: true
+        isHQ:
+          type: boolean
+      required:
+        - city
+        - state
+        - isHQ
+    FirmPartner:
+      type: object
+      properties:
+        name:
+          type: string
+        title:
+          type: string
+        trackIndependently:
+          type: boolean
+      required:
+        - name
+        - title
+        - trackIndependently
+    FirmCompetitor:
+      type: object
+      properties:
+        name:
+          type: string
+        location:
+          type: string
+          nullable: true
+      required:
+        - name
+    CreateBusinessBody:
+      type: object
+      properties:
+        name:
+          type: string
+        website:
+          type: string
+          nullable: true
+        businessType:
+          type: string
+        location:
+          type: string
+        description:
+          type: string
+          nullable: true
+        legalName:
+          type: string
+          nullable: true
+        brandName:
+          type: string
+          nullable: true
+        firmType:
+          type: string
+          nullable: true
+        yearFounded:
+          type: number
+          nullable: true
+        partners:
+          type: array
+          items:
+            $ref: "#/components/schemas/FirmPartner"
+          nullable: true
+        locations:
+          type: array
+          items:
+            $ref: "#/components/schemas/FirmLocation"
+          nullable: true
+        geographicScope:
+          type: string
+          nullable: true
+        primaryServices:
+          type: array
+          items:
+            type: string
+          nullable: true
+        deliverables:
+          type: array
+          items:
+            type: string
+          nullable: true
+        specialties:
+          type: array
+          items:
+            type: string
+          nullable: true
+        industriesServed:
+          type: array
+          items:
+            type: string
+          nullable: true
+        clientStages:
+          type: array
+          items:
+            type: string
+          nullable: true
+        decisionMakers:
+          type: array
+          items:
+            type: string
+          nullable: true
+        directCompetitors:
+          type: array
+          items:
+            $ref: "#/components/schemas/FirmCompetitor"
+          nullable: true
+        rankings:
+          type: array
+          items:
+            type: object
+            properties:
+              source:
+                type: string
+              category:
+                type: string
+              year:
+                type: number
+            required: [source, category, year]
+          nullable: true
+        topGSCQueries:
+          type: array
+          items:
+            type: string
+          nullable: true
+        clientType:
+          type: string
+          nullable: true
+        individualServices:
+          type: array
+          items:
+            type: string
+          nullable: true
+        individualDeliverables:
+          type: array
+          items:
+            type: string
+          nullable: true
+        individualSpecialties:
+          type: array
+          items:
+            type: string
+          nullable: true
+        businessServices:
+          type: array
+          items:
+            type: string
+          nullable: true
+        businessDeliverables:
+          type: array
+          items:
+            type: string
+          nullable: true
+        businessSpecialties:
+          type: array
+          items:
+            type: string
+          nullable: true
+    BusinessSubscriptionInfo:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [active, past_due, canceled, incomplete]
+        currentPeriodEnd:
+          type: string
+          format: date-time
+        cancelAtPeriodEnd:
+          type: boolean
+      required:
+        - status
+        - currentPeriodEnd
+        - cancelAtPeriodEnd
+    BusinessUsageInfo:
+      type: object
+      properties:
+        scansUsed:
+          type: number
+        scansLimit:
+          type: number
+        periodEnd:
+          type: string
+          format: date-time
+      required:
+        - scansUsed
+        - scansLimit
+        - periodEnd
+    Business:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        website:
+          type: string
+          nullable: true
+        businessType:
+          type: string
+        location:
+          type: string
+        description:
+          type: string
+          nullable: true
+        legalName:
+          type: string
+          nullable: true
+        brandName:
+          type: string
+          nullable: true
+        firmType:
+          type: string
+          nullable: true
+        yearFounded:
+          type: number
+          nullable: true
+        locations:
+          nullable: true
+        primaryServices:
+          nullable: true
+        deliverables:
+          nullable: true
+        specialties:
+          nullable: true
+        industriesServed:
+          nullable: true
+        clientStages:
+          nullable: true
+        decisionMakers:
+          nullable: true
+        directCompetitors:
+          nullable: true
+        clientType:
+          type: string
+          nullable: true
+        individualServices:
+          nullable: true
+        individualDeliverables:
+          nullable: true
+        individualSpecialties:
+          nullable: true
+        businessServices:
+          nullable: true
+        businessDeliverables:
+          nullable: true
+        businessSpecialties:
+          nullable: true
+        profileUpdatedAt:
+          type: string
+          format: date-time
+          nullable: true
+        hasPromptSet:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        subscription:
+          $ref: "#/components/schemas/BusinessSubscriptionInfo"
+          nullable: true
+        usage:
+          $ref: "#/components/schemas/BusinessUsageInfo"
+          nullable: true
+      required:
+        - id
+        - name
+        - businessType
+        - location
+        - createdAt
+        - hasPromptSet
+    BusinessListResponse:
+      type: object
+      properties:
+        businesses:
+          type: array
+          items:
+            $ref: "#/components/schemas/Business"
+      required:
+        - businesses
+    SubscribeBody:
+      type: object
+      properties:
+        businessId:
+          type: string
+      required:
+        - businessId
+    BillingRedirectResponse:
+      type: object
+      properties:
+        url:
+          type: string
+        type:
+          type: string
+          enum: [checkout, portal]
+      required:
+        - url
+        - type
+    BillingPortalResponse:
+      type: object
+      properties:
+        url:
+          type: string
+      required:
+        - url
+    BillingStatus:
+      type: object
+      properties:
+        businessId:
+          type: string
+        isFree:
+          type: boolean
+        isPaid:
+          type: boolean
+        subscription:
+          $ref: "#/components/schemas/BusinessSubscriptionInfo"
+          nullable: true
+        usage:
+          $ref: "#/components/schemas/BusinessUsageInfo"
+          nullable: true
+      required:
+        - businessId
+        - isFree
+        - isPaid
+    PromptItem:
+      type: object
+      properties:
+        id:
+          type: string
+        category:
+          type: string
+        text:
+          type: string
+        sourceVariables:
+          type: object
+          additionalProperties: true
+        audience:
+          type: string
+          enum: [individual, business]
+          nullable: true
+      required:
+        - id
+        - category
+        - text
+        - sourceVariables
+    PromptSet:
+      type: object
+      properties:
+        id:
+          type: string
+        businessId:
+          type: string
+        generatedAt:
+          type: string
+          format: date-time
+        prompts:
+          type: array
+          items:
+            $ref: "#/components/schemas/PromptItem"
+        isLocked:
+          type: boolean
+        substitutionNotes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - businessId
+        - generatedAt
+        - prompts
+        - isLocked
+        - createdAt
+    SuggestCompetitorsBody:
+      type: object
+      properties:
+        firmType:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        primaryServices:
+          type: array
+          items:
+            type: string
+      required:
+        - firmType
+        - city
+        - state
+    SuggestCompetitorsResponse:
+      type: object
+      properties:
+        suggestions:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              location:
+                type: string
+                nullable: true
+            required:
+              - name
+      required:
+        - suggestions

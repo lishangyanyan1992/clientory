@@ -1,0 +1,150 @@
+We're replacing Clientory's existing firm intake flow and prompt generation flow. This is a one-shot cutover for those two surfaces only.
+
+DO NOT TOUCH:
+- Auth / login / signup flows
+- Stripe / payment / billing logic
+- Subscription tier checks or paywall gating
+- The existing dashboard layout, navigation, or any feature outside intake and prompt generation
+- Account settings, profile (account-level, not firm-level), or notification preferences
+
+If a code path you're editing imports from auth or billing, route around it — do not refactor it.
+
+The 10 generated prompts are IMMUTABLE once created. The user cannot edit, toggle, regenerate, or add prompts. This is a deliberate product decision. Do not build any edit affordances anywhere in the UI.
+
+=== STEP 1: AUDIT FIRST ===
+
+Before writing any code, inspect the codebase and report back:
+1. Where the current firm intake form lives (file paths, components, routes)
+2. The current `FirmProfile` (or equivalent) data model — list every field and type
+3. Where the current prompt generation logic lives, and how prompts are currently generated
+4. How prompts are stored and tied to a firm
+5. Which existing fields can be mapped 1:1 to the new schema, and which need user re-entry
+6. Any existing UI that lets users edit or regenerate prompts — flag for removal
+7. Confirm which files / routes are auth- or payment-related so we know what to avoid
+
+Don't proceed until you've shown me this audit summary. I'll confirm, then you continue.
+
+=== STEP 2: REPLACE THE DATA MODEL ===
+
+Replace the existing FirmProfile schema with this one. Migrate existing data where field mapping is direct; null-out new fields.
+
+- legalName: string
+- brandName: string
+- firmType: enum ("law", "accounting", "consulting", "marketing_agency", "other")
+- yearFounded: number
+
+- partners: { name, title, trackIndependently: bool }[]
+  (track an individual partner with their own brand-direct prompts — prospects often search "Jane Smith Madison estate lawyer" before they search the firm)
+
+- locations: { city, state, neighborhood?, isHQ }[]
+- geographicScope: enum ("local", "regional", "multi_state", "national")
+
+- primaryServices: string[]
+- deliverables: string[]
+  (granular — not "tax" but "R&D credit studies", "IRS audit defense", "sales tax nexus". Biggest driver of prompt quality.)
+- specialties: string[]
+  (service × niche intersections, e.g. "tax for cannabis businesses", "SaaS M&A under $50M")
+
+- industriesServed: string[]
+- clientStages: enum[] ("pre_seed", "seed", "series_a_plus", "established_sme", "enterprise", "individual", "family_business")
+- decisionMakers: enum[] ("founder", "ceo", "cfo", "general_counsel", "coo", "individual", "head_of_finance")
+
+- directCompetitors: { name, location? }[]  
+  (5–15 firms, OPTIONAL field. Stored for future use. NOT used in v1 prompt generation. Do not surface "this will be used to generate comparison prompts" copy in the UI — instead say "We'll use this in future releases to track how you stack up against competitors.")
+
+- rankings: { source, category, year }[]
+- authoritySignals: { directoryListings: string[], publications: string[], podcasts: string[], conferences: string[] }
+- topGSCQueries: string[]  (optional paste-in)
+
+PromptSet schema:
+- firmProfileId: string
+- generatedAt: timestamp
+- prompts: { id, category, text, sourceVariables: object }[]
+- isLocked: bool (always true after creation — enforce at the API layer, not just UI)
+
+=== STEP 3: REPLACE THE INTAKE UX ===
+
+Delete the existing intake form. Build a new multi-step form. Apply these:
+
+1. Specificity nudge on the services step. If the user enters only top-level services (one or two words like "tax" or "litigation"), show inline: "Most firms describe services too vaguely. What's the most specific deliverable you handle? E.g. not 'tax' but 'sales tax nexus studies for SaaS companies.'" Nudge, don't block.
+
+2. Partners section with a per-partner "track this person independently in LLM searches" toggle. Default off. Tooltip explains why.
+
+3. Competitors section — OPTIONAL, can be fully skipped. Suggest 3–5 likely competitors via Anthropic API (claude-haiku-4-5) using firm type + primary location + services as input. User accepts/edits/adds. Label the section: "Competitors (optional — saved for future visibility tracking)." Do not block progression.
+
+4. Save-and-resume on every step (localStorage if unauthed, DB if authed).
+
+5. Migration handling for existing firms: pre-fill mapped fields. Do NOT force users into intake on next login and do NOT gate the dashboard. Instead, surface a persistent dismissable banner on the dashboard: "We've upgraded how Clientory understands your firm. Spend 5 minutes updating your profile to get sharper prompts and better visibility data. [Update profile]." Old prompt sets remain visible until they regenerate.
+
+6. Final step before generation: a "ready to generate your prompts?" confirmation. Copy: "We'll generate 10 test prompts based on your profile. These are locked once created — if you need different prompts later, update your firm profile to regenerate the set."
+
+7. Brand: white cards on soft blue-grey gradient, #2563EB primary, Inter typeface.
+
+=== STEP 4: REPLACE THE PROMPT GENERATOR ===
+
+Delete the existing generator. Build a new combinatorial engine that produces exactly 10 prompts per firm, distributed across these 5 categories:
+
+1. BRAND_DIRECT — 1 prompt
+   "Tell me about {brandName}" OR "Is {brandName} a reputable {firmType} firm?" (pick whichever is more natural-sounding for the firm).
+
+2. CATEGORY_GEO — 3 prompts
+   Templates: "best {service} {firmType} in {city}, {state}" / "top {firmType} for {industry} in {city}" / "leading {service} firms in {state}"
+   Use the HQ location and the firm's #1 and #2 primary services. Generate one prompt per service-location pair, varying template.
+
+3. SPECIALTY_LONGTAIL — 2 prompts
+   Templates: "{firmType} who handle {specialty}" / "{firmType} specializing in {deliverable} for {industry}"
+   Pick the 2 most distinctive specialties/deliverables (most specific, least generic).
+
+4. PROBLEM_SYMPTOM — 3 prompts
+   Map deliverables to the triggering problem a prospect would describe. Seed a static map of 30 common deliverables across law / accounting / consulting / marketing. Examples:
+   - "IRS audit defense" → "I got an IRS audit notice for my LLC, what should I do?"
+   - "trademark registration" → "Someone is using my brand name, what are my options?"
+   - "M&A advisory" → "We got an acquisition offer, who should we talk to?"
+   - "sales tax nexus" → "I'm selling SaaS in 30 states and just got a sales tax letter, help"
+   For deliverables not in the static map, call Claude Haiku to generate a realistic symptom query. Cache results.
+   Pick 3 deliverables that produce the highest-signal symptom prompts (most specific, most distinctive). Avoid clustering on the same service area — spread across different deliverables for better coverage.
+
+5. PERSONA_DRIVEN — 1 prompt
+   Template: "I'm a {decisionMaker} at a {clientStage} {industry} company in {state}, who should I hire for {service}?"
+   Use the firm's most common decisionMaker + clientStage + industry + primary service.
+
+Generation rules:
+- Reject and regenerate any prompt outside 4–30 words.
+- Never include the firm's own name in CATEGORY_GEO, SPECIALTY, PERSONA, or PROBLEM_SYMPTOM — those test discovery, not brand recall.
+- If the firm hasn't entered enough data for a category (e.g. only 1 distinctive specialty), redistribute the missing slot to PROBLEM_SYMPTOM or CATEGORY_GEO. Show the user a one-line note on the display screen explaining the substitution.
+- The competitors field is collected but NOT used in v1 generation. Do not generate any COMPARISON prompts even if competitors are present.
+- Because prompts are locked after creation, the generator must be conservative: prefer the highest-confidence template and variable choice for each slot. No experimental variants.
+
+Note in code comments: this is v1 at 10 prompts, 5 categories. Architecture should accommodate (a) scaling to 100–200 prompts later, (b) re-enabling COMPARISON when competitor-driven prompts are added in v2, and (c) adding SERVICE_EXPLANATORY, VALIDATION, COST_PRICING categories.
+
+=== STEP 5: PROMPT DISPLAY (READ-ONLY) ===
+
+After generation, show the 10 prompts grouped by category in a clean read-only view. For each category group:
+- Category name + one-line explainer (e.g. "These test how prospects discover firms like yours when searching by service + location")
+- The prompts under that category, displayed as cards
+- No buttons. No toggles. No edit icons. No regenerate. No "add your own."
+
+At the bottom, a single primary CTA: "Start testing across LLMs" (routes to existing testing flow).
+
+Above the list, a small note: "These 10 prompts are locked. To get a different set, update your firm profile and regenerate." Link "update your firm profile" goes to intake.
+
+Enforce immutability at the API layer too: any PATCH/PUT request to a prompt or prompt set should return 405. Only DELETE (full prompt set, triggered by profile change → regen) and GET are allowed on existing sets.
+
+=== STEP 6: REGENERATION FLOW ===
+
+Since users can't edit prompts directly, the only path to a new set is via profile change. Implement:
+
+- On the firm profile page, a "Regenerate prompts" button. Only enabled if the profile has been edited since the current prompt set was generated.
+- Clicking it: archives the current PromptSet to `legacy_prompt_sets`, generates a new one, routes to the read-only display.
+- Confirmation modal: "This will replace your current 10 prompts. The old set will be archived. Continue?"
+
+=== STEP 7: CUTOVER ===
+
+- Delete the old intake form and old generator (after audit confirms what's safe to remove).
+- Delete any existing prompt-edit UI components.
+- Migrate existing FirmProfile rows: map what maps, null the rest.
+- Archive existing PromptSets to a `legacy_prompt_sets` table.
+- Do NOT modify auth, login, signup, billing, or paywall code. Existing users stay logged in with current sessions intact.
+- Surface the upgrade via a dashboard banner (see Step 3 item 5), not via forced routing.
+
+Start with Step 1. Show me the audit before you write any code.

@@ -1,0 +1,18 @@
+packages:
+  "framer-motion": "Animations for smooth page transitions and progress indicators"
+  "recharts": "Bar charts and data visualization for scan results"
+  "lucide-react": "Beautiful consistent icons"
+  "react-hook-form": "Form state management"
+  "@hookform/resolvers": "Zod validation resolver for forms"
+  "zod": "Schema validation for forms"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility for merging tailwind classes safely"
+
+images:
+  - path: "artifacts/clientory/public/images/hero-bg.png"
+    description: "Abstract soft gradient mesh in clean minimal indigo, blue, and purple tones, very professional and subtle, modern tech feel, high resolution"
+    aspect_ratio: "16:9"
+
+notes:
+  - React Query hooks are imported from @workspace/api-client-react
+  - SSE progress stream expects JSON chunks, possibly with a 'done: true' final chunk
