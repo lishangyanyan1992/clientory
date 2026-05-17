@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import logoFull from "@/assets/logo-full.png";
+import { clientoryAppUrl } from "@/lib/clientory-app-url";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -25,7 +26,7 @@ const Navbar = () => {
           <a href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Blog</a>
           <a href="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">About</a>
           <a href="/geo-for-professional-services" className="text-sm text-muted-foreground hover:text-foreground transition-colors">GEO Guide</a>
-          <a href="https://clientoryapp.lovable.app" target="_blank" rel="noopener noreferrer">
+          <a href={clientoryAppUrl}>
             <Button size="sm" className="rounded-full px-5">Try It Now</Button>
           </a>
         </div>
@@ -42,7 +43,7 @@ const Navbar = () => {
           <a href="/blog" className="block text-sm text-muted-foreground" onClick={() => setOpen(false)}>Blog</a>
           <a href="/about" className="block text-sm text-muted-foreground" onClick={() => setOpen(false)}>About</a>
           <a href="/geo-for-professional-services" className="block text-sm text-muted-foreground" onClick={() => setOpen(false)}>GEO Guide</a>
-          <a href="https://clientoryapp.lovable.app" target="_blank" rel="noopener noreferrer">
+          <a href={clientoryAppUrl}>
             <Button size="sm" className="w-full rounded-full mt-2">Try It Now</Button>
           </a>
         </div>

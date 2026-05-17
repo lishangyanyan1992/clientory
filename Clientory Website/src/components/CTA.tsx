@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { clientoryAppUrl } from "@/lib/clientory-app-url";
 
 const CTA = () => {
   return (
@@ -26,7 +27,7 @@ const CTA = () => {
             <p className="text-lg text-white/70 max-w-xl mx-auto mb-10 leading-relaxed">
               Join the firms that are getting ahead of the AI visibility curve. Get early access to Clientory and start showing up where it matters.
             </p>
-            <a href="https://clientoryapp.lovable.app" target="_blank" rel="noopener noreferrer">
+            <a href={clientoryAppUrl}>
               <Button 
                 size="lg" 
                 className="bg-white text-primary hover:bg-white/90 text-base px-10 h-14 rounded-full font-semibold shadow-lg"

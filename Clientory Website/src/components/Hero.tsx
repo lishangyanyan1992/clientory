@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import AIDashboard from "@/components/AIDashboard";
+import { clientoryAppUrl } from "@/lib/clientory-app-url";
 
 const Hero = () => {
   return (
@@ -41,7 +42,7 @@ const Hero = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a href="https://clientoryapp.lovable.app" target="_blank" rel="noopener noreferrer">
+            <a href={clientoryAppUrl}>
               <Button size="lg" className="text-base px-8 h-14 rounded-full font-semibold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300">
                 Try It Now
                 <ArrowRight className="w-4 h-4 ml-2" />
