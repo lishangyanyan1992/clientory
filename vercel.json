@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "installCommand": "cd \"Clientory Website\" && npm install",
+  "buildCommand": "cd \"Clientory Website\" && npm run build",
+  "outputDirectory": "Clientory Website/dist",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
