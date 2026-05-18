@@ -16,10 +16,12 @@ else
   COREPACK_BIN="$NODE_DIR/corepack"
 fi
 
+PNPM_VERSION=$("$COREPACK_BIN" pnpm --version)
+
 ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 
 cd "$ROOT_DIR/Clientory Website"
 "$NPM_BIN" install
 
 cd "$ROOT_DIR/Clientory App"
-"$COREPACK_BIN" pnpm install
+npm_config_user_agent="pnpm/$PNPM_VERSION" "$COREPACK_BIN" pnpm install
