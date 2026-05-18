@@ -173,9 +173,12 @@
   background-image: var(--gradient-accent);
 }
 
-/* Legacy alias — kept for existing usage */
+/* Legacy alias — expanded inline for Tailwind v4 @apply compatibility */
 .gradient-text {
-  @apply text-gradient;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  background-image: var(--gradient-primary);
 }
 
 .bg-gradient-glow {
