@@ -95,6 +95,19 @@
   --brand-indigo: 239 84% 67%;
   --brand-emerald: 160 84% 39%;
 
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, hsl(224 76% 33%), hsl(239 84% 67%));
+  --gradient-accent: linear-gradient(135deg, hsl(239 84% 67%), hsl(160 84% 39%));
+  --gradient-hero: linear-gradient(135deg, hsl(224 76% 33%), hsl(239 84% 60%));
+  --gradient-subtle: linear-gradient(180deg, hsl(210 14% 98%), hsl(0 0% 100%));
+  --gradient-glow: radial-gradient(ellipse 80% 50% at 50% -20%, hsl(239 84% 67% / 0.15), transparent);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px 0 hsl(224 76% 33% / 0.06), 0 1px 2px -1px hsl(224 76% 33% / 0.06);
+  --shadow-md: 0 4px 14px -2px hsl(224 76% 33% / 0.08), 0 2px 6px -2px hsl(224 76% 33% / 0.04);
+  --shadow-lg: 0 10px 30px -6px hsl(224 76% 33% / 0.12), 0 4px 10px -4px hsl(224 76% 33% / 0.06);
+  --shadow-glow: 0 0 60px -10px hsl(239 84% 67% / 0.25);
+
   --radius: 0.75rem;
 }
 
@@ -104,7 +117,7 @@
 
   --border: 216 34% 17%;
   --input: 216 34% 17%;
-  --ring: 243 75% 59%;
+  --ring: 239 84% 67%;
 
   --card: 222 47% 11%;
   --card-foreground: 210 40% 98%;
@@ -146,9 +159,34 @@
 }
 
 .glass-panel {
-  @apply bg-white/70 backdrop-blur-xl border border-white/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:bg-slate-900/70 dark:border-slate-800/50;
+  @apply bg-card/70 backdrop-blur-xl border border-border/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)];
 }
 
+/* Matches website's text-gradient utility */
+.text-gradient {
+  @apply bg-clip-text text-transparent;
+  background-image: var(--gradient-primary);
+}
+
+.text-gradient-accent {
+  @apply bg-clip-text text-transparent;
+  background-image: var(--gradient-accent);
+}
+
+/* Legacy alias — kept for existing usage */
 .gradient-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_auto] animate-pulse;
+  @apply text-gradient;
+}
+
+.bg-gradient-glow {
+  background-image: var(--gradient-glow);
+}
+
+.card-hover {
+  @apply transition-all duration-300 ease-out;
+}
+
+.card-hover:hover {
+  @apply border-primary/20 -translate-y-0.5;
+  box-shadow: var(--shadow-lg);
 }
