@@ -15,6 +15,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
+        display: ["Outfit", "Inter", "system-ui", "sans-serif"],
         mono: ["JetBrains Mono", "monospace"],
       },
       colors: {
@@ -50,6 +51,11 @@ export default {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+        },
+        brand: {
+          navy: "hsl(var(--brand-navy))",
+          indigo: "hsl(var(--brand-indigo))",
+          emerald: "hsl(var(--brand-emerald))",
         },
         score: {
           poor: "hsl(var(--score-poor))",
