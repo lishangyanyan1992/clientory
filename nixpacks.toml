@@ -11,10 +11,11 @@ providers = []
 nixPkgs = ["nodejs_20"]
 
 [phases.install]
-# pnpm@11 requires Node.js >=22.13; pnpm@10 supports >=18 and reads v9 lockfiles.
-# npm installs pnpm to $(npm prefix -g)/bin which is not in PATH in the Nix
-# environment, so we prepend it explicitly before calling install-railway.sh.
-cmds = ["npm install -g pnpm@10 && PATH=$(npm prefix -g)/bin:$PATH sh ./install-railway.sh"]
+# Use npx to run pnpm without installing it globally — avoids the npm global
+# bin PATH problem in the Nix environment.  pnpm@10 supports Node.js >=18
+# and reads v9 lockfiles. CI=true (set by Railway) lets the preinstall guard
+# pass without needing npm_config_user_agent.
+cmds = ["cd 'Clientory App' && npx --yes pnpm@10 install --frozen-lockfile"]
 
 [phases.build]
 cmds = ["sh ./build-railway.sh"]
