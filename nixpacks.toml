@@ -8,7 +8,7 @@
 providers = []
 
 [phases.setup]
-nixPkgs = ["nodejs_22"]
+nixPkgs = ["nodejs_20"]
 
 [phases.install]
 cmds = ["npm install -g pnpm", "sh ./install-railway.sh"]
