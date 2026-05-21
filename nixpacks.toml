@@ -1,13 +1,17 @@
 # Explicitly declare Node.js so Nixpacks doesn't auto-detect Deno.
 # The package.json that drives pnpm lives inside "Clientory App/", not at the
 # repo root, which is why auto-detection fails.
+#
+# We install pnpm via npm rather than corepack because there is no
+# packageManager field in package.json, which causes corepack to stall
+# or fail in CI when trying to resolve the correct pnpm version.
 providers = []
 
 [phases.setup]
 nixPkgs = ["nodejs_22"]
 
 [phases.install]
-cmds = ["corepack enable", "sh ./install-vercel.sh"]
+cmds = ["npm install -g pnpm", "sh ./install-railway.sh"]
 
 [phases.build]
 cmds = ["sh ./build-railway.sh"]
