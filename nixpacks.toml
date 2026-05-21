@@ -11,7 +11,10 @@ providers = []
 nixPkgs = ["nodejs_20"]
 
 [phases.install]
-cmds = ["npm install -g pnpm", "sh ./install-railway.sh"]
+# pnpm@11 requires Node.js >=22.13; pnpm@10 supports >=18 and reads v9 lockfiles.
+# Combine into one cmd so pnpm is on PATH when install-railway.sh runs
+# (separate Docker RUN layers don't inherit each other's installed binaries reliably).
+cmds = ["npm install -g pnpm@10 && sh ./install-railway.sh"]
 
 [phases.build]
 cmds = ["sh ./build-railway.sh"]
