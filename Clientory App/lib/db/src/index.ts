@@ -10,7 +10,14 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+export const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  // Supabase session/transaction poolers use an intermediate CA that Node.js
+  // can't verify. Disable strict cert checking when DATABASE_NO_SSL_VERIFY=1.
+  ...(process.env.DATABASE_NO_SSL_VERIFY === "1"
+    ? { ssl: { rejectUnauthorized: false } }
+    : {}),
+});
 export const db = drizzle(pool, { schema });
 
 export * from "./schema";
