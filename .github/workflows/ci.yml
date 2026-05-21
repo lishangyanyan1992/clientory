@@ -43,3 +43,7 @@ jobs:
       - name: Type check
         working-directory: 'Clientory App'
         run: pnpm run typecheck
+
+      - name: Audit dependencies
+        working-directory: 'Clientory App'
+        run: pnpm audit --audit-level=high
