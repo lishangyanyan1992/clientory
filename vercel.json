@@ -3,12 +3,8 @@
   "framework": "vite",
   "installCommand": "sh ./install-vercel.sh",
   "buildCommand": "sh ./build-vercel.sh",
-  "outputDirectory": "Clientory Website/dist",
+  "outputDirectory": "Clientory App/artifacts/clientory/dist/public",
   "rewrites": [
-    {
-      "source": "/app/:path*",
-      "destination": "/app/index.html"
-    },
     {
       "source": "/(.*)",
       "destination": "/index.html"

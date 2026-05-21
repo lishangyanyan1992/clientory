@@ -5,6 +5,7 @@ export const usersTable = pgTable("users", {
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified").notNull().default(false),
   isAdmin: boolean("is_admin").notNull().default(false),
+  passwordHash: text("password_hash"),
   stripeCustomerId: text("stripe_customer_id"),
   freeReportUsedAt: timestamp("free_report_used_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),

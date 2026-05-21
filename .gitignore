@@ -2,12 +2,10 @@
 **/.DS_Store
 
 # Frontend dependencies and build output
-Clientory Website/node_modules/
-Clientory Website/dist/
-Clientory Website/dist-ssr/
+Clientory App/artifacts/clientory/dist/
 
 # Local environment files
-Clientory Website/.env
-Clientory Website/.env.*
 Clientory App - Prototype/.env
 Clientory App - Prototype/.env.*
+Clientory App/.env
+Clientory App/.env.*

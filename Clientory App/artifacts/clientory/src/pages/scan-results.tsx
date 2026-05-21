@@ -121,7 +121,7 @@ function AudienceScore({ audience, prompts }: { audience: "individual" | "busine
 
   const isIndividual = audience === "individual";
   const Icon = isIndividual ? Users : Building2;
-  const label = isIndividual ? "Individual Clients" : "Business Clients";
+  const label = isIndividual ? "Family / Individual Immigration" : "Employer-Sponsored Immigration";
 
   let scoreColor = "text-destructive";
   if (score >= 40) scoreColor = "text-accent";
@@ -167,7 +167,7 @@ function PromptBreakdown({ prompts }: { prompts: PromptWithResults[] }) {
       <div>
         <div className="flex items-center gap-2 mb-4">
           <Users className="w-5 h-5 text-primary" />
-          <h3 className="text-lg font-semibold">Individual Client Searches</h3>
+          <h3 className="text-lg font-semibold">Family / Individual Immigration Searches</h3>
         </div>
         <div className="grid gap-6">
           {individualPrompts.map((p, i) => (
@@ -179,7 +179,7 @@ function PromptBreakdown({ prompts }: { prompts: PromptWithResults[] }) {
       <div>
         <div className="flex items-center gap-2 mb-4">
           <Building2 className="w-5 h-5 text-primary" />
-          <h3 className="text-lg font-semibold">Business Client Searches</h3>
+          <h3 className="text-lg font-semibold">Employer-Sponsored Immigration Searches</h3>
         </div>
         <div className="grid gap-6">
           {businessPrompts.map((p, i) => (
@@ -370,7 +370,7 @@ export default function ScanResults() {
               <ScoreGauge score={scan.score || 0} />
               <p className="text-center text-sm text-muted-foreground mt-6 px-4">
                 This score represents how often your firm was mentioned when we asked AI assistants for
-                recommendations in your practice area.
+                recommendations in your immigration practice areas.
               </p>
               {hasAudienceBreakdown && individualScore !== null && businessScore !== null && (
                 <div className="w-full mt-5 space-y-2">

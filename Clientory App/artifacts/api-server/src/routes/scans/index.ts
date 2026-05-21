@@ -12,7 +12,6 @@ import {
   businessUsagePeriodsTable,
 } from "@workspace/db/schema";
 import { eq, and, lte, gte, isNull, sql, gt } from "drizzle-orm";
-import { runScan, generateRecommendations } from "./engine";
 import { EventEmitter } from "events";
 import { verifyEmailToken } from "../../services/otp";
 import { validateScanInput } from "../../services/validation";
@@ -23,6 +22,10 @@ import { checkScanEntitlement } from "../../services/entitlement";
 const router: IRouter = Router();
 
 const scanEmitters = new Map<number, EventEmitter>();
+
+async function getScanEngine() {
+  return import("./engine");
+}
 
 router.post("/scans", async (req, res) => {
   try {
@@ -169,6 +172,8 @@ router.post("/scans", async (req, res) => {
     const appBaseUrl = `https://${process.env.REPLIT_DEV_DOMAIN || process.env.REPL_SLUG + ".repl.co"}`;
     let paidUsageTracked = false;
     let scanningPhaseStarted = false;
+
+    const { runScan } = await getScanEngine();
 
     runScan(scan.id, (event) => {
       if (event.type === "scanning" && !scanningPhaseStarted) {
@@ -317,6 +322,7 @@ router.post("/scans", async (req, res) => {
                 ? { individual: computeAudienceScore(indivStats), business: computeAudienceScore(bizStats) }
                 : undefined;
 
+            const { generateRecommendations } = await getScanEngine();
             const recs = generateRecommendations(
               event.score ?? 0,
               scan.businessName,
@@ -445,7 +451,13 @@ router.get("/scans/:id", async (req, res) => {
 
     const recommendations =
       hasPaidSubscription && scan.status === "completed"
-        ? generateRecommendations(scan.score ?? 0, scan.businessName, scan.businessType, mentionsByProvider, prompts.length)
+        ? (await getScanEngine()).generateRecommendations(
+            scan.score ?? 0,
+            scan.businessName,
+            scan.businessType,
+            mentionsByProvider,
+            prompts.length,
+          )
         : [];
 
     res.json({

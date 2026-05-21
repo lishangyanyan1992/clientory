@@ -20,7 +20,14 @@ import type {
 } from "@workspace/db/schema";
 
 const router: IRouter = Router();
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+function getAnthropicClient(): Anthropic {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    throw new Error("ANTHROPIC_API_KEY is not configured");
+  }
+  return new Anthropic({ apiKey });
+}
 
 async function upsertUser(verifiedEmail: string) {
   const [user] = await db
@@ -124,7 +131,7 @@ router.post("/businesses/suggest-competitors", async (req, res) => {
     const servicesStr = primaryServices?.length ? ` that handles ${primaryServices.slice(0, 3).join(", ")}` : "";
     const prompt = `Suggest 3-5 real, specific competing professional firms for a ${firmType.replace(/_/g, " ")} firm in ${city}, ${state}${servicesStr}. Return ONLY a JSON array of objects with "name" (string) and "location" (optional string like "City, State") fields. No explanation, no markdown.`;
 
-    const message = await anthropic.messages.create({
+    const message = await getAnthropicClient().messages.create({
       model: "claude-haiku-4-5",
       max_tokens: 512,
       messages: [{ role: "user", content: prompt }],

@@ -1,10 +1,19 @@
 import { Router, type IRouter } from "express";
-import { createOtp, verifyOtp, createEmailToken } from "../../services/otp";
+import {
+  createOtp,
+  verifyOtp,
+  createEmailToken,
+  createVerifiedToken,
+  verifyVerifiedToken,
+  hashPassword,
+  verifyPassword,
+} from "../../services/otp";
 import { verifyTurnstile, isTurnstileConfigured } from "../../services/turnstile";
 import { checkRateLimit, hashIp, getClientIp } from "../../services/rate-limit";
 import { db } from "@workspace/db";
 import { usersTable } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
+
 
 const router: IRouter = Router();
 
@@ -112,11 +121,63 @@ router.post("/auth/verify-otp", async (req, res) => {
       })
       .returning();
 
-    const token = createEmailToken(normalizedEmail);
-    res.json({ success: true, emailToken: token, userId: user ? String(user.id) : undefined });
+    const verifiedToken = createVerifiedToken(normalizedEmail);
+    res.json({
+      success: true,
+      verifiedToken,
+      hasPassword: !!(user?.passwordHash),
+    });
   } catch (err) {
     console.error("verify-otp error:", err);
     res.status(500).json({ error: "Verification failed" });
+  }
+});
+
+router.post("/auth/submit-password", async (req, res) => {
+  try {
+    const { verifiedToken, password } = req.body as { verifiedToken?: string; password?: string };
+
+    if (!verifiedToken || !password) {
+      res.status(400).json({ error: "verifiedToken and password are required" });
+      return;
+    }
+
+    if (password.length < 8) {
+      res.status(400).json({ error: "Password must be at least 8 characters" });
+      return;
+    }
+
+    const email = verifyVerifiedToken(verifiedToken);
+    if (!email) {
+      res.status(400).json({ error: "Session expired. Please verify your email again." });
+      return;
+    }
+
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.email, email));
+    if (!user) {
+      res.status(400).json({ error: "User not found. Please verify your email again." });
+      return;
+    }
+
+    if (user.passwordHash) {
+      const correct = await verifyPassword(password, user.passwordHash);
+      if (!correct) {
+        res.status(400).json({ error: "Incorrect password" });
+        return;
+      }
+    } else {
+      const hashed = await hashPassword(password);
+      await db
+        .update(usersTable)
+        .set({ passwordHash: hashed, updatedAt: new Date() })
+        .where(eq(usersTable.email, email));
+    }
+
+    const emailToken = createEmailToken(email);
+    res.json({ success: true, emailToken, userId: String(user.id) });
+  } catch (err) {
+    console.error("submit-password error:", err);
+    res.status(500).json({ error: "Failed to process password" });
   }
 });
 

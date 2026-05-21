@@ -80,7 +80,7 @@ export default function BillingSettings() {
       })
       .catch((err) => {
         console.error(err);
-        setError("Failed to load businesses. Please verify your email first.");
+        setError("Failed to load firms. Please verify your email first.");
       })
       .finally(() => setLoading(false));
   }, [emailToken]);
@@ -135,7 +135,7 @@ export default function BillingSettings() {
             <h1 className="text-2xl font-bold">Billing & Subscriptions</h1>
           </div>
           <p className="text-muted-foreground mb-8">
-            Manage your business subscriptions and scan allowances.
+            Manage your firm subscriptions and scan allowances.
           </p>
 
           {error && (
@@ -169,15 +169,15 @@ export default function BillingSettings() {
               <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
                 <Building2 className="w-8 h-8 text-primary" />
               </div>
-              <h2 className="text-xl font-semibold mb-2">No businesses yet</h2>
+              <h2 className="text-xl font-semibold mb-2">No firms yet</h2>
               <p className="text-muted-foreground mb-6">
-                Run your first scan to create a business profile, then subscribe for ongoing monitoring.
+                Run your first scan to create an immigration firm profile, then subscribe for ongoing monitoring.
               </p>
               <Link
                 to="/scan"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold bg-gradient-to-r from-primary to-accent text-white"
               >
-                Scan Your Business <ArrowRight className="w-4 h-4" />
+                Scan Your Firm <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           ) : (
@@ -291,11 +291,11 @@ export default function BillingSettings() {
               </li>
               <li className="flex items-center gap-2">
                 <Check className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-                {BILLING_PRICE_LABEL} per business for ongoing monitoring
+                {BILLING_PRICE_LABEL} per firm for ongoing monitoring
               </li>
               <li className="flex items-center gap-2">
                 <Check className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-                {BILLING_CONFIG.scansPerCycle} scans per billing cycle per business
+                {BILLING_CONFIG.scansPerCycle} scans per billing cycle per firm
               </li>
               <li className="flex items-center gap-2">
                 <Check className="w-3.5 h-3.5 text-primary flex-shrink-0" />

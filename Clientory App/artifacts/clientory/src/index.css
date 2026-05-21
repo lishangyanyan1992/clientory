@@ -49,12 +49,12 @@
 }
 
 :root {
-  --background: 210 40% 98%;
+  --background: 210 40% 98.8%;
   --foreground: 222 47% 11%;
-  
+
   --border: 214 32% 91%;
   --input: 214 32% 91%;
-  --ring: 243 75% 59%;
+  --ring: 239 84% 67%;
 
   --card: 0 0% 100%;
   --card-foreground: 222 47% 11%;
@@ -64,60 +64,77 @@
   --popover-foreground: 222 47% 11%;
   --popover-border: 214 32% 91%;
 
-  /* Beautiful Indigo/Purple primary */
-  --primary: 243 75% 59%;
-  --primary-foreground: 210 40% 98%;
+  --primary: 239 84% 67%;
+  --primary-foreground: 0 0% 100%;
 
-  /* Soft violet secondary */
-  --secondary: 250 85% 96%;
-  --secondary-foreground: 250 60% 30%;
+  --secondary: 239 84% 96%;
+  --secondary-foreground: 239 84% 30%;
 
-  --muted: 210 40% 96%;
+  --muted: 214 32% 91%;
   --muted-foreground: 215 16% 47%;
 
-  --accent: 270 70% 60%;
-  --accent-foreground: 210 40% 98%;
+  --accent: 160 84% 39%;
+  --accent-foreground: 0 0% 100%;
 
   --destructive: 0 84% 60%;
   --destructive-foreground: 210 40% 98%;
-  
+
   --success: 142 71% 45%;
   --success-foreground: 210 40% 98%;
 
   --radius: 0.75rem;
+
+  --brand-navy: 224 76% 33%;
+  --brand-indigo: 239 84% 67%;
+  --brand-emerald: 160 84% 39%;
+  --brand-slate: 222 47% 11%;
+  --brand-gray: 215 16% 47%;
+  --brand-light: 210 40% 98.8%;
+  --brand-surface: 0 0% 100%;
+
+  --gradient-primary: linear-gradient(135deg, hsl(224 76% 33%), hsl(239 84% 67%));
+  --gradient-accent: linear-gradient(135deg, hsl(239 84% 67%), hsl(160 84% 39%));
+  --gradient-hero: linear-gradient(135deg, hsl(224 76% 33%), hsl(239 84% 60%));
+  --gradient-subtle: linear-gradient(180deg, hsl(210 40% 98.8%), hsl(0 0% 100%));
+  --gradient-glow: radial-gradient(ellipse 80% 50% at 50% -20%, hsl(239 84% 67% / 0.18), transparent);
+
+  --shadow-sm: 0 1px 3px 0 hsl(224 76% 33% / 0.06), 0 1px 2px -1px hsl(224 76% 33% / 0.06);
+  --shadow-md: 0 4px 14px -2px hsl(224 76% 33% / 0.08), 0 2px 6px -2px hsl(224 76% 33% / 0.04);
+  --shadow-lg: 0 10px 30px -6px hsl(224 76% 33% / 0.12), 0 4px 10px -4px hsl(224 76% 33% / 0.06);
+  --shadow-glow: 0 0 60px -10px hsl(239 84% 67% / 0.25);
 }
 
 .dark {
-  --background: 222 47% 11%;
+  --background: 222 47% 5%;
   --foreground: 210 40% 98%;
 
-  --border: 216 34% 17%;
-  --input: 216 34% 17%;
-  --ring: 243 75% 59%;
+  --border: 217 33% 17%;
+  --input: 217 33% 17%;
+  --ring: 239 84% 67%;
 
-  --card: 222 47% 11%;
+  --card: 222 47% 7%;
   --card-foreground: 210 40% 98%;
-  --card-border: 216 34% 17%;
+  --card-border: 217 33% 17%;
 
-  --popover: 222 47% 11%;
+  --popover: 222 47% 7%;
   --popover-foreground: 210 40% 98%;
-  --popover-border: 216 34% 17%;
+  --popover-border: 217 33% 17%;
 
-  --primary: 243 75% 59%;
-  --primary-foreground: 210 40% 98%;
+  --primary: 239 84% 67%;
+  --primary-foreground: 0 0% 100%;
 
-  --secondary: 217 32% 17%;
+  --secondary: 222 47% 15%;
   --secondary-foreground: 210 40% 98%;
 
-  --muted: 217 32% 17%;
-  --muted-foreground: 215 20.2% 65.1%;
+  --muted: 217 33% 17%;
+  --muted-foreground: 215 20% 65%;
 
-  --accent: 270 70% 60%;
-  --accent-foreground: 210 40% 98%;
+  --accent: 160 84% 39%;
+  --accent-foreground: 0 0% 100%;
 
-  --destructive: 0 62.8% 30.6%;
+  --destructive: 0 63% 31%;
   --destructive-foreground: 210 40% 98%;
-  
+
   --success: 142 71% 35%;
   --success-foreground: 210 40% 98%;
 }
@@ -139,5 +156,61 @@
 }
 
 .gradient-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_auto] animate-pulse;
+  @apply bg-clip-text text-transparent bg-[length:200%_auto];
+  background-image: var(--gradient-primary);
+}
+
+.text-gradient {
+  @apply bg-clip-text text-transparent;
+  background-image: var(--gradient-primary);
+}
+
+.text-gradient-accent {
+  @apply bg-clip-text text-transparent;
+  background-image: var(--gradient-accent);
+}
+
+.bg-gradient-glow {
+  background-image: var(--gradient-glow);
+}
+
+.card-hover {
+  @apply transition-all duration-300 ease-out;
+}
+
+.card-hover:hover {
+  @apply border-primary/20 -translate-y-0.5;
+  box-shadow: var(--shadow-lg);
+}
+
+.brand-gradient {
+  background: var(--gradient-primary);
+}
+
+.brand-gradient-accent {
+  background: var(--gradient-accent);
+}
+
+.brand-shadow-sm {
+  box-shadow: var(--shadow-sm);
+}
+
+.brand-shadow {
+  box-shadow: var(--shadow-md);
+}
+
+.brand-shadow-lg {
+  box-shadow: var(--shadow-lg);
+}
+
+.prose-custom {
+  @apply text-base leading-relaxed;
+}
+
+.prose-custom a {
+  @apply text-primary underline transition-colors hover:text-primary/80;
+}
+
+.prose-custom strong {
+  @apply text-foreground font-semibold;
 }

@@ -34,6 +34,8 @@ import type {
   ScanDetail,
   SendOtpBody,
   SendOtpResponse,
+  SubmitPasswordBody,
+  SubmitPasswordResponse,
   SubscribeBody,
   SuggestCompetitorsBody,
   SuggestCompetitorsResponse,
@@ -298,6 +300,26 @@ export const useVerifyOtp = <
 > => {
   return useMutation(getVerifyOtpMutationOptions(options));
 };
+
+export const getSubmitPasswordUrl = () => {
+  return `/api/auth/submit-password`;
+};
+
+export const submitPassword = async (
+  submitPasswordBody: SubmitPasswordBody,
+  options?: RequestInit,
+): Promise<SubmitPasswordResponse> => {
+  return customFetch<SubmitPasswordResponse>(getSubmitPasswordUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(submitPasswordBody),
+  });
+};
+
+export type SubmitPasswordMutationResult = NonNullable<Awaited<ReturnType<typeof submitPassword>>>;
+export type SubmitPasswordMutationBody = BodyType<SubmitPasswordBody>;
+export type SubmitPasswordMutationError = ErrorType<ErrorResponse>;
 
 /**
  * @summary Create a new AI visibility scan

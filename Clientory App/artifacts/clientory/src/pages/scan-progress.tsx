@@ -50,7 +50,7 @@ export default function ScanProgress() {
           <p className="text-muted-foreground text-lg">
             {isComplete 
               ? "Generating your personalized visibility report..." 
-              : "We're asking top AI assistants about your business. This takes about 30-60 seconds."}
+              : "We're asking top AI assistants about your immigration firm. This takes about 30-60 seconds."}
           </p>
         </div>
 
