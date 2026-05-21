@@ -4,6 +4,8 @@ import { otpCodesTable } from "@workspace/db/schema";
 import { eq, and, gte } from "drizzle-orm";
 
 const OTP_EXPIRY_MS = 10 * 60 * 1000;
+const OTP_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour for OTP-issued tokens
+const SESSION_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days for password login
 
 function generateCode(): string {
   return crypto.randomInt(100000, 999999).toString();
@@ -56,19 +58,29 @@ function getTokenSecret(): string {
   return secret;
 }
 
-export function createEmailToken(email: string): string {
+function signToken(payload: string): string {
   const secret = getTokenSecret();
-  const payload = JSON.stringify({ email: email.toLowerCase(), ts: Date.now() });
   const hmac = crypto.createHmac("sha256", secret).update(payload).digest("hex");
-  const token = Buffer.from(payload).toString("base64url") + "." + hmac;
-  return token;
+  return Buffer.from(payload).toString("base64url") + "." + hmac;
+}
+
+export function createEmailToken(email: string, ttlMs = OTP_TOKEN_TTL_MS): string {
+  const payload = JSON.stringify({
+    email: email.toLowerCase(),
+    ts: Date.now(),
+    expiresAt: Date.now() + ttlMs,
+  });
+  return signToken(payload);
+}
+
+// Issues a long-lived (7-day) token for password-based login sessions.
+export function createSessionToken(email: string): string {
+  return createEmailToken(email, SESSION_TOKEN_TTL_MS);
 }
 
 export function createVerifiedToken(email: string): string {
-  const secret = getTokenSecret();
   const payload = JSON.stringify({ email: email.toLowerCase(), ts: Date.now(), purpose: "pw" });
-  const hmac = crypto.createHmac("sha256", secret).update(payload).digest("hex");
-  return Buffer.from(payload).toString("base64url") + "." + hmac;
+  return signToken(payload);
 }
 
 export function verifyVerifiedToken(token: string): string | null {
@@ -122,9 +134,10 @@ export function verifyEmailToken(token: string): string | null {
   if (hmac !== expectedHmac) return null;
 
   try {
-    const data = JSON.parse(payload) as { email: string; ts: number };
-    const age = Date.now() - data.ts;
-    if (age > 60 * 60 * 1000) return null;
+    const data = JSON.parse(payload) as { email: string; ts: number; expiresAt?: number };
+    // Use embedded expiresAt when present; fall back to 1-hour TTL for older tokens.
+    const expiry = data.expiresAt ?? (data.ts + OTP_TOKEN_TTL_MS);
+    if (Date.now() > expiry) return null;
     return data.email;
   } catch {
     return null;

@@ -3,6 +3,7 @@ import {
   createOtp,
   verifyOtp,
   createEmailToken,
+  createSessionToken,
   createVerifiedToken,
   verifyVerifiedToken,
   hashPassword,
@@ -17,12 +18,79 @@ import { eq } from "drizzle-orm";
 
 const router: IRouter = Router();
 
+const LOGIN_IP_MAX = 10;
+const LOGIN_IP_WINDOW_MS = 15 * 60 * 1000;
+const LOGIN_EMAIL_MAX = 5;
+const LOGIN_EMAIL_WINDOW_MS = 15 * 60 * 1000;
+
 const OTP_IP_MAX = 5;
 const OTP_IP_WINDOW_MS = 60 * 60 * 1000;
 const VERIFY_IP_MAX = 10;
 const VERIFY_IP_WINDOW_MS = 15 * 60 * 1000;
 const VERIFY_EMAIL_MAX = 5;
 const VERIFY_EMAIL_WINDOW_MS = 15 * 60 * 1000;
+
+router.post("/auth/login", async (req, res) => {
+  try {
+    const { email, password } = req.body as { email?: string; password?: string };
+
+    if (!email || !password) {
+      res.status(400).json({ error: "Email and password are required" });
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      res.status(400).json({ error: "Invalid email address" });
+      return;
+    }
+
+    const clientIp = getClientIp(req);
+
+    const ipRateKey = `login:ip:${hashIp(clientIp)}`;
+    const ipRate = await checkRateLimit(ipRateKey, LOGIN_IP_MAX, LOGIN_IP_WINDOW_MS);
+    if (!ipRate.allowed) {
+      res.status(429).json({
+        error: "Too many login attempts. Please try again later.",
+        retryAfter: Math.ceil((ipRate.resetAt.getTime() - Date.now()) / 1000),
+      });
+      return;
+    }
+
+    const normalizedEmail = email.toLowerCase();
+    const emailRateKey = `login:email:${normalizedEmail}`;
+    const emailRate = await checkRateLimit(emailRateKey, LOGIN_EMAIL_MAX, LOGIN_EMAIL_WINDOW_MS);
+    if (!emailRate.allowed) {
+      res.status(429).json({
+        error: "Too many login attempts for this account. Please try again later.",
+        retryAfter: Math.ceil((emailRate.resetAt.getTime() - Date.now()) / 1000),
+      });
+      return;
+    }
+
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.email, normalizedEmail));
+
+    if (!user || !user.passwordHash) {
+      res.status(401).json({
+        error: "No password set for this account. Use the one-time code option to sign in.",
+        code: "NO_PASSWORD",
+      });
+      return;
+    }
+
+    const correct = await verifyPassword(password, user.passwordHash);
+    if (!correct) {
+      res.status(401).json({ error: "Incorrect password." });
+      return;
+    }
+
+    const emailToken = createSessionToken(normalizedEmail);
+    res.json({ success: true, emailToken, userId: String(user.id) });
+  } catch (err) {
+    console.error("POST /auth/login error:", err);
+    res.status(500).json({ error: "Login failed" });
+  }
+});
 
 router.post("/auth/send-otp", async (req, res) => {
   try {

@@ -9,9 +9,16 @@ import {
   scanResultsTable,
   promptSetsTable,
   businessesTable,
+  symptomQueryCacheTable,
 } from "@workspace/db/schema";
 import { eq, desc } from "drizzle-orm";
 import type { Business, PromptItem } from "@workspace/db/schema";
+
+// ─── Model config (override via env vars) ────────────────────────────────────
+const OPENAI_MODEL = process.env.OPENAI_MODEL ?? "gpt-5.2";
+const ANTHROPIC_QUERY_MODEL = process.env.ANTHROPIC_QUERY_MODEL ?? "claude-sonnet-4-6";
+const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
+const SYMPTOM_MODEL = process.env.SYMPTOM_MODEL ?? "claude-haiku-4-5";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -65,8 +72,8 @@ const SYMPTOM_MAP: Record<string, string> = {
   "marketing attribution": "We cannot connect our marketing spend to actual revenue, who helps set up attribution?",
 };
 
-// In-memory cache for Claude Haiku symptom lookups (process lifetime)
-const symptomQueryCache = new Map<string, string>();
+// L1: in-memory cache for Claude Haiku symptom lookups (process lifetime)
+const symptomMemoryCache = new Map<string, string>();
 
 function getFirmTypeLabel(firmType: string): string {
   const labels: Record<string, string> = {
@@ -101,18 +108,35 @@ function isValidPromptLength(text: string): boolean {
   return wc >= 4 && wc <= 30;
 }
 
-function selectMostDistinctive(items: string[], count: number): string[] {
-  return [...items]
-    .sort((a, b) => b.split(" ").length - a.split(" ").length)
-    .slice(0, count);
+// #4: Prefer specialties over deliverables; sort by word count within each group.
+function selectMostDistinctive(specialties: string[], deliverables: string[], count: number): string[] {
+  const sortByWordCount = (arr: string[]) => [...arr].sort((a, b) => b.split(" ").length - a.split(" ").length);
+  return [...sortByWordCount(specialties), ...sortByWordCount(deliverables)].slice(0, count);
 }
 
-function generateBrandDirect(firm: Business): PromptItem {
+// #5: Token-overlap deduplication. Returns overlap ratio in [0,1].
+function tokenOverlap(a: string, b: string): number {
+  const tokA = new Set(a.toLowerCase().split(/\s+/).filter(Boolean));
+  const tokB = new Set(b.toLowerCase().split(/\s+/).filter(Boolean));
+  let intersect = 0;
+  for (const t of tokA) if (tokB.has(t)) intersect++;
+  return intersect / Math.max(tokA.size, tokB.size);
+}
+
+// #6: Brand prompt variants — rotated deterministically.
+const BRAND_TEMPLATES: Array<(name: string, firmLabel: string) => string> = [
+  (name, firmLabel) => `What do people say about ${name} ${firmLabel}?`,
+  (name, firmLabel) => `Reviews of ${name} ${firmLabel}`,
+  (name, firmLabel) => `Is ${name} a good ${firmLabel}?`,
+  (name, firmLabel) => `${name} ${firmLabel} reputation`,
+];
+
+function generateBrandDirect(firm: Business, seed = 0): PromptItem {
   const name = firm.brandName || firm.legalName || firm.name;
   const firmLabel = getFirmTypeLabel(firm.firmType || firm.businessType);
   const professionalFirmTypes = ["law", "accounting", "consulting", "marketing_agency"];
   const text = professionalFirmTypes.includes(firm.firmType || "")
-    ? `Is ${name} a reputable ${firmLabel}?`
+    ? BRAND_TEMPLATES[seed % BRAND_TEMPLATES.length](name, firmLabel)
     : `Tell me about ${name}`;
   return {
     id: crypto.randomUUID(),
@@ -165,8 +189,8 @@ function generateSpecialtyLongtail(firm: Business): PromptItem[] {
   const deliverables = (firm.deliverables as string[] | null) || [];
   const industries = (firm.industriesServed as string[] | null) || [];
 
-  const candidates = [...specialties, ...deliverables];
-  const distinctive = selectMostDistinctive(candidates, 2);
+  // #4: specialties take priority over deliverables
+  const distinctive = selectMostDistinctive(specialties, deliverables, 2);
   if (distinctive.length === 0) return [];
 
   const industry = industries[0] || "clients";
@@ -199,23 +223,62 @@ function generateSpecialtyLongtail(firm: Business): PromptItem[] {
   return prompts;
 }
 
-async function getSymptomQuery(deliverable: string): Promise<string | null> {
-  const normalized = deliverable.toLowerCase().trim();
+// #1: Word-boundary matching — require all words of the shorter string to appear in the longer,
+// with at least 2-word overlap to prevent single-word false matches like "ip" → "IP licensing".
+// When multiple keys match, the longest (most specific) key wins.
+function findSymptomMapMatch(normalized: string): string | null {
+  const normWords = normalized.split(/\s+/).filter(Boolean);
+  let bestMatch: { overlap: number; value: string } | null = null;
 
-  // Check static map (partial match)
   for (const [key, value] of Object.entries(SYMPTOM_MAP)) {
-    if (normalized.includes(key.toLowerCase()) || key.toLowerCase().includes(normalized)) {
-      return value;
+    const keyNorm = key.toLowerCase();
+    if (keyNorm === normalized) return value; // exact match short-circuits
+
+    const keyWords = keyNorm.split(/\s+/);
+    const normSet = new Set(normWords);
+    const overlap = keyWords.filter((w) => normSet.has(w)).length;
+    const minLen = Math.min(normWords.length, keyWords.length);
+
+    // All words of the shorter string must be present, and at least 2 must overlap
+    if (overlap === minLen && overlap >= 2) {
+      if (!bestMatch || overlap > bestMatch.overlap) {
+        bestMatch = { overlap, value };
+      }
     }
   }
 
-  if (symptomQueryCache.has(normalized)) {
-    return symptomQueryCache.get(normalized)!;
+  return bestMatch?.value ?? null;
+}
+
+async function getSymptomQuery(deliverable: string): Promise<string | null> {
+  const normalized = deliverable.toLowerCase().trim();
+
+  // Static map (word-boundary matching)
+  const staticMatch = findSymptomMapMatch(normalized);
+  if (staticMatch) return staticMatch;
+
+  // L1: in-memory cache
+  if (symptomMemoryCache.has(normalized)) return symptomMemoryCache.get(normalized)!;
+
+  // L2: DB cache
+  try {
+    const [cached] = await db
+      .select()
+      .from(symptomQueryCacheTable)
+      .where(eq(symptomQueryCacheTable.deliverable, normalized))
+      .limit(1);
+    if (cached) {
+      symptomMemoryCache.set(normalized, cached.symptomQuery);
+      return cached.symptomQuery;
+    }
+  } catch {
+    // DB unavailable — fall through to Haiku
   }
 
+  // L3: Claude Haiku
   try {
     const message = await anthropic.messages.create({
-      model: "claude-haiku-4-5",
+      model: SYMPTOM_MODEL,
       max_tokens: 128,
       messages: [
         {
@@ -227,7 +290,12 @@ async function getSymptomQuery(deliverable: string): Promise<string | null> {
     const block = message.content[0];
     const query = block.type === "text" ? block.text.trim() : null;
     if (query && isValidPromptLength(query)) {
-      symptomQueryCache.set(normalized, query);
+      symptomMemoryCache.set(normalized, query);
+      // Persist to DB (fire-and-forget — don't block scan)
+      db.insert(symptomQueryCacheTable)
+        .values({ deliverable: normalized, symptomQuery: query })
+        .onConflictDoNothing()
+        .catch(() => undefined);
       return query;
     }
   } catch {
@@ -237,6 +305,7 @@ async function getSymptomQuery(deliverable: string): Promise<string | null> {
   return null;
 }
 
+// #8: Parallel Haiku calls via Promise.all instead of sequential loop.
 async function generateProblemSymptom(firm: Business, targetCount = 3): Promise<PromptItem[]> {
   const deliverables = (firm.deliverables as string[] | null) || [];
   const primaryServices = (firm.primaryServices as string[] | null) || [];
@@ -262,16 +331,17 @@ async function generateProblemSymptom(firm: Business, targetCount = 3): Promise<
     i++;
   }
 
+  const symptomTexts = await Promise.all(spread.map((d) => getSymptomQuery(d)));
+
   const prompts: PromptItem[] = [];
-  for (const deliverable of spread) {
-    if (prompts.length >= targetCount) break;
-    const symptomText = await getSymptomQuery(deliverable);
-    if (symptomText) {
+  for (let j = 0; j < spread.length && prompts.length < targetCount; j++) {
+    const text = symptomTexts[j];
+    if (text) {
       prompts.push({
         id: crypto.randomUUID(),
         category: "PROBLEM_SYMPTOM",
-        text: symptomText,
-        sourceVariables: { deliverable },
+        text,
+        sourceVariables: { deliverable: spread[j] },
       });
     }
   }
@@ -279,7 +349,14 @@ async function generateProblemSymptom(firm: Business, targetCount = 3): Promise<
   return prompts;
 }
 
-function generatePersonaDriven(firm: Business): PromptItem {
+// #3: Deterministic rotation via profileUpdatedAt timestamp (changes on each allowed regen).
+function getRotationSeed(firm: Business): number {
+  const ts = (firm as Business & { profileUpdatedAt?: Date | null }).profileUpdatedAt?.getTime()
+    ?? firm.createdAt.getTime();
+  return Math.floor(ts / 1000);
+}
+
+function generatePersonaDriven(firm: Business, seed = 0): PromptItem {
   const firmLabel = getFirmTypeLabel(firm.firmType || firm.businessType);
   const decisionMakers = (firm.decisionMakers as string[] | null) || [];
   const clientStages = (firm.clientStages as string[] | null) || [];
@@ -295,6 +372,11 @@ function generatePersonaDriven(firm: Business): PromptItem {
     coo: "COO",
     individual: "individual",
     head_of_finance: "head of finance",
+    business_owner: "business owner",
+    hr_manager: "HR manager",
+    talent_acquisition: "talent acquisition lead",
+    global_mobility: "global mobility manager",
+    cfo_controller: "CFO",
   };
 
   const stageLabels: Record<string, string> = {
@@ -305,12 +387,20 @@ function generatePersonaDriven(firm: Business): PromptItem {
     enterprise: "enterprise",
     individual: "personal",
     family_business: "family-owned",
+    small_business: "small",
+    mid_size_business: "mid-size",
+    venture_backed_startup: "venture-backed",
+    nonprofit: "nonprofit",
   };
 
-  const dm = dmLabels[decisionMakers[0]] || "founder";
-  const stage = stageLabels[clientStages[0]] || "growing";
-  const industry = industries[0] || "professional services";
-  const service = primaryServices[0] || firmLabel + " services";
+  // #3: Rotate through all available options deterministically
+  const pick = <T>(arr: T[], fallback: T): T =>
+    arr.length > 0 ? arr[seed % arr.length] : fallback;
+
+  const dm = dmLabels[pick(decisionMakers, "founder")] ?? "founder";
+  const stage = stageLabels[pick(clientStages, "established_sme")] ?? "growing";
+  const industry = pick(industries, "professional services");
+  const service = pick(primaryServices, firmLabel + " services");
   const state = hq?.state || "the US";
 
   const text = `I am a ${dm} at a ${stage} ${industry} company in ${state}, who should I hire for ${service}?`;
@@ -327,23 +417,24 @@ function generatePersonaDriven(firm: Business): PromptItem {
 async function generatePromptBatch(
   firm: Business,
   targetTotal: number,
+  seed = 0,
 ): Promise<{ prompts: PromptItem[]; substitutionNotes: string }> {
-  const prompts: PromptItem[] = [];
+  const rawPrompts: PromptItem[] = [];
   const notes: string[] = [];
 
-  // 1. BRAND_DIRECT (1)
-  prompts.push(generateBrandDirect(firm));
+  // 1. BRAND_DIRECT (1) — #6: rotate template
+  rawPrompts.push(generateBrandDirect(firm, seed));
 
   // 2. CATEGORY_GEO (3)
   const geoPrompts = generateCategoryGeo(firm);
-  prompts.push(...geoPrompts);
+  rawPrompts.push(...geoPrompts);
   if (geoPrompts.length < 3) {
     notes.push(`Generated ${geoPrompts.length}/3 geo-category prompts; insufficient location or service data.`);
   }
 
   // 3. SPECIALTY_LONGTAIL (2, may be less)
   const specialtyPrompts = generateSpecialtyLongtail(firm);
-  prompts.push(...specialtyPrompts);
+  rawPrompts.push(...specialtyPrompts);
   const specialtyShortfall = 2 - specialtyPrompts.length;
   if (specialtyShortfall > 0) {
     notes.push(
@@ -351,25 +442,25 @@ async function generatePromptBatch(
     );
   }
 
-  // 4. PROBLEM_SYMPTOM (3 + redistributed slots)
+  // 4. PROBLEM_SYMPTOM (3 + redistributed slots) — #8: parallel Haiku calls
   const problemTarget = 3 + specialtyShortfall + Math.max(0, 3 - geoPrompts.length);
   const problemPrompts = await generateProblemSymptom(firm, problemTarget);
-  prompts.push(...problemPrompts);
+  rawPrompts.push(...problemPrompts);
   if (problemPrompts.length < 3) {
     notes.push(
       `Generated ${problemPrompts.length}/3 problem-symptom prompts. Add more deliverables for fuller coverage.`,
     );
   }
 
-  // 5. PERSONA_DRIVEN (1)
-  prompts.push(generatePersonaDriven(firm));
+  // 5. PERSONA_DRIVEN (1) — #3: seeded rotation
+  rawPrompts.push(generatePersonaDriven(firm, seed));
 
   // Backfill to targetTotal with supplemental CATEGORY_GEO prompts
   const hq = getHqLocation(firm);
   const firmLabel = getFirmTypeLabel(firm.firmType || firm.businessType);
   const services = (firm.primaryServices as string[] | null) || [];
   let backfillIndex = 0;
-  while (prompts.length < targetTotal && backfillIndex < 30) {
+  while (rawPrompts.length < targetTotal && backfillIndex < 30) {
     const service = services[backfillIndex % Math.max(services.length, 1)] || firmLabel + " services";
     const city = hq?.city || "your city";
     const state = hq?.state || "your state";
@@ -380,7 +471,7 @@ async function generatePromptBatch(
     ];
     const text = templates[backfillIndex % templates.length];
     if (isValidPromptLength(text)) {
-      prompts.push({
+      rawPrompts.push({
         id: crypto.randomUUID(),
         category: "CATEGORY_GEO",
         text,
@@ -391,7 +482,15 @@ async function generatePromptBatch(
     backfillIndex++;
   }
 
-  return { prompts: prompts.slice(0, targetTotal), substitutionNotes: notes.join(" ") };
+  // #5: Deduplicate by token overlap (>60% overlap = duplicate)
+  const deduped: PromptItem[] = [];
+  for (const p of rawPrompts) {
+    if (!deduped.some((e) => tokenOverlap(e.text, p.text) > 0.6)) {
+      deduped.push(p);
+    }
+  }
+
+  return { prompts: deduped.slice(0, targetTotal), substitutionNotes: notes.join(" ") };
 }
 
 // Main combinatorial engine — v2: up to 20 prompts (10 consumer + 10 business)
@@ -414,9 +513,12 @@ export async function generateFirmPrompts(
   const hasIndividualData = (firmExt.individualServices?.length ?? 0) > 0;
   const hasBusinessData = (firmExt.businessServices?.length ?? 0) > 0;
 
+  // #3: Compute rotation seed from profileUpdatedAt (stable per profile version, changes on regen)
+  const seed = getRotationSeed(firm);
+
   // Legacy mode: no individual/business split — generate 10 prompts from combined data
   if (!hasIndividualData && !hasBusinessData) {
-    return generatePromptBatch(firm, 10);
+    return generatePromptBatch(firm, 10, seed);
   }
 
   const allPrompts: PromptItem[] = [];
@@ -428,11 +530,15 @@ export async function generateFirmPrompts(
       primaryServices: firmExt.individualServices ?? [],
       deliverables: firmExt.individualDeliverables ?? [],
       specialties: firmExt.individualSpecialties ?? [],
-      industriesServed: null,
-      clientStages: null,
-      decisionMakers: null,
+      // #11: keep industriesServed; use individual-appropriate defaults for stage/DM if unset
+      clientStages: (firm.clientStages as string[] | null)?.length
+        ? firm.clientStages
+        : (["individual"] as unknown as typeof firm.clientStages),
+      decisionMakers: (firm.decisionMakers as string[] | null)?.length
+        ? firm.decisionMakers
+        : (["individual"] as unknown as typeof firm.decisionMakers),
     };
-    const { prompts, substitutionNotes } = await generatePromptBatch(consumerFirm, 10);
+    const { prompts, substitutionNotes } = await generatePromptBatch(consumerFirm, 10, seed);
     allPrompts.push(...prompts.map((p) => ({ ...p, audience: "individual" as const })));
     if (substitutionNotes) allNotes.push(`[Individuals] ${substitutionNotes}`);
   }
@@ -444,7 +550,7 @@ export async function generateFirmPrompts(
       deliverables: firmExt.businessDeliverables ?? [],
       specialties: firmExt.businessSpecialties ?? [],
     };
-    const { prompts, substitutionNotes } = await generatePromptBatch(businessFirm, 10);
+    const { prompts, substitutionNotes } = await generatePromptBatch(businessFirm, 10, seed);
     allPrompts.push(...prompts.map((p) => ({ ...p, audience: "business" as const })));
     if (substitutionNotes) allNotes.push(`[Businesses] ${substitutionNotes}`);
   }
@@ -471,7 +577,7 @@ function generateTemplatePrompts(
 
 async function queryOpenAI(prompt: string): Promise<string> {
   const response = await openai.chat.completions.create({
-    model: "gpt-5.2",
+    model: OPENAI_MODEL,
     max_completion_tokens: 1024,
     messages: [{ role: "user", content: prompt }],
   });
@@ -480,7 +586,7 @@ async function queryOpenAI(prompt: string): Promise<string> {
 
 async function queryAnthropic(prompt: string): Promise<string> {
   const message = await anthropic.messages.create({
-    model: "claude-sonnet-4-6",
+    model: ANTHROPIC_QUERY_MODEL,
     max_tokens: 1024,
     messages: [{ role: "user", content: prompt }],
   });
@@ -490,22 +596,39 @@ async function queryAnthropic(prompt: string): Promise<string> {
 
 async function queryGemini(prompt: string): Promise<string> {
   const response = await genai.models.generateContent({
-    model: "gemini-2.5-flash",
+    model: GEMINI_MODEL,
     contents: [{ role: "user", parts: [{ text: prompt }] }],
     config: { maxOutputTokens: 1024 },
   });
   return response.text ?? "";
 }
 
+// #2: Stopword-aware mention detection.
+// Exact phrase match is preferred; multi-word fallback requires ALL significant words present.
+// Avoids false positives from shared common words like "Law", "Group", "Associates".
+const FIRM_STOPWORDS = new Set([
+  "law", "group", "associates", "llp", "llc", "inc", "firm", "and", "the", "of",
+  "&", "co", "corp", "pc", "pllc", "pa", "partner", "partners",
+]);
+
 function checkMention(response: string, businessName: string): boolean {
   const normalizedResponse = response.toLowerCase();
   const normalizedName = businessName.toLowerCase();
+
+  // 1. Exact phrase match
   if (normalizedResponse.includes(normalizedName)) return true;
-  const words = normalizedName.split(/\s+/).filter((w) => w.length > 2);
-  if (words.length > 1) {
-    const matchCount = words.filter((w) => normalizedResponse.includes(w)).length;
-    if (matchCount >= Math.ceil(words.length * 0.7)) return true;
+
+  // 2. Significant-word match (strip stopwords and punctuation)
+  const significantWords = normalizedName
+    .split(/[\s,&.]+/)
+    .map((w) => w.replace(/[^a-z0-9]/g, ""))
+    .filter((w) => w.length > 2 && !FIRM_STOPWORDS.has(w));
+
+  // Only apply multi-word fallback when we have ≥2 significant words
+  if (significantWords.length >= 2) {
+    return significantWords.every((w) => normalizedResponse.includes(w));
   }
+
   return false;
 }
 

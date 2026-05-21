@@ -11,6 +11,7 @@ import {
   verifyOtp,
   submitPassword,
   suggestCompetitors,
+  login,
 } from "@workspace/api-client-react";
 import type { CreateBusinessBody } from "@workspace/api-client-react";
 import {
@@ -499,6 +500,9 @@ export default function ScanForm() {
     }
   });
 
+  const [authMode, setAuthMode] = useState<"login" | "otp">("login");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loggingIn, setLoggingIn] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [otpCode, setOtpCode] = useState("");
   const [sendingOtp, setSendingOtp] = useState(false);
@@ -567,6 +571,38 @@ export default function ScanForm() {
     script.onload = () => renderTurnstile();
     document.head.appendChild(script);
   }, [step, renderTurnstile]);
+
+  // ─── Password login handler ────────────────────────────────────────────────
+  const handleLogin = async () => {
+    if (!formData.email || !loginPassword) {
+      setError("Please enter your email and password.");
+      return;
+    }
+    setLoggingIn(true);
+    setError(null);
+    try {
+      const result = await login({ email: formData.email, password: loginPassword });
+      setEmailToken(result.emailToken);
+      localStorage.setItem("emailToken", result.emailToken);
+      setLoginPassword("");
+      setStep(2);
+    } catch (err) {
+      const errObj = err as { status?: number; data?: { error?: string; code?: string } };
+      if (errObj.data?.code === "NO_PASSWORD" || errObj.status === 401) {
+        const msg = errObj.data?.error ?? "Incorrect email or password.";
+        if (errObj.data?.code === "NO_PASSWORD") {
+          setAuthMode("otp");
+          setError(msg + " Switching to one-time code sign-in.");
+        } else {
+          setError(msg);
+        }
+      } else {
+        setError(err instanceof Error ? err.message : "Login failed. Please try again.");
+      }
+    } finally {
+      setLoggingIn(false);
+    }
+  };
 
   // ─── OTP handlers ──────────────────────────────────────────────────────────
   const handleSendOtp = async () => {
@@ -728,7 +764,9 @@ export default function ScanForm() {
         setStep(1);
         setOtpSent(false);
         setOtpCode("");
-        setError("Session expired. Please verify your email again.");
+        setLoginPassword("");
+        setAuthMode("login");
+        setError("Session expired. Please sign in again.");
       } else if (errObj.status === 402) {
         setFreeReportUsed(true);
       } else {
@@ -1507,6 +1545,8 @@ export default function ScanForm() {
               setVerifiedToken(null);
               setPassword("");
               setConfirmPassword("");
+              setLoginPassword("");
+              setAuthMode("login");
               setTurnstileToken(null);
             }}
             className="ml-auto text-xs text-green-600 hover:underline"
@@ -1576,7 +1616,58 @@ export default function ScanForm() {
             Start over
           </button>
         </div>
+      ) : authMode === "login" ? (
+        /* ── Password login (default) ── */
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-slate-800">
+              Email address <span className="text-blue-600">*</span>
+            </label>
+            <Input
+              type="email"
+              value={formData.email}
+              onChange={(e) => update({ email: e.target.value })}
+              placeholder="you@example.com"
+              onKeyDown={(e) => { if (e.key === "Enter") document.getElementById("login-password-input")?.focus(); }}
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-slate-800">
+              Password <span className="text-blue-600">*</span>
+            </label>
+            <Input
+              id="login-password-input"
+              type="password"
+              value={loginPassword}
+              onChange={(e) => setLoginPassword(e.target.value)}
+              placeholder="••••••••"
+              onKeyDown={(e) => { if (e.key === "Enter" && formData.email && loginPassword) handleLogin(); }}
+            />
+          </div>
+          <Button
+            onClick={handleLogin}
+            disabled={loggingIn || !formData.email || !loginPassword}
+            className="w-full bg-blue-600 hover:bg-blue-700"
+          >
+            {loggingIn ? (
+              <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Signing in...</>
+            ) : (
+              <><ShieldCheck className="w-4 h-4 mr-2" /> Sign in</>
+            )}
+          </Button>
+          <p className="text-center text-sm text-slate-500">
+            New here or forgot your password?{" "}
+            <button
+              type="button"
+              onClick={() => { setAuthMode("otp"); setOtpSent(false); setOtpCode(""); setError(null); }}
+              className="text-blue-600 hover:underline font-medium"
+            >
+              Use a one-time email code
+            </button>
+          </p>
+        </div>
       ) : (
+        /* ── OTP flow ── */
         <>
           <div className="space-y-2">
             <label className="text-sm font-semibold text-slate-800">
@@ -1592,17 +1683,29 @@ export default function ScanForm() {
           </div>
 
           {!otpSent ? (
-            <Button
-              onClick={handleSendOtp}
-              disabled={sendingOtp || !formData.email}
-              className="w-full bg-blue-600 hover:bg-blue-700"
-            >
-              {sendingOtp ? (
-                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Sending code...</>
-              ) : (
-                <><Mail className="w-4 h-4 mr-2" /> Send verification code</>
-              )}
-            </Button>
+            <>
+              <Button
+                onClick={handleSendOtp}
+                disabled={sendingOtp || !formData.email}
+                className="w-full bg-blue-600 hover:bg-blue-700"
+              >
+                {sendingOtp ? (
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Sending code...</>
+                ) : (
+                  <><Mail className="w-4 h-4 mr-2" /> Send verification code</>
+                )}
+              </Button>
+              <p className="text-center text-sm text-slate-500">
+                Already have a password?{" "}
+                <button
+                  type="button"
+                  onClick={() => { setAuthMode("login"); setError(null); }}
+                  className="text-blue-600 hover:underline font-medium"
+                >
+                  Sign in instead
+                </button>
+              </p>
+            </>
           ) : (
             <div className="space-y-4">
               <div className="flex items-center gap-3 p-3 rounded-xl bg-blue-50 border border-blue-200 text-blue-800">
