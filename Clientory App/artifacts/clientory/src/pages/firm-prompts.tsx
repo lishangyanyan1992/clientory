@@ -31,14 +31,14 @@ const CATEGORY_META: Record<
     label: "Brand Direct",
     icon: <Search className="w-4 h-4" />,
     description:
-      "Tests whether AI assistants recognize and recommend your firm when someone searches for you by name.",
+      "Tests whether AI assistants recognize and recommend your immigration firm when someone searches for you by name.",
     color: "bg-violet-50 border-violet-200 text-violet-700",
   },
   CATEGORY_GEO: {
     label: "Category + Geography",
     icon: <Target className="w-4 h-4" />,
     description:
-      "The most common way potential clients find law firms — combining the legal help they need with where they are.",
+      "The most common way prospects find immigration firms — combining the help they need with where they are.",
     color: "bg-blue-50 border-blue-200 text-blue-700",
   },
   SPECIALTY_LONGTAIL: {
@@ -52,14 +52,14 @@ const CATEGORY_META: Record<
     label: "Problem / Symptom",
     icon: <Zap className="w-4 h-4" />,
     description:
-      "The first thing a potential client types when they realise they have a legal problem — before they know which practice area they need.",
+      "The first thing a prospective client types when they have an immigration problem — before they know the exact legal path.",
     color: "bg-amber-50 border-amber-200 text-amber-700",
   },
   PERSONA_DRIVEN: {
     label: "Persona-Driven",
     icon: <User className="w-4 h-4" />,
     description:
-      "Searches from a specific client type's perspective. Reveals whether AI associates your firm with the right clients.",
+      "Searches from a specific immigration client segment's perspective. Reveals whether AI associates your firm with the right clients.",
     color: "bg-rose-50 border-rose-200 text-rose-700",
   },
 };
@@ -107,15 +107,15 @@ const AUDIENCE_META: Record<
   { label: string; count_label: string; icon: React.ReactNode; color: string; borderColor: string }
 > = {
   individual: {
-    label: "Individual Clients",
-    count_label: "individual client prompts",
+    label: "Family / Individual Immigration",
+    count_label: "family and individual immigration prompts",
     icon: <Users className="w-4 h-4" />,
     color: "text-indigo-700 bg-indigo-50 border-indigo-200",
     borderColor: "border-indigo-200",
   },
   business: {
-    label: "Business Clients",
-    count_label: "business client prompts",
+    label: "Employer-Sponsored Immigration",
+    count_label: "employer-sponsored immigration prompts",
     icon: <Building2 className="w-4 h-4" />,
     color: "text-teal-700 bg-teal-50 border-teal-200",
     borderColor: "border-teal-200",
@@ -359,7 +359,7 @@ export default function FirmPrompts() {
                     </>
                   ) : (
                     <>
-                      Run your firm's AI visibility scan <ArrowRight className="w-4 h-4" />
+                      Run your immigration firm visibility scan <ArrowRight className="w-4 h-4" />
                     </>
                   )}
                 </Button>
@@ -375,7 +375,7 @@ export default function FirmPrompts() {
               <strong className="text-slate-800">locked</strong> — they are used consistently
               across every scan so your results are comparable over time.{" "}
               {isMultiAudience && (
-                <>Prompts are split into <strong className="text-slate-800">Individual Clients</strong> and <strong className="text-slate-800">Business Clients</strong> sections. </>
+                <>Prompts are split into <strong className="text-slate-800">Family / Individual Immigration</strong> and <strong className="text-slate-800">Employer-Sponsored Immigration</strong> sections. </>
               )}
               Update your firm profile and regenerate to get a new set.
             </p>
@@ -466,10 +466,10 @@ export default function FirmPrompts() {
 
           {/* Bottom CTA */}
           <div className="mt-8 p-6 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-700 text-white text-center shadow-lg shadow-blue-200">
-            <h2 className="text-lg font-bold mb-2">See how AI recommends your firm to potential clients</h2>
+            <h2 className="text-lg font-bold mb-2">See how AI recommends your immigration firm to potential clients</h2>
             <p className="text-blue-100 text-sm mb-5">
               We'll run all 10 prompts across ChatGPT, Claude, and Gemini and show you exactly
-              where {firmDisplayName} appears in AI-generated legal referrals.
+              where {firmDisplayName} appears in AI-generated immigration referrals.
             </p>
             <Button
               onClick={handleStartTesting}
@@ -482,7 +482,7 @@ export default function FirmPrompts() {
                 </>
               ) : (
                 <>
-                  Run your firm's AI visibility scan <ArrowRight className="w-4 h-4 ml-2" />
+                  Run your immigration firm visibility scan <ArrowRight className="w-4 h-4 ml-2" />
                 </>
               )}
             </Button>

@@ -2,6 +2,15 @@ import { Resend } from "resend";
 
 let _resend: Resend | null = null;
 
+function shouldUseLocalEmailFallback(): boolean {
+  if (process.env.NODE_ENV === "production") return false;
+  if (!process.env.RESEND_API_KEY) return true;
+  // onboarding@resend.dev is Resend's shared test sender — it only allows sending
+  // to the account owner's verified email, so fall back to console in dev.
+  const from = process.env.EMAIL_FROM || "";
+  return from.includes("@resend.dev");
+}
+
 function getResend(): Resend {
   if (!_resend) {
     const key = process.env.RESEND_API_KEY;
@@ -16,6 +25,11 @@ function getResend(): Resend {
 const EMAIL_FROM = process.env.EMAIL_FROM || "Clientory <onboarding@resend.dev>";
 
 export async function sendOtpEmail(to: string, code: string): Promise<void> {
+  if (shouldUseLocalEmailFallback()) {
+    console.log(`[DEV OTP] ${to}: ${code}`);
+    return;
+  }
+
   const { data, error } = await getResend().emails.send({
     from: EMAIL_FROM,
     to,
@@ -153,6 +167,13 @@ function buildAudienceSectionHtml(section: AudienceSection): string {
 }
 
 export async function sendReportEmail(to: string, data: ReportEmailData): Promise<void> {
+  if (shouldUseLocalEmailFallback()) {
+    console.log(
+      `[DEV REPORT EMAIL] ${to}: score=${data.score} results=${data.appBaseUrl}/scan/${data.scanId}/results`,
+    );
+    return;
+  }
+
   const { businessName, businessType, location, score, scanId, appBaseUrl, providerStats, recommendations, audienceSections, audienceScores } = data;
   const resultsUrl = `${appBaseUrl}/scan/${scanId}/results`;
 

@@ -54,6 +54,17 @@ export interface VerifyOtpBody {
 
 export interface VerifyOtpResponse {
   success: boolean;
+  verifiedToken: string;
+  hasPassword: boolean;
+}
+
+export interface SubmitPasswordBody {
+  verifiedToken: string;
+  password: string;
+}
+
+export interface SubmitPasswordResponse {
+  success: boolean;
   emailToken: string;
   userId?: string | null;
 }

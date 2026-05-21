@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Layout } from "@/components/layout";
+import { MarketingLayout } from "@/components/marketing-layout";
 import { Check, Sparkles, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { BILLING_CONFIG, BILLING_SCANS_LABEL } from "@/lib/billing-config";
@@ -9,17 +9,17 @@ const SHARED_FEATURES = [
   "Full report history",
   "PDF & CSV exports",
   "Detailed AI recommendations",
-  "Saved business profiles",
+  "Saved firm profiles",
   "Priority scan processing",
 ];
 
 const PLANS = [
   {
     id: "single",
-    label: "Individual or Business",
-    sublabel: "One client type",
+    label: "Family or Employer",
+    sublabel: "One immigration segment",
     price: BILLING_CONFIG.monthlyPriceUsd,
-    description: "Serve only individual clients or only business clients.",
+    description: "Serve either family-based / individual immigration matters or employer-sponsored immigration matters.",
     badge: null,
     features: [
       "10 AI search prompts",
@@ -29,10 +29,10 @@ const PLANS = [
   },
   {
     id: "both",
-    label: "Individual & Business",
-    sublabel: "Both client types",
+    label: "Family & Employer",
+    sublabel: "Both immigration segments",
     price: BILLING_CONFIG.monthlyPriceUsd * 2,
-    description: "Serve both individual and business clients with separate prompt sets.",
+    description: "Serve both family-based / individual and employer-sponsored immigration matters with separate prompt sets.",
     badge: "Most complete",
     features: [
       "20 AI search prompts (10 per client type)",
@@ -44,8 +44,8 @@ const PLANS = [
 
 export default function Pricing() {
   return (
-    <Layout>
-      <div className="container max-w-5xl mx-auto px-4 py-20">
+    <MarketingLayout>
+      <div className="container max-w-5xl mx-auto px-4 pt-40 pb-20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -57,10 +57,10 @@ export default function Pricing() {
             Simple, transparent pricing
           </div>
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-            Know when AI recommends your law firm
+            Know when AI recommends your immigration firm
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Every law firm gets one free AI visibility report. Subscribe to run ongoing scans, track changes over time, and stay ahead of competing firms.
+            Every immigration law firm gets one free AI visibility report. Subscribe to run ongoing scans, track changes over time, and stay ahead of competing firms.
           </p>
         </motion.div>
 
@@ -105,7 +105,7 @@ export default function Pricing() {
               to="/settings/billing"
               className={`flex items-center justify-center gap-2 w-full text-center px-6 py-3 rounded-xl font-semibold transition-all duration-200 text-sm ${plan.highlight ? "bg-gradient-to-r from-primary to-accent text-white shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5" : "border border-border hover:bg-muted"}`}
             >
-              Subscribe a Business <ArrowRight className="w-4 h-4" />
+              Subscribe a Firm <ArrowRight className="w-4 h-4" />
             </Link>
           </motion.div>
           ))}
@@ -122,23 +122,23 @@ export default function Pricing() {
             {[
               {
                 q: "Do I get a free report?",
-                a: "Yes — every account gets one free AI visibility report, no credit card required. After that, subscribe per business to keep running scans.",
+                a: "Yes — every account gets one free AI visibility report, no credit card required. After that, subscribe per firm to keep running scans.",
               },
               {
                 q: "What counts as a scan?",
-                a: "Each time you run a new visibility scan for a specific business, that uses 1 scan from your allowance. Viewing an existing report again does not use a scan.",
+                a: "Each time you run a new visibility scan for a specific immigration firm, that uses 1 scan from your allowance. Viewing an existing report again does not use a scan.",
               },
               {
                 q: "When does my scan allowance reset?",
                 a: `Your ${BILLING_CONFIG.scansPerCycle}-scan allowance resets at the start of each monthly billing cycle.`,
               },
               {
-                q: "Can I subscribe multiple businesses?",
-                a: `Yes — subscriptions are per business. Each business you want to monitor monthly needs its own subscription ($${BILLING_CONFIG.monthlyPriceUsd}–$${BILLING_CONFIG.monthlyPriceUsd * 2}/month depending on client types served).`,
+                q: "Can I subscribe multiple firms?",
+                a: `Yes — subscriptions are per firm. Each immigration firm you want to monitor monthly needs its own subscription ($${BILLING_CONFIG.monthlyPriceUsd}–$${BILLING_CONFIG.monthlyPriceUsd * 2}/month depending on the immigration client segments you serve).`,
               },
               {
                 q: "What happens if I cancel?",
-                a: "Your access continues through the end of your current billing period. After that, you'll need to resubscribe to run new scans on that business.",
+                a: "Your access continues through the end of your current billing period. After that, you'll need to resubscribe to run new scans on that firm.",
               },
             ].map((faq) => (
               <div key={faq.q} className="border border-border rounded-xl p-5">
@@ -149,6 +149,6 @@ export default function Pricing() {
           </div>
         </motion.div>
       </div>
-    </Layout>
+    </MarketingLayout>
   );
 }

@@ -64,6 +64,52 @@ export function createEmailToken(email: string): string {
   return token;
 }
 
+export function createVerifiedToken(email: string): string {
+  const secret = getTokenSecret();
+  const payload = JSON.stringify({ email: email.toLowerCase(), ts: Date.now(), purpose: "pw" });
+  const hmac = crypto.createHmac("sha256", secret).update(payload).digest("hex");
+  return Buffer.from(payload).toString("base64url") + "." + hmac;
+}
+
+export function verifyVerifiedToken(token: string): string | null {
+  const secret = getTokenSecret();
+  const parts = token.split(".");
+  if (parts.length !== 2) return null;
+  const [payloadB64, hmac] = parts;
+  const payload = Buffer.from(payloadB64, "base64url").toString("utf8");
+  const expectedHmac = crypto.createHmac("sha256", secret).update(payload).digest("hex");
+  if (hmac !== expectedHmac) return null;
+  try {
+    const data = JSON.parse(payload) as { email: string; ts: number; purpose: string };
+    if (data.purpose !== "pw") return null;
+    if (Date.now() - data.ts > 10 * 60 * 1000) return null;
+    return data.email;
+  } catch {
+    return null;
+  }
+}
+
+export async function hashPassword(password: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const salt = crypto.randomBytes(16).toString("hex");
+    crypto.scrypt(password, salt, 64, (err, key) => {
+      if (err) reject(err);
+      else resolve(`${salt}:${key.toString("hex")}`);
+    });
+  });
+}
+
+export async function verifyPassword(password: string, hash: string): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    const [salt, key] = hash.split(":");
+    if (!salt || !key) { resolve(false); return; }
+    crypto.scrypt(password, salt, 64, (err, derived) => {
+      if (err) reject(err);
+      else resolve(crypto.timingSafeEqual(Buffer.from(key, "hex"), derived));
+    });
+  });
+}
+
 export function verifyEmailToken(token: string): string | null {
   const secret = getTokenSecret();
   const parts = token.split(".");

@@ -36,7 +36,7 @@ function getContent(
       return {
         icon: <Lock className="w-10 h-10 text-primary" />,
         title: "Free report already used",
-        description: `You've already used your free report${businessName ? ` for ${businessName}` : ""}. Subscribe to continue monitoring this business in AI search results.`,
+        description: `You've already used your free report${businessName ? ` for ${businessName}` : ""}. Subscribe to continue monitoring this firm in AI search results.`,
         cta: `Subscribe — ${BILLING_PRICE_LABEL}`,
         ctaAction: "billing",
       };
@@ -52,7 +52,7 @@ function getContent(
       return {
         icon: <Zap className="w-10 h-10 text-primary" />,
         title: "Subscription required",
-        description: `A subscription is required to run scans for ${businessName ?? "this business"}. Subscribe for ${BILLING_PRICE_LABEL} to get ${BILLING_SCANS_LABEL} and full access to all features.`,
+        description: `A subscription is required to run scans for ${businessName ?? "this firm"}. Subscribe for ${BILLING_PRICE_LABEL} to get ${BILLING_SCANS_LABEL} and full access to all features.`,
         cta: `Subscribe — ${BILLING_PRICE_LABEL}`,
         ctaAction: "billing",
       };
@@ -60,7 +60,7 @@ function getContent(
       return {
         icon: <CreditCard className="w-10 h-10 text-primary" />,
         title: "Subscription inactive",
-        description: `Your subscription for ${businessName ?? "this business"} is no longer active. Reactivate to continue running scans.`,
+        description: `Your subscription for ${businessName ?? "this firm"} is no longer active. Reactivate to continue running scans.`,
         cta: "Manage Billing",
         ctaAction: "billing",
       };
@@ -68,7 +68,7 @@ function getContent(
       return {
         icon: <RotateCcw className="w-10 h-10 text-primary" />,
         title: "Billing period ended",
-        description: `Your billing period has ended for ${businessName ?? "this business"}. Please check your billing settings to reactivate.`,
+        description: `Your billing period has ended for ${businessName ?? "this firm"}. Please check your billing settings to reactivate.`,
         cta: "Manage Billing",
         ctaAction: "billing",
       };

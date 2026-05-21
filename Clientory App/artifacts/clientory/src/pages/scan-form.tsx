@@ -9,6 +9,7 @@ import {
   generatePromptSet,
   sendOtp,
   verifyOtp,
+  submitPassword,
   suggestCompetitors,
 } from "@workspace/api-client-react";
 import type { CreateBusinessBody } from "@workspace/api-client-react";
@@ -43,42 +44,43 @@ const GEO_SCOPES = [
 const CLIENT_STAGES_BUSINESS = [
   { value: "small_business", label: "Small businesses (1–50 employees)" },
   { value: "mid_size_business", label: "Mid-size businesses (51–500 employees)" },
+  { value: "venture_backed_startup", label: "Venture-backed startups" },
   { value: "nonprofit", label: "Nonprofits" },
-  { value: "real_estate_investor", label: "Real estate investors" },
+  { value: "higher_education", label: "Universities / higher education" },
   { value: "healthcare_provider", label: "Healthcare providers" },
-  { value: "government_contractor", label: "Government contractors" },
 ];
 
 const DECISION_MAKERS_BUSINESS = [
-  { value: "business_owner", label: "Business owner / founder" },
-  { value: "hr_manager", label: "HR Manager" },
+  { value: "business_owner", label: "Founder / business owner" },
+  { value: "hr_manager", label: "HR / People Ops" },
   { value: "general_counsel", label: "General Counsel" },
-  { value: "cfo_controller", label: "CFO / Controller" },
-  { value: "property_manager", label: "Property manager" },
-  { value: "executor_trustee", label: "Executor / Trustee" },
+  { value: "talent_acquisition", label: "Talent acquisition lead" },
+  { value: "global_mobility", label: "Global mobility manager" },
+  { value: "cfo_controller", label: "COO / CFO" },
 ];
 
 const PRACTICE_AREAS_OPTIONS = [
-  "Employment Law", "Business Litigation", "Family Law", "Estate Planning & Probate",
-  "Personal Injury", "Criminal Defense", "Real Estate Law", "Immigration Law",
-  "Intellectual Property", "Bankruptcy", "Tax Law", "Corporate & Business Law",
-  "Contract Law", "Civil Rights", "Landlord-Tenant Law", "Workers' Compensation",
+  "Family-Based Immigration", "Marriage Green Cards", "Employment-Based Immigration",
+  "Business Immigration", "Naturalization & Citizenship", "Removal Defense",
+  "Asylum", "Adjustment of Status", "Consular Processing", "Waivers",
+  "Investor & Entrepreneur Visas", "Extraordinary Ability & NIW", "Humanitarian Relief",
+  "I-9 & Compliance", "Global Mobility", "Appeals & Motions",
 ];
 
 const LEGAL_SERVICES_OPTIONS = [
-  "Wrongful termination defense", "Non-compete enforcement", "Contract drafting",
-  "Mediation & arbitration", "Business formation", "Employment discrimination claims",
-  "Lease negotiation", "Estate plan preparation", "Trust administration",
-  "DUI / criminal defense", "Green card applications", "Patent filing",
-  "Trademark registration", "Chapter 7 bankruptcy", "Tax audit representation",
-  "Shareholder dispute resolution", "Wage theft claims", "ADA compliance counsel",
+  "Marriage green card filing", "Adjustment of status", "Naturalization applications",
+  "Consular processing", "H-1B petitions", "PERM labor certification",
+  "L-1 visa petitions", "O-1 visa petitions", "TN visa applications",
+  "E-2 investor visa strategy", "EB-1A petitions", "EB-2 NIW petitions",
+  "Removal defense hearings", "Asylum applications", "Waivers of inadmissibility",
+  "RFE / NOID responses", "Employer I-9 compliance", "Global mobility strategy",
 ];
 
 const SPECIALTIES_OPTIONS = [
-  "FLSA violations", "Whistleblower cases", "Non-compete agreements",
-  "Executive terminations", "Tech startup equity disputes", "Hostile work environment",
-  "HOA disputes", "Construction defects", "Medical malpractice",
-  "Slip and fall", "Product liability", "FMLA disputes",
+  "Extraordinary ability cases", "National Interest Waivers", "Startup founder visas",
+  "H-1B cap cases", "Consular interview preparation", "Waivers after unlawful presence",
+  "Cancellation of removal", "VAWA petitions", "U visas",
+  "Complex family sponsorship", "Site visit preparedness", "Cross-border hiring",
 ];
 
 const B2C_INDUSTRIES_OPTIONS = [
@@ -88,9 +90,9 @@ const B2C_INDUSTRIES_OPTIONS = [
 ];
 
 const B2B_INDUSTRIES_OPTIONS = [
-  "Technology / SaaS", "Healthcare & medical", "Real estate", "Construction & contractors",
-  "Finance & banking", "Manufacturing", "Retail & e-commerce", "Hospitality",
-  "Energy & utilities", "Agriculture", "Government contractors", "Nonprofits",
+  "Technology / SaaS", "Healthcare & medical", "Higher education", "Manufacturing",
+  "Hospitality", "Construction & contractors", "Finance & banking", "Retail & e-commerce",
+  "Biotech / life sciences", "Logistics", "Professional services", "Nonprofits",
 ];
 
 const US_STATES = [
@@ -101,8 +103,8 @@ const US_STATES = [
 ];
 
 const STEP_LABELS = [
-  "Identity", "Locations", "Individual Clients", "Business Clients",
-  "Partners", "Competitors", "Authority", "Verify", "Confirm",
+  "Sign in", "Identity", "Locations", "Families / Individuals", "Employers",
+  "Partners", "Competitors", "Authority", "Confirm",
 ];
 
 const TOTAL_STEPS = 9;
@@ -193,45 +195,50 @@ const DEFAULT_DATA: FirmIntakeData = {
 
 const DEMO_FIRM: FirmIntakeData = {
   firmType: "law",
-  legalName: "Baker & Monroe LLP",
-  brandName: "Baker Monroe",
-  yearFounded: "2008",
-  website: "https://bakermonroe.com",
+  legalName: "Klasko Immigration Law Partners, LLP",
+  brandName: "Klasko Immigration",
+  yearFounded: "2004",
+  website: "https://www.klaskolaw.com",
   locations: [
-    { city: "Austin", state: "TX", isHQ: true },
-    { city: "Houston", state: "TX", isHQ: false },
+    { city: "Philadelphia", state: "PA", isHQ: true },
+    { city: "New York", state: "NY", isHQ: false },
+    { city: "Washington", state: "DC", isHQ: false },
   ],
-  geographicScope: "regional",
+  geographicScope: "national",
   servesIndividuals: true,
-  individualServices: ["Employment Law", "Personal Injury", "Estate Planning & Probate"],
-  individualDeliverables: ["Wrongful termination defense", "Wage theft claims", "Estate plan preparation"],
-  individualSpecialties: ["FLSA violations", "Executive terminations"],
+  individualServices: ["EB-1 Immigration", "EB-5 Immigration", "Extraordinary Ability & NIW", "Investor & Entrepreneur Visas"],
+  individualDeliverables: ["EB-1A petitions", "EB-2 NIW petitions", "Adjustment of status", "Consular processing", "E-2 investor visa strategy"],
+  individualSpecialties: ["Extraordinary ability cases", "National Interest Waivers", "Startup founder visas"],
   servesBusiness: true,
-  businessServices: ["Business Litigation", "Contract Law", "Corporate & Business Law"],
-  businessDeliverables: ["Contract Drafting", "Shareholder dispute resolution", "Business formation"],
-  businessSpecialties: ["Non-compete agreements", "Tech startup equity disputes"],
-  industriesServed: ["Technology", "Healthcare", "Real Estate", "Retail"],
-  clientStages: ["small_business", "mid_size_business"],
-  decisionMakers: ["business_owner", "hr_manager", "general_counsel"],
+  businessServices: ["Business Immigration", "Employment-Based Immigration", "I-9 & Compliance", "Global Mobility"],
+  businessDeliverables: ["H-1B petitions", "PERM labor certification", "L-1 visa petitions", "Employer I-9 compliance", "Global mobility strategy", "RFE / NOID responses"],
+  businessSpecialties: ["H-1B cap cases", "Site visit preparedness", "Cross-border hiring"],
+  industriesServed: ["Technology / SaaS", "Healthcare & medical", "Higher education", "Biotech / life sciences", "Finance & banking"],
+  clientStages: ["small_business", "mid_size_business", "venture_backed_startup", "higher_education", "healthcare_provider"],
+  decisionMakers: ["general_counsel", "hr_manager", "global_mobility", "talent_acquisition"],
   partners: [
-    { name: "James Baker", title: "Managing Partner", trackIndependently: true },
-    { name: "Linda Monroe", title: "Senior Partner", trackIndependently: true },
+    { name: "H. Ronald Klasko", title: "Chairman", trackIndependently: true },
+    { name: "William Stock", title: "Managing Partner", trackIndependently: true },
+    { name: "Elise Fialkowski", title: "Partner", trackIndependently: false },
   ],
   directCompetitors: [
-    { name: "Graves Dougherty Hearon", location: "Austin, TX" },
-    { name: "Littler Mendelson", location: "Austin, TX" },
-    { name: "Jackson Lewis", location: "Houston, TX" },
+    { name: "Fragomen, Del Rey, Bernsen & Loewy", location: "New York, NY" },
+    { name: "Berry Appleman & Leiden", location: "San Francisco, CA" },
+    { name: "Ogletree Deakins", location: "Washington, DC" },
   ],
   rankings: [
-    { source: "Best Lawyers", category: "Employment Law – Management", year: "2024" },
-    { source: "Chambers USA", category: "Labor & Employment", year: "2023" },
+    { source: "Chambers USA", category: "Immigration: Business", year: "2025" },
+    { source: "Best Lawyers in America", category: "Immigration Law", year: "2026" },
+    { source: "Chambers Global", category: "Immigration: Business", year: "2026" },
   ],
-  directoryListings: ["Martindale-Hubbell", "Avvo", "FindLaw"],
-  publications: ["Texas Employment Law Letter", "Austin Business Journal"],
+  directoryListings: ["AILA Lawyer Directory", "Martindale-Hubbell", "Chambers USA", "Avvo"],
+  publications: ["Law360", "AILA", "The Legal 500"],
   topGSCQueries: [
-    "employment lawyer Austin TX",
-    "wrongful termination attorney Texas",
-    "non-compete agreement lawyer Austin",
+    "eb-1 extraordinary ability lawyer philadelphia",
+    "eb-5 investor visa attorney",
+    "h1b petition law firm philadelphia",
+    "immigration lawyer for startups",
+    "i-9 compliance attorney",
   ],
   email: "",
 };
@@ -465,10 +472,19 @@ function CheckboxGroup({
 
 export default function ScanForm() {
   const navigate = useNavigate();
+  const initialEmailToken = (() => {
+    try {
+      return localStorage.getItem("emailToken");
+    } catch {
+      return null;
+    }
+  })();
+  const [emailToken, setEmailToken] = useState<string | null>(initialEmailToken);
   const [step, setStep] = useState<number>(() => {
     try {
       const s = localStorage.getItem(STORAGE_STEP_KEY);
-      return s ? Math.min(parseInt(s, 10), TOTAL_STEPS) : 1;
+      const saved = s ? Math.min(parseInt(s, 10), TOTAL_STEPS) : 1;
+      return initialEmailToken ? saved : 1;
     } catch {
       return 1;
     }
@@ -483,13 +499,15 @@ export default function ScanForm() {
     }
   });
 
-  const [emailToken, setEmailToken] = useState<string | null>(
-    () => localStorage.getItem("emailToken"),
-  );
   const [otpSent, setOtpSent] = useState(false);
   const [otpCode, setOtpCode] = useState("");
   const [sendingOtp, setSendingOtp] = useState(false);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
+  const [verifiedToken, setVerifiedToken] = useState<string | null>(null);
+  const [hasPassword, setHasPassword] = useState(false);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [submittingPassword, setSubmittingPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
@@ -514,6 +532,12 @@ export default function ScanForm() {
     setFormData((prev) => ({ ...prev, ...patch }));
   }, []);
 
+  useEffect(() => {
+    if (!emailToken && step > 1) {
+      setStep(1);
+    }
+  }, [emailToken, step]);
+
   // ─── Turnstile ─────────────────────────────────────────────────────────────
   const renderTurnstile = useCallback(() => {
     if (!TURNSTILE_SITE_KEY || !turnstileRef.current) return;
@@ -531,7 +555,7 @@ export default function ScanForm() {
   }, []);
 
   useEffect(() => {
-    if (step !== 8) return;
+    if (step !== 1) return;
     if (!TURNSTILE_SITE_KEY) return;
     const win = window as unknown as Record<string, unknown>;
     if (win.turnstile) { renderTurnstile(); return; }
@@ -569,13 +593,39 @@ export default function ScanForm() {
     setError(null);
     try {
       const result = await verifyOtp({ email: formData.email, code: otpCode });
-      setEmailToken(result.emailToken);
-      localStorage.setItem("emailToken", result.emailToken);
-      setStep(9);
+      setVerifiedToken(result.verifiedToken);
+      setHasPassword(result.hasPassword);
+      setPassword("");
+      setConfirmPassword("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Invalid or expired code.");
     } finally {
       setVerifyingOtp(false);
+    }
+  };
+
+  const handleSubmitPassword = async () => {
+    if (!verifiedToken) return;
+    if (!hasPassword && password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+    setSubmittingPassword(true);
+    setError(null);
+    try {
+      const result = await submitPassword({ verifiedToken, password });
+      setEmailToken(result.emailToken);
+      localStorage.setItem("emailToken", result.emailToken);
+      setVerifiedToken(null);
+      setStep(2);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Incorrect password.");
+    } finally {
+      setSubmittingPassword(false);
     }
   };
 
@@ -610,7 +660,7 @@ export default function ScanForm() {
   // ─── Final submission ──────────────────────────────────────────────────────
   const handleSubmit = async () => {
     const token = emailToken;
-    if (!token) { setStep(8); return; }
+    if (!token) { setStep(1); return; }
 
     setSubmitting(true);
     setError(null);
@@ -675,7 +725,9 @@ export default function ScanForm() {
       if (errObj.status === 401) {
         setEmailToken(null);
         localStorage.removeItem("emailToken");
-        setStep(8);
+        setStep(1);
+        setOtpSent(false);
+        setOtpCode("");
         setError("Session expired. Please verify your email again.");
       } else if (errObj.status === 402) {
         setFreeReportUsed(true);
@@ -692,17 +744,18 @@ export default function ScanForm() {
   // ─── Step validation ───────────────────────────────────────────────────────
   const canProceed = (): boolean => {
     switch (step) {
-      case 1: return formData.legalName.trim().length >= 2;
-      case 2: return (
+      case 1: return !!emailToken;
+      case 2: return formData.legalName.trim().length >= 2;
+      case 3: return (
         formData.locations.length > 0 &&
         formData.locations.every((l) => l.city.trim() && l.state) &&
         !!formData.geographicScope
       );
-      case 3: return formData.servesIndividuals !== null && (
+      case 4: return formData.servesIndividuals !== null && (
         !formData.servesIndividuals ||
         (formData.individualServices.length >= 1 && formData.individualDeliverables.length >= 1)
       );
-      case 4: return formData.servesBusiness !== null &&
+      case 5: return formData.servesBusiness !== null &&
         (formData.servesIndividuals === true || formData.servesBusiness === true) &&
         (!formData.servesBusiness || (
           formData.businessServices.length >= 1 &&
@@ -710,10 +763,9 @@ export default function ScanForm() {
           formData.clientStages.length >= 1 &&
           formData.decisionMakers.length >= 1
         ));
-      case 5: return true;
       case 6: return true;
       case 7: return true;
-      case 8: return !!emailToken;
+      case 8: return true;
       case 9: return true;
       default: return true;
     }
@@ -721,8 +773,8 @@ export default function ScanForm() {
 
   const goNext = () => {
     setError(null);
-    if (step === 8 && !emailToken) {
-      setError("Please verify your email before continuing.");
+    if (step === 1 && !emailToken) {
+      setError("Please sign in before continuing.");
       return;
     }
     setStep((s) => Math.min(s + 1, TOTAL_STEPS));
@@ -740,9 +792,9 @@ export default function ScanForm() {
       <div>
         <div className="flex items-center gap-2 mb-1">
           <span className="text-2xl">⚖️</span>
-          <h2 className="text-xl font-bold text-slate-900">Tell us about your law firm</h2>
+          <h2 className="text-xl font-bold text-slate-900">Tell us about your immigration law firm</h2>
         </div>
-        <p className="text-slate-500 text-sm">We'll use this to generate AI search prompts tailored to your practice.</p>
+        <p className="text-slate-500 text-sm">We'll use this to generate AI search prompts tailored to your immigration practice.</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-1.5">
@@ -939,16 +991,16 @@ export default function ScanForm() {
   const renderStep3 = () => (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-slate-900 mb-1">Do you serve individual clients?</h2>
+        <h2 className="text-xl font-bold text-slate-900 mb-1">Do you serve individuals and families?</h2>
         <p className="text-slate-500 text-sm">
-          Individuals who come to you with personal legal matters — not as a business representative.
+          People and families seeking immigration help for themselves or loved ones, rather than through an employer sponsor.
         </p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         {([
-          { value: true, label: "Yes", sub: "I represent individual people" },
-          { value: false, label: "No", sub: "Businesses only" },
+          { value: true, label: "Yes", sub: "I handle family and individual immigration matters" },
+          { value: false, label: "No", sub: "Employer-sponsored matters only" },
         ] as { value: boolean; label: string; sub: string }[]).map(({ value, label, sub }) => (
           <button
             key={String(value)}
@@ -969,21 +1021,21 @@ export default function ScanForm() {
       {formData.servesIndividuals === true && (
         <>
           <SelectableTagInput
-            label="Practice areas for individuals"
+            label="Practice areas for individuals and families"
             required
             values={formData.individualServices}
             onChange={(v) => update({ individualServices: v })}
-            placeholder="Add a custom practice area..."
-            hint="Your main practice areas when serving individual clients (3–6 items recommended)"
+            placeholder="Add a custom immigration focus..."
+            hint="Your main practice areas when serving families and individual immigration clients (3–6 items recommended)"
             suggestions={PRACTICE_AREAS_OPTIONS}
           />
           <SelectableTagInput
-            label="Specific legal services for individuals"
+            label="Specific immigration services for individuals and families"
             required
             values={formData.individualDeliverables}
             onChange={(v) => update({ individualDeliverables: v })}
-            placeholder="Add a custom legal service..."
-            hint="The specific legal services you deliver to individuals. Be precise — these feed directly into your AI prompts."
+            placeholder="Add a custom immigration service..."
+            hint="The specific immigration services you deliver to individuals and families. Be precise — these feed directly into your AI prompts."
             suggestions={LEGAL_SERVICES_OPTIONS}
           />
           {formData.individualDeliverables.some((d) => d.split(" ").length <= 2) && (
@@ -991,17 +1043,17 @@ export default function ScanForm() {
               <span className="text-amber-500 shrink-0 mt-0.5">💡</span>
               <span>
                 Some services look generic (1–2 words). Consider being more specific — e.g.{" "}
-                <em>"wrongful termination defense"</em> instead of <em>"litigation"</em>. More specific
+                <em>"marriage green card filing"</em> instead of <em>"green cards"</em>. More specific
                 services generate higher-quality prompts.
               </span>
             </div>
           )}
           <SelectableTagInput
-            label="Notable specialties for individuals"
+            label="Notable specialties for individuals and families"
             values={formData.individualSpecialties}
             onChange={(v) => update({ individualSpecialties: v })}
-            placeholder="Add a custom specialty..."
-            hint="Optional — niche areas that set you apart when serving individuals."
+            placeholder="Add a custom immigration specialty..."
+            hint="Optional — niche areas that set you apart when serving families and individual clients."
             suggestions={SPECIALTIES_OPTIONS}
           />
         </>
@@ -1011,8 +1063,8 @@ export default function ScanForm() {
         <div className="flex items-start gap-3 p-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-sm">
           <span className="text-lg leading-none mt-0.5">→</span>
           <div>
-            <p className="font-semibold">Got it — move on to business clients.</p>
-            <p className="text-slate-500 mt-0.5">You can set up your business client details in the next step.</p>
+            <p className="font-semibold">Got it — move on to employer-sponsored matters.</p>
+            <p className="text-slate-500 mt-0.5">You can set up your employer and business client details in the next step.</p>
           </div>
         </div>
       )}
@@ -1022,16 +1074,16 @@ export default function ScanForm() {
   const renderStep4 = () => (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-slate-900 mb-1">Do you serve business clients?</h2>
+        <h2 className="text-xl font-bold text-slate-900 mb-1">Do you handle employer-sponsored immigration matters?</h2>
         <p className="text-slate-500 text-sm">
-          Companies or organizations hiring you on behalf of their business.
+          Companies and organizations hiring you for work visas, sponsorship, compliance, or global mobility.
         </p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         {([
-          { value: true, label: "Yes", sub: "I represent businesses" },
-          { value: false, label: "No", sub: "Individuals only" },
+          { value: true, label: "Yes", sub: "I represent employers and sponsors" },
+          { value: false, label: "No", sub: "Individuals and families only" },
         ] as { value: boolean; label: string; sub: string }[]).map(({ value, label, sub }) => (
           <button
             key={String(value)}
@@ -1059,7 +1111,7 @@ export default function ScanForm() {
       {formData.servesBusiness === false && !formData.servesIndividuals && (
         <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-sm">
           <span className="text-lg leading-none mt-0.5">⚠️</span>
-          <p>Please indicate that you serve at least one type of client — individuals, businesses, or both.</p>
+          <p>Please indicate that you serve at least one type of immigration client — families / individuals, employers, or both.</p>
         </div>
       )}
 
@@ -1067,8 +1119,8 @@ export default function ScanForm() {
         <div className="flex items-start gap-3 p-4 rounded-xl bg-blue-50 border border-blue-200 text-blue-800 text-sm">
           <span className="text-xl leading-none mt-0.5">✓</span>
           <div>
-            <p className="font-semibold">Got it — individual clients only.</p>
-            <p className="text-blue-600 mt-0.5">We'll generate 10 prompts tailored to individuals searching for personal legal help.</p>
+            <p className="font-semibold">Got it — family and individual immigration only.</p>
+            <p className="text-blue-600 mt-0.5">We'll generate 10 prompts tailored to people searching for personal immigration help.</p>
           </div>
         </div>
       )}
@@ -1076,42 +1128,42 @@ export default function ScanForm() {
       {formData.servesBusiness === true && (
         <>
           <SelectableTagInput
-            label="Practice areas for businesses"
+            label="Practice areas for employers"
             required
             values={formData.businessServices}
             onChange={(v) => update({ businessServices: v })}
-            placeholder="Add a custom practice area..."
-            hint="Your main practice areas when representing business clients (3–6 items recommended)"
+            placeholder="Add a custom immigration focus..."
+            hint="Your main practice areas when representing employers and sponsors (3–6 items recommended)"
             suggestions={PRACTICE_AREAS_OPTIONS}
           />
           <SelectableTagInput
-            label="Specific legal services for businesses"
+            label="Specific immigration services for employers"
             required
             values={formData.businessDeliverables}
             onChange={(v) => update({ businessDeliverables: v })}
-            placeholder="Add a custom legal service..."
-            hint="The specific legal services you deliver to businesses. Be precise — these feed directly into your AI prompts."
+            placeholder="Add a custom immigration service..."
+            hint="The specific immigration services you deliver to employers. Be precise — these feed directly into your AI prompts."
             suggestions={LEGAL_SERVICES_OPTIONS}
           />
           <SelectableTagInput
-            label="Notable specialties for businesses"
+            label="Notable specialties for employers"
             values={formData.businessSpecialties}
             onChange={(v) => update({ businessSpecialties: v })}
-            placeholder="Add a custom specialty..."
-            hint="Optional — niche areas that set you apart when serving businesses."
+            placeholder="Add a custom immigration specialty..."
+            hint="Optional — niche areas that set you apart when serving employer clients."
             suggestions={SPECIALTIES_OPTIONS}
           />
           <SelectableTagInput
-            label="Industries your business clients are in"
+            label="Industries your employer clients are in"
             required
             values={formData.industriesServed}
             onChange={(v) => update({ industriesServed: v })}
             placeholder="Add a custom industry..."
-            hint="The sectors where your business clients operate"
+            hint="The sectors where your employer clients operate"
             suggestions={B2B_INDUSTRIES_OPTIONS}
           />
           <CheckboxGroup
-            label="Business client sizes"
+            label="Employer client sizes"
             required
             options={CLIENT_STAGES_BUSINESS}
             values={formData.clientStages}
@@ -1397,7 +1449,7 @@ export default function ScanForm() {
         values={formData.directoryListings}
         onChange={(v) => update({ directoryListings: v })}
         placeholder="e.g. Avvo, Martindale-Hubbell, Chambers USA..."
-        hint="Where your firm has a verified or featured profile"
+        hint="Where your firm has a verified or featured immigration profile"
       />
       <TagInput
         label="Notable publications / media mentions"
@@ -1419,7 +1471,7 @@ export default function ScanForm() {
           onChange={(e) =>
             update({ topGSCQueries: e.target.value.split("\n").filter((q) => q.trim()) })
           }
-          placeholder={"best employment lawyer Austin TX\nwrongful termination attorney Texas\nsmall business attorney Austin\n..."}
+          placeholder={"marriage green card lawyer chicago\nh1b visa lawyer for startups dallas\nbest naturalization attorney chicago\n..."}
           rows={4}
           className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-200 bg-white resize-none font-mono"
         />
@@ -1427,12 +1479,12 @@ export default function ScanForm() {
     </div>
   );
 
-  const renderStep8 = () => (
+  const renderAuthStep = () => (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-slate-900 mb-1">Verify your email</h2>
+        <h2 className="text-xl font-bold text-slate-900 mb-1">Sign in to start your scan</h2>
         <p className="text-slate-500 text-sm">
-          We'll send your visibility report here. No spam — ever.
+          Verify your email first. Once you're signed in, you can begin the immigration firm intake.
         </p>
       </div>
 
@@ -1440,10 +1492,9 @@ export default function ScanForm() {
         <div className="flex items-center gap-3 p-4 rounded-xl bg-green-50 border border-green-200 text-green-800">
           <ShieldCheck className="w-5 h-5 text-green-600 shrink-0" />
           <div>
-            <p className="text-sm font-semibold">Email already verified</p>
+            <p className="text-sm font-semibold">Signed in</p>
             <p className="text-xs text-green-600 mt-0.5">
-              Continuing as{" "}
-              <span className="font-medium">{formData.email || "verified user"}</span>
+              Continuing as <span className="font-medium">{formData.email || "verified user"}</span>
             </p>
           </div>
           <button
@@ -1451,10 +1502,78 @@ export default function ScanForm() {
             onClick={() => {
               setEmailToken(null);
               localStorage.removeItem("emailToken");
+              setOtpSent(false);
+              setOtpCode("");
+              setVerifiedToken(null);
+              setPassword("");
+              setConfirmPassword("");
+              setTurnstileToken(null);
             }}
             className="ml-auto text-xs text-green-600 hover:underline"
           >
             Use different email
+          </button>
+        </div>
+      ) : verifiedToken ? (
+        /* ── Password step ── */
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-green-50 border border-green-200 text-green-800">
+            <ShieldCheck className="w-4 h-4 text-green-600 shrink-0" />
+            <p className="text-sm">
+              Email verified — <strong>{formData.email}</strong>
+            </p>
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-slate-800">
+              {hasPassword ? "Enter your password" : "Create a password"}
+              <span className="text-blue-600 ml-1">*</span>
+            </label>
+            {!hasPassword && (
+              <p className="text-xs text-slate-500">Must be at least 8 characters.</p>
+            )}
+            <Input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              onKeyDown={(e) => { if (e.key === "Enter" && (hasPassword || confirmPassword === password)) handleSubmitPassword(); }}
+            />
+          </div>
+          {!hasPassword && (
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-slate-800">
+                Confirm password <span className="text-blue-600">*</span>
+              </label>
+              <Input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="••••••••"
+                onKeyDown={(e) => { if (e.key === "Enter" && confirmPassword === password) handleSubmitPassword(); }}
+              />
+            </div>
+          )}
+          <Button
+            onClick={handleSubmitPassword}
+            disabled={
+              submittingPassword ||
+              password.length < 8 ||
+              (!hasPassword && password !== confirmPassword)
+            }
+            className="w-full bg-blue-600 hover:bg-blue-700"
+          >
+            {submittingPassword ? (
+              <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> {hasPassword ? "Signing in..." : "Creating account..."}</>
+            ) : (
+              <><ShieldCheck className="w-4 h-4 mr-2" /> {hasPassword ? "Sign in" : "Create account"}</>
+            )}
+          </Button>
+          <button
+            type="button"
+            onClick={() => { setVerifiedToken(null); setOtpSent(false); setOtpCode(""); setPassword(""); setConfirmPassword(""); }}
+            className="text-sm text-slate-500 hover:underline block mx-auto"
+          >
+            Start over
           </button>
         </div>
       ) : (
@@ -1479,13 +1598,9 @@ export default function ScanForm() {
               className="w-full bg-blue-600 hover:bg-blue-700"
             >
               {sendingOtp ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Sending code...
-                </>
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Sending code...</>
               ) : (
-                <>
-                  <Mail className="w-4 h-4 mr-2" /> Send verification code
-                </>
+                <><Mail className="w-4 h-4 mr-2" /> Send verification code</>
               )}
             </Button>
           ) : (
@@ -1506,6 +1621,7 @@ export default function ScanForm() {
                   className="text-center text-2xl tracking-[0.5em] font-mono"
                   maxLength={6}
                   inputMode="numeric"
+                  onKeyDown={(e) => { if (e.key === "Enter" && otpCode.length === 6) handleVerifyOtp(); }}
                 />
               </div>
               <Button
@@ -1514,13 +1630,9 @@ export default function ScanForm() {
                 className="w-full bg-blue-600 hover:bg-blue-700"
               >
                 {verifyingOtp ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Verifying...
-                  </>
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Verifying...</>
                 ) : (
-                  <>
-                    <ShieldCheck className="w-4 h-4 mr-2" /> Verify email
-                  </>
+                  <><ShieldCheck className="w-4 h-4 mr-2" /> Verify email</>
                 )}
               </Button>
               <button
@@ -1563,7 +1675,7 @@ export default function ScanForm() {
               {formData.servesIndividuals && formData.servesBusiness ? "up to 20" : "10"} locked search prompts
             </strong>{" "}
             tailored to <strong className="text-slate-700">{formData.legalName}</strong> using a combinatorial engine
-            {formData.servesIndividuals && formData.servesBusiness ? " — 10 for individual clients and 10 for business clients" : ""}.
+            {formData.servesIndividuals && formData.servesBusiness ? " — 10 for families / individuals and 10 for employers" : ""}.
           </p>
         </div>
 
@@ -1597,8 +1709,8 @@ export default function ScanForm() {
                 icon: <Users className="w-4 h-4 text-slate-400" />,
                 label: "Client types",
                 value: [
-                  formData.servesIndividuals ? "Individuals" : null,
-                  formData.servesBusiness ? "Businesses" : null,
+                  formData.servesIndividuals ? "Families / Individuals" : null,
+                  formData.servesBusiness ? "Employers" : null,
                 ].filter(Boolean).join(" & ") || "—",
               },
             ].map(({ icon, label, value }) => (
@@ -1625,7 +1737,7 @@ export default function ScanForm() {
           <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 space-y-3">
             <p className="text-sm font-semibold text-amber-900">You've used your 1 free report</p>
             <p className="text-sm text-amber-800 leading-relaxed">
-              Every account gets one free AI visibility report. To create additional firm profiles
+              Every account gets one free AI visibility report. To create additional immigration firm profiles
               and run ongoing scans, you'll need a subscription.
             </p>
             <Button
@@ -1659,6 +1771,7 @@ export default function ScanForm() {
   };
 
   const stepRenderers = [
+    renderAuthStep,
     renderStep1,
     renderStep2,
     renderStep3,
@@ -1666,14 +1779,13 @@ export default function ScanForm() {
     renderStep5,
     renderStep6,
     renderStep7,
-    renderStep8,
     renderStep9,
   ];
 
   const currentRenderer = stepRenderers[step - 1];
   const isLastStep = step === TOTAL_STEPS;
-  const isOptionalStep = step >= 5 && step <= 7;
-  const showNextButton = !isLastStep && step !== 8;
+  const isOptionalStep = step >= 6 && step <= 8;
+  const showNextButton = !isLastStep && step !== 1;
 
   return (
     <Layout>
@@ -1695,7 +1807,7 @@ export default function ScanForm() {
                       try {
                         localStorage.setItem(STORAGE_KEY, JSON.stringify(filled));
                       } catch { /* ignore */ }
-                      setStep(1);
+                      setStep(2);
                     }}
                     className="text-xs text-amber-600 hover:text-amber-700 font-medium underline underline-offset-2"
                   >
@@ -1760,7 +1872,7 @@ export default function ScanForm() {
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               )}
-              {step === 8 && emailToken && (
+              {step === 1 && emailToken && (
                 <Button
                   onClick={goNext}
                   className="ml-auto flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
