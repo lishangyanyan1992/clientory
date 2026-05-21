@@ -6,6 +6,10 @@
   "outputDirectory": "Clientory App/artifacts/clientory/dist/public",
   "rewrites": [
     {
+      "source": "/api/:path*",
+      "destination": "https://RAILWAY_URL_PLACEHOLDER/api/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
