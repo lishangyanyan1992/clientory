@@ -1,0 +1,16 @@
+# Explicitly declare Node.js so Nixpacks doesn't auto-detect Deno.
+# The package.json that drives pnpm lives inside "Clientory App/", not at the
+# repo root, which is why auto-detection fails.
+providers = []
+
+[phases.setup]
+nixPkgs = ["nodejs_22"]
+
+[phases.install]
+cmds = ["corepack enable", "sh ./install-vercel.sh"]
+
+[phases.build]
+cmds = ["sh ./build-railway.sh"]
+
+[start]
+cmd = "sh ./start-railway.sh"
