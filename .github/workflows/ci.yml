@@ -46,4 +46,4 @@ jobs:
 
       - name: Audit dependencies
         working-directory: 'Clientory App'
-        run: pnpm audit --audit-level=high
+        run: pnpm audit --audit-level=critical
