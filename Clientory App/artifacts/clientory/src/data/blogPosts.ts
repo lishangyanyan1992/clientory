@@ -15,6 +15,71 @@ export function getReadingTime(content: string): number {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: "why-city-h-1b-lawyer-pages-may-be-vanishing",
+    title: `Why Your "[City] H-1B Lawyer" Pages May Be Vanishing — and What to Publish Instead`,
+    excerpt: "Google's May 2026 Core Update is exposing thin city-targeted immigration pages. Here's what small firms should publish instead to stay visible and useful.",
+    content: `The Google May 2026 Core Update began rolling out around May 21. It will take roughly two weeks to fully settle, which means if you're seeing unexpected drops in your immigration firm's search visibility right now, you're not imagining things. And if you haven't noticed anything yet, the window to act is narrowing.
+
+Here's what's happening, who it affects most, and the practical steps a small immigration practice can take before the dust settles.
+
+## The Core Update and Why Legal Gets Hit Hardest
+
+Google runs core updates a few times a year. These aren't penalties. They're broad recalibrations of how Google assesses whether a page genuinely serves the person searching. Early 2026 updates have consistently hit three verticals hardest: legal, healthcare, and home services.
+
+Legal takes the biggest hit every time, and the pattern is consistent. Google's systems are increasingly sensitive to pages that look substantive on the surface but fail to provide something a prospective client could actually use. Pages that exist to capture keyword traffic without answering real questions are the primary casualty.
+
+For immigration firms, there's one page type that fits this description precisely.
+
+## The "[City] Immigration Lawyer" Problem
+
+Walk through the websites of a dozen immigration firms and you'll find a near-universal pattern: a set of city or region-specific pages, each with a heading like "H-1B Lawyer in Austin" or "Chicago Immigration Attorney," followed by generic copy about the firm's services with the city name swapped in.
+
+This pattern made sense in an earlier era of search. It doesn't anymore, and this core update is accelerating its demise.
+
+What these pages share is that they're not actually about Austin or Chicago. There's nothing on them that helps an H-1B employee in Austin understand the specific realities of their situation: which USCIS field office handles their case, what processing delays look like in their region, how local employers typically structure sponsorship agreements, or what the current climate looks like for transfers in their sector. The page reads as a location signal, not as genuine guidance.
+
+Google's core updates have been moving consistently in one direction: toward rewarding specificity that only comes from depth of knowledge, and away from rewarding the appearance of coverage. A city-swap template delivers the appearance. It doesn't deliver the depth.
+
+## What "Genuinely Useful" Actually Means for an Immigration Page
+
+The replacement isn't more content on the same thin template. It's a fundamentally different approach to what the page is for.
+
+A page that survives, and more importantly, a page that earns the trust of a prospective H-1B client or a family researching adjustment of status, answers the questions that person is actually asking. Right now, those questions sound like: *What is the H-1B cap lottery looking like this year after the weighted selection change? Why is my green card background check taking so long? My DACA status: what does the new BIA ruling mean for my case?*
+
+Your practice-area pages need to engage with the live reality of immigration law in 2026, not describe your services in evergreen language that could have been written in 2019.
+
+Concretely, this means:
+
+**Jurisdiction-specific guidance.** If you practice in Houston, your H-1B content should reflect the Houston USCIS Field Office and the Texas Service Center. If you handle consular processing, it should reflect the specific posts your clients most often use and any post-specific realities. Generic descriptions of the H-1B process are available everywhere. Your page's value is in the specificity you can offer because you practice here, with these clients.
+
+**The questions clients actually ask.** Your intake calls, your consultations, your RFEs, they tell you exactly what a worried person types into an AI assistant at 11pm. A family researching L-1 transfers is asking whether the new background check expansion will delay their case. An H-4 spouse is asking whether their EAD renewal is still viable. Your page should answer those questions directly and specifically.
+
+**Visible proof.** Credentials, bar admissions, experience with specific case types, outcomes you can describe, reviews from real clients in similar situations. This matters for Google rankings. It matters more for the AI systems that are now the first stop for millions of people researching immigration questions. An AI assistant recommends the firms it can verify, and it verifies through the signals on your pages.
+
+## A 30-Day Fix for Small Firms
+
+You don't need to rebuild your website. You need to make meaningful improvements to the pages that matter most before the current core update finishes settling.
+
+**Week 1: Audit and consolidate.** Identify your thin location pages. If you have ten city pages that are substantially identical, consider consolidating them into a regional practice page with genuine depth. A single page that actually helps people in your market is worth more than ten pages that don't help anyone.
+
+**Week 2: Deepen your top three practice-area pages.** Pick the three case types you handle most: H-1B, family petitions, naturalization, whatever reflects your practice. Add a section to each that addresses the questions you're actually fielding in consultations right now. Reference the current landscape: the weighted H-1B selection process, the post-April DACA ruling, the expanded background checks adding delays to family petitions. Dated, specific, useful.
+
+**Week 3: Add FAQ sections.** FAQ blocks serve two purposes: they signal to Google that your page addresses specific questions, and they match the conversational phrasing that AI assistants extract and cite. Write questions in the first person the way a client would ask them. "Can I still renew my DACA after the new ruling?" is more useful than "DACA Renewal Information."
+
+**Week 4: Make your expertise visible on the page.** Attorney credentials, years of practice, case-type experience, client reviews: this content should be on the practice-area pages, not hidden on an About page. A potential client, and an AI model assessing your page, should be able to identify why your firm is the right one for their specific case within the first scroll.
+
+## The Bigger Picture
+
+The May Core Update is a proximate cause, but the underlying shift has been building for two years. Search, including AI search, is rewarding practices that have built genuinely useful, verifiable, specific content for the people they serve.
+
+The good news: a small immigration firm with deep case experience has an inherent advantage over a content farm or a large generalist firm producing templated pages at scale. The depth of knowledge you apply every day in your practice is exactly what belongs on your pages. The work is making it visible.
+
+If you want to see how your firm appears in AI search today, [run a Clientory visibility scan](https://clientory.org/scan).`,
+    author: "Yanyan Li",
+    date: "2026-05-26",
+    tags: ["Immigration Marketing", "SEO", "Guides"],
+  },
+  {
     slug: "how-clients-find-professional-services-2025",
     title: "How Clients Find Lawyers, Accountants, and Consultants in 2025",
     excerpt: "The way clients discover professional services is changing fast. From Google and reviews to AI tools — here's what the latest research shows about how clients actually find firms today.",
