@@ -9,7 +9,7 @@ import {
 import { eq, and, lte, gte, desc } from "drizzle-orm";
 import { verifyEmailToken } from "../../services/otp";
 import { createCheckoutSession, createPortalSession } from "../../services/stripe";
-import { getPriceIdForClientType } from "@workspace/billing";
+import { PLAN_CONFIG } from "@workspace/billing";
 
 const router: IRouter = Router();
 
@@ -58,7 +58,7 @@ router.post("/billing/subscribe", async (req, res) => {
       return;
     }
 
-    const priceId = getPriceIdForClientType(business.clientType);
+    const priceId = PLAN_CONFIG.stripePriceId;
     if (!priceId) {
       res.status(500).json({ error: "Stripe price ID not configured" });
       return;

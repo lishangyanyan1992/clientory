@@ -1,6 +1,6 @@
 export const PLAN_STATIC_CONFIG = {
   scansPerCycle: 4,
-  monthlyPriceUsd: 5,
+  monthlyPriceUsd: 10,
   features: {
     free: {
       reportHistory: false,
@@ -22,15 +22,7 @@ export const PLAN_STATIC_CONFIG = {
 export const PLAN_CONFIG = {
   ...PLAN_STATIC_CONFIG,
   stripePriceId: process.env.STRIPE_PRICE_ID ?? "",
-  stripePriceIdBoth: process.env.STRIPE_PRICE_ID_BOTH ?? "",
 } as const;
-
-export function getPriceIdForClientType(clientType: string | null | undefined): string {
-  if (clientType === "both") {
-    return PLAN_CONFIG.stripePriceIdBoth || PLAN_CONFIG.stripePriceId;
-  }
-  return PLAN_CONFIG.stripePriceId;
-}
 
 export type PlanFeatures =
   | typeof PLAN_STATIC_CONFIG.features.free
