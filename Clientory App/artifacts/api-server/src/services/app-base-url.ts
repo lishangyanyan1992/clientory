@@ -18,8 +18,6 @@ function getDerivedAppOrigin(): string | null {
   const candidates = [
     process.env.VERCEL_PROJECT_PRODUCTION_URL,
     process.env.VERCEL_URL,
-    process.env.REPLIT_DEV_DOMAIN,
-    process.env.REPL_SLUG ? `${process.env.REPL_SLUG}.repl.co` : undefined,
   ];
 
   for (const candidate of candidates) {
@@ -31,6 +29,15 @@ function getDerivedAppOrigin(): string | null {
   return null;
 }
 
+function getLocalAppOrigin(): string | null {
+  if (process.env.NODE_ENV === "production") {
+    return null;
+  }
+
+  const port = process.env.APP_PORT || process.env.CLIENTORY_APP_PORT || "5173";
+  return normalizeBaseUrl(`http://localhost:${port}`);
+}
+
 export function getAppBaseUrl(): string {
   const explicitBaseUrl = process.env.APP_BASE_URL || process.env.PUBLIC_APP_URL;
   if (explicitBaseUrl) {
@@ -40,6 +47,11 @@ export function getAppBaseUrl(): string {
   const derivedOrigin = getDerivedAppOrigin();
   if (derivedOrigin) {
     return `${derivedOrigin}${normalizeBasePath(process.env.APP_BASE_PATH)}`;
+  }
+
+  const localOrigin = getLocalAppOrigin();
+  if (localOrigin) {
+    return `${localOrigin}${normalizeBasePath(process.env.APP_BASE_PATH)}`;
   }
 
   throw new Error(
