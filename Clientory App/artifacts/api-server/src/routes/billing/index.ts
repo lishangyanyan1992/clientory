@@ -9,13 +9,10 @@ import {
 import { eq, and, lte, gte, desc } from "drizzle-orm";
 import { verifyEmailToken } from "../../services/otp";
 import { createCheckoutSession, createPortalSession } from "../../services/stripe";
+import { getAppUrl } from "../../services/app-base-url";
 import { PLAN_CONFIG } from "@workspace/billing";
 
 const router: IRouter = Router();
-
-function getAppBaseUrl(): string {
-  return `https://${process.env.REPLIT_DEV_DOMAIN || process.env.REPL_SLUG + ".repl.co"}`;
-}
 
 router.post("/billing/subscribe", async (req, res) => {
   try {
@@ -64,11 +61,12 @@ router.post("/billing/subscribe", async (req, res) => {
       return;
     }
 
-    const baseUrl = getAppBaseUrl();
-    const successUrl = `${baseUrl}/settings/billing?success=1&businessId=${businessId}`;
-    const cancelUrl = `${baseUrl}/settings/billing`;
+    const successUrl = new URL(getAppUrl("settings/billing"));
+    successUrl.searchParams.set("success", "1");
+    successUrl.searchParams.set("businessId", businessId);
+    const cancelUrl = getAppUrl("settings/billing");
 
-    const result = await createCheckoutSession(user, businessIdNum, priceId, successUrl, cancelUrl);
+    const result = await createCheckoutSession(user, businessIdNum, priceId, successUrl.toString(), cancelUrl);
 
     res.json({ url: result.url, type: result.type });
   } catch (err) {
@@ -106,8 +104,7 @@ router.post("/billing/portal", async (req, res) => {
       return;
     }
 
-    const baseUrl = getAppBaseUrl();
-    const returnUrl = `${baseUrl}/settings/billing`;
+    const returnUrl = getAppUrl("settings/billing");
     const url = await createPortalSession(user.stripeCustomerId, returnUrl);
 
     res.json({ url });

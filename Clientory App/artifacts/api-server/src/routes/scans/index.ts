@@ -18,6 +18,7 @@ import { validateScanInput } from "../../services/validation";
 import { buildCacheKey, findCachedScan, storeCacheEntry } from "../../services/scan-cache";
 import { checkRateLimit, hashIp, getClientIp } from "../../services/rate-limit";
 import { checkScanEntitlement } from "../../services/entitlement";
+import { getAppBaseUrl } from "../../services/app-base-url";
 
 const router: IRouter = Router();
 
@@ -169,7 +170,7 @@ router.post("/scans", async (req, res) => {
       createdAt: scan.createdAt.toISOString(),
     });
 
-    const appBaseUrl = `https://${process.env.REPLIT_DEV_DOMAIN || process.env.REPL_SLUG + ".repl.co"}`;
+    const appBaseUrl = getAppBaseUrl();
     let paidUsageTracked = false;
     let scanningPhaseStarted = false;
 

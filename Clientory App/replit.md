@@ -125,10 +125,12 @@ artifacts-monorepo/
 ### Optional
 - `TURNSTILE_SITE_KEY` — Cloudflare Turnstile site key (frontend, set as `VITE_TURNSTILE_SITE_KEY`)
 - `TURNSTILE_SECRET_KEY` — Cloudflare Turnstile secret key (backend)
+- `APP_BASE_URL` — Public frontend URL used for Stripe redirects and report email links. Set this explicitly when the API and frontend are deployed on different platforms, for example `https://clientory-nu.vercel.app` or `https://clientory.com/app`
+- `PUBLIC_APP_URL` — Legacy alias for `APP_BASE_URL`
+- `APP_BASE_PATH` — Optional path prefix appended when the app URL is inferred from Vercel or Replit, for example `/app`
 - `STRIPE_SECRET_KEY` — Stripe secret key for billing
 - `STRIPE_WEBHOOK_SECRET` — Stripe webhook signing secret
-- `STRIPE_PRICE_ID` — Stripe price ID for the $5/month pro plan
-- `VITE_STRIPE_PUBLISHABLE_KEY` — Stripe publishable key (frontend)
+- `STRIPE_PRICE_ID` — Stripe price ID for the single $10/month subscription
 
 ### AI Integrations (auto-configured by Replit)
 - `AI_INTEGRATIONS_OPENAI_BASE_URL` + `AI_INTEGRATIONS_OPENAI_API_KEY`
