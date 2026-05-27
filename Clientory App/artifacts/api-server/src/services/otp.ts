@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import { db } from "@workspace/db";
 import { otpCodesTable, usersTable } from "@workspace/db/schema";
-import { eq, and, gte } from "drizzle-orm";
+import { eq, and, gte, sql } from "drizzle-orm";
 
 const OTP_EXPIRY_MS = 10 * 60 * 1000;
 const OTP_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour for OTP-issued tokens
@@ -186,6 +186,6 @@ export async function verifySessionToken(token: string): Promise<string | null> 
 export async function revokeAllTokens(email: string): Promise<void> {
   await db
     .update(usersTable)
-    .set({ tokenVersion: usersTable.tokenVersion + 1 as unknown as number, updatedAt: new Date() })
+    .set({ tokenVersion: sql`${usersTable.tokenVersion} + 1`, updatedAt: new Date() })
     .where(eq(usersTable.email, email.toLowerCase()));
 }
