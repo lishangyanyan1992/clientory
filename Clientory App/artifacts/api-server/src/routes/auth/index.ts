@@ -34,6 +34,10 @@ const VERIFY_IP_WINDOW_MS = 15 * 60 * 1000;
 const VERIFY_EMAIL_MAX = 5;
 const VERIFY_EMAIL_WINDOW_MS = 15 * 60 * 1000;
 
+// submit-password is hit once per OTP flow; 10/15 min per IP is generous but prevents brute-force
+const SUBMIT_PW_IP_MAX = 10;
+const SUBMIT_PW_IP_WINDOW_MS = 15 * 60 * 1000;
+
 router.post("/auth/login", async (req, res) => {
   try {
     const bodyResult = LoginBody.safeParse(req.body);
@@ -205,6 +209,17 @@ router.post("/auth/verify-otp", async (req, res) => {
 
 router.post("/auth/submit-password", async (req, res) => {
   try {
+    const clientIp = getClientIp(req);
+    const ipRateKey = `submit-password:ip:${hashIp(clientIp)}`;
+    const ipRate = await checkRateLimit(ipRateKey, SUBMIT_PW_IP_MAX, SUBMIT_PW_IP_WINDOW_MS);
+    if (!ipRate.allowed) {
+      res.status(429).json({
+        error: "Too many attempts. Please try again later.",
+        retryAfter: Math.ceil((ipRate.resetAt.getTime() - Date.now()) / 1000),
+      });
+      return;
+    }
+
     const bodyResult = SubmitPasswordBody.safeParse(req.body);
     if (!bodyResult.success) {
       res.status(400).json({ error: bodyResult.error.issues[0]?.message ?? "verifiedToken and password are required" });

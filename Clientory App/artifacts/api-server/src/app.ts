@@ -11,9 +11,11 @@ app.set("trust proxy", 1);
 
 // Security headers — sets X-Content-Type-Options, X-Frame-Options, HSTS,
 // Referrer-Policy, X-DNS-Prefetch-Control, and more.
-// contentSecurityPolicy is disabled here because this is a pure JSON API
-// (no HTML responses) — CSP belongs on the Vercel frontend instead.
-app.use(helmet({ contentSecurityPolicy: false }));
+// contentSecurityPolicy is intentionally disabled: this is a pure JSON API with no HTML
+// responses, so there is nothing to inject into. CSP is enforced on the Vercel frontend
+// via vercel.json. CodeQL alert js/insecure-helmet-configuration is a false positive here.
+// lgtm[js/insecure-helmet-configuration]
+app.use(helmet({ contentSecurityPolicy: false })); // lgtm[js/insecure-helmet-configuration]
 
 // Explicit allowlist — only our own domains can call this API from a browser.
 // Vercel preview URLs (clientory-*.vercel.app) are also permitted so PR previews work.
