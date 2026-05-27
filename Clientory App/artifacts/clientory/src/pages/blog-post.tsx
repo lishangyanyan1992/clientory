@@ -67,12 +67,37 @@ function renderMarkdown(content: string) {
   });
 }
 
+/** Escape HTML entities before injecting any string as raw HTML. */
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;");
+}
+
+/**
+ * Convert lightweight markdown tokens to HTML.
+ * The input is HTML-escaped first so no user-supplied content can be
+ * injected as raw HTML — only the structural tags we produce ourselves
+ * (<a>, <strong>, <em>) ever reach the DOM.
+ */
 function formatInline(text: string) {
-  return text
-    .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-primary underline hover:text-primary/80 transition-colors">$1</a>')
+  const escaped = escapeHtml(text);
+  return escaped
+    .replace(
+      /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+      (_, label, url) =>
+        `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-primary underline hover:text-primary/80 transition-colors">${label}</a>`,
+    )
     .replace(/\*\*(.+?)\*\*/g, '<strong class="text-foreground font-semibold">$1</strong>')
-    .replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>')
-    .replace(/(?<!="|">)(https?:\/\/[^\s<)]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-primary underline hover:text-primary/80 transition-colors break-all">$1</a>');
+    .replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, "<em>$1</em>")
+    .replace(
+      /(?<!="|">)(https?:\/\/[^\s<)]+)/g,
+      (_, url) =>
+        `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-primary underline hover:text-primary/80 transition-colors break-all">${url}</a>`,
+    );
 }
 
 const BlogPost = () => {
