@@ -1,12 +1,19 @@
 import * as Sentry from "@sentry/node";
 import express, { type Express } from "express";
 import cors from "cors";
+import helmet from "helmet";
 import router from "./routes";
 import stripeWebhookRouter from "./routes/webhooks/stripe";
 
 const app: Express = express();
 
 app.set("trust proxy", 1);
+
+// Security headers — sets X-Content-Type-Options, X-Frame-Options, HSTS,
+// Referrer-Policy, X-DNS-Prefetch-Control, and more.
+// contentSecurityPolicy is disabled here because this is a pure JSON API
+// (no HTML responses) — CSP belongs on the Vercel frontend instead.
+app.use(helmet({ contentSecurityPolicy: false }));
 
 // Explicit allowlist — only our own domains can call this API from a browser.
 // Vercel preview URLs (clientory-*.vercel.app) are also permitted so PR previews work.
