@@ -12,7 +12,4 @@ export type { CreateScanBody as CreateScanBodyInterface } from "./generated/type
 export type { CachedScan } from "./generated/types/cachedScan";
 export type { CachedScanStatus } from "./generated/types/cachedScanStatus";
 export type { RateLimitResponse } from "./generated/types/rateLimitResponse";
-export type { SendOtpBody } from "./generated/types/sendOtpBody";
-export type { SendOtpResponse } from "./generated/types/sendOtpResponse";
-export type { VerifyOtpBody } from "./generated/types/verifyOtpBody";
-export type { VerifyOtpResponse } from "./generated/types/verifyOtpResponse";
+// SendOtpBody, SendOtpResponse, VerifyOtpBody, VerifyOtpResponse are exported as Zod schemas (values+types) via "./generated/api"

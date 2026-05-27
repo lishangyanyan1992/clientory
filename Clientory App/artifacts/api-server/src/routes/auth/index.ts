@@ -17,6 +17,7 @@ import { logSecurityEvent } from "../../services/security-logger";
 import { db } from "@workspace/db";
 import { usersTable } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
+import { LoginBody, SendOtpBody, VerifyOtpBody, SubmitPasswordBody } from "@workspace/api-zod";
 
 
 const router: IRouter = Router();
@@ -35,18 +36,12 @@ const VERIFY_EMAIL_WINDOW_MS = 15 * 60 * 1000;
 
 router.post("/auth/login", async (req, res) => {
   try {
-    const { email, password } = req.body as { email?: string; password?: string };
-
-    if (!email || !password) {
-      res.status(400).json({ error: "Email and password are required" });
+    const bodyResult = LoginBody.safeParse(req.body);
+    if (!bodyResult.success) {
+      res.status(400).json({ error: bodyResult.error.issues[0]?.message ?? "Email and password are required" });
       return;
     }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      res.status(400).json({ error: "Invalid email address" });
-      return;
-    }
+    const { email, password } = bodyResult.data;
 
     const clientIp = getClientIp(req);
 
@@ -102,18 +97,12 @@ router.post("/auth/login", async (req, res) => {
 
 router.post("/auth/send-otp", async (req, res) => {
   try {
-    const { email, turnstileToken } = req.body as { email?: string; turnstileToken?: string };
-
-    if (!email || typeof email !== "string") {
-      res.status(400).json({ error: "Email is required" });
+    const bodyResult = SendOtpBody.safeParse(req.body);
+    if (!bodyResult.success) {
+      res.status(400).json({ error: bodyResult.error.issues[0]?.message ?? "Email is required" });
       return;
     }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      res.status(400).json({ error: "Invalid email address" });
-      return;
-    }
+    const { email, turnstileToken } = bodyResult.data;
 
     const clientIp = getClientIp(req);
 
@@ -155,12 +144,12 @@ router.post("/auth/send-otp", async (req, res) => {
 
 router.post("/auth/verify-otp", async (req, res) => {
   try {
-    const { email, code } = req.body as { email?: string; code?: string };
-
-    if (!email || !code) {
-      res.status(400).json({ error: "Email and code are required" });
+    const bodyResult = VerifyOtpBody.safeParse(req.body);
+    if (!bodyResult.success) {
+      res.status(400).json({ error: bodyResult.error.issues[0]?.message ?? "Email and code are required" });
       return;
     }
+    const { email, code } = bodyResult.data;
 
     const clientIp = getClientIp(req);
     const ipRateKey = `verify:ip:${hashIp(clientIp)}`;
@@ -216,17 +205,12 @@ router.post("/auth/verify-otp", async (req, res) => {
 
 router.post("/auth/submit-password", async (req, res) => {
   try {
-    const { verifiedToken, password } = req.body as { verifiedToken?: string; password?: string };
-
-    if (!verifiedToken || !password) {
-      res.status(400).json({ error: "verifiedToken and password are required" });
+    const bodyResult = SubmitPasswordBody.safeParse(req.body);
+    if (!bodyResult.success) {
+      res.status(400).json({ error: bodyResult.error.issues[0]?.message ?? "verifiedToken and password are required" });
       return;
     }
-
-    if (password.length < 8) {
-      res.status(400).json({ error: "Password must be at least 8 characters" });
-      return;
-    }
+    const { verifiedToken, password } = bodyResult.data;
 
     const email = verifyVerifiedToken(verifiedToken);
     if (!email) {

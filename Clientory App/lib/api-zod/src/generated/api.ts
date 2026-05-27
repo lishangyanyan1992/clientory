@@ -16,11 +16,39 @@ export const HealthCheckResponse = zod.object({
 });
 
 /**
+ * @summary Login with email + password
+ */
+export const LoginBody = zod.object({
+  email: zod.string().email(),
+  password: zod.string().min(1),
+});
+
+export const LoginResponse = zod.object({
+  success: zod.boolean(),
+  emailToken: zod.string(),
+  userId: zod.string(),
+});
+
+/**
+ * @summary Set or confirm password after OTP verification
+ */
+export const SubmitPasswordBody = zod.object({
+  verifiedToken: zod.string(),
+  password: zod.string().min(8, "Password must be at least 8 characters"),
+});
+
+export const SubmitPasswordResponse = zod.object({
+  success: zod.boolean(),
+  emailToken: zod.string(),
+  userId: zod.string(),
+});
+
+/**
  * Sends a 6-digit verification code to the provided email.
  * @summary Send OTP verification code
  */
 export const SendOtpBody = zod.object({
-  email: zod.string().email(),
+  email: zod.string({ required_error: "Email is required" }).email("Invalid email address"),
   turnstileToken: zod.string().optional(),
 });
 
@@ -186,7 +214,7 @@ export const CreateBusinessBody = zod.object({
       zod.object({
         city: zod.string(),
         state: zod.string(),
-        neighborhood: zod.string().nullish(),
+        neighborhood: zod.string().optional(),
         isHQ: zod.boolean(),
       }),
     )
@@ -202,7 +230,7 @@ export const CreateBusinessBody = zod.object({
     .array(
       zod.object({
         name: zod.string(),
-        location: zod.string().nullish(),
+        location: zod.string().optional(),
       }),
     )
     .nullish(),
@@ -214,6 +242,14 @@ export const CreateBusinessBody = zod.object({
         year: zod.number(),
       }),
     )
+    .nullish(),
+  authoritySignals: zod
+    .object({
+      directoryListings: zod.array(zod.string()),
+      publications: zod.array(zod.string()),
+      podcasts: zod.array(zod.string()),
+      conferences: zod.array(zod.string()),
+    })
     .nullish(),
   topGSCQueries: zod.array(zod.string()).nullish(),
   clientType: zod.string().nullish(),

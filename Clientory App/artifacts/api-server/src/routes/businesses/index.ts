@@ -11,13 +11,8 @@ import {
 import { eq, and, lte, gte, desc, gt, sql } from "drizzle-orm";
 import { verifyEmailToken } from "../../services/otp";
 import { checkRateLimit, hashIp, getClientIp } from "../../services/rate-limit";
-import type {
-  FirmLocation,
-  FirmPartner,
-  FirmCompetitor,
-  FirmRanking,
-  FirmAuthoritySignals,
-} from "@workspace/db/schema";
+import { SuggestCompetitorsBody, CreateBusinessBody } from "@workspace/api-zod";
+import type { FirmLocation } from "@workspace/db/schema";
 
 const router: IRouter = Router();
 
@@ -116,17 +111,12 @@ router.post("/businesses/suggest-competitors", async (req, res) => {
       return;
     }
 
-    const { firmType, city, state, primaryServices } = req.body as {
-      firmType?: string;
-      city?: string;
-      state?: string;
-      primaryServices?: string[];
-    };
-
-    if (!firmType || !city || !state) {
-      res.status(400).json({ error: "firmType, city, and state are required" });
+    const parseResult = SuggestCompetitorsBody.safeParse(req.body);
+    if (!parseResult.success) {
+      res.status(400).json({ error: parseResult.error.issues[0]?.message ?? "Invalid request body" });
       return;
     }
+    const { firmType, city, state, primaryServices } = parseResult.data;
 
     const servicesStr = primaryServices?.length ? ` that handles ${primaryServices.slice(0, 3).join(", ")}` : "";
     const prompt = `Suggest 3-5 real, specific competing professional firms for a ${firmType.replace(/_/g, " ")} firm in ${city}, ${state}${servicesStr}. Return ONLY a JSON array of objects with "name" (string) and "location" (optional string like "City, State") fields. No explanation, no markdown.`;
@@ -186,6 +176,11 @@ router.post("/businesses", async (req, res) => {
       return;
     }
 
+    const bodyResult = CreateBusinessBody.safeParse(req.body);
+    if (!bodyResult.success) {
+      res.status(400).json({ error: bodyResult.error.issues[0]?.message ?? "Invalid request body" });
+      return;
+    }
     const {
       // Legacy fields
       name: legacyName,
@@ -218,37 +213,7 @@ router.post("/businesses", async (req, res) => {
       businessServices,
       businessDeliverables,
       businessSpecialties,
-    } = req.body as {
-      name?: string;
-      website?: string;
-      businessType?: string;
-      location?: string;
-      description?: string;
-      legalName?: string;
-      brandName?: string;
-      firmType?: string;
-      yearFounded?: number;
-      partners?: FirmPartner[];
-      locations?: FirmLocation[];
-      geographicScope?: string;
-      primaryServices?: string[];
-      deliverables?: string[];
-      specialties?: string[];
-      industriesServed?: string[];
-      clientStages?: string[];
-      decisionMakers?: string[];
-      directCompetitors?: FirmCompetitor[];
-      rankings?: FirmRanking[];
-      authoritySignals?: FirmAuthoritySignals;
-      topGSCQueries?: string[];
-      clientType?: string;
-      individualServices?: string[];
-      individualDeliverables?: string[];
-      individualSpecialties?: string[];
-      businessServices?: string[];
-      businessDeliverables?: string[];
-      businessSpecialties?: string[];
-    };
+    } = bodyResult.data;
 
     // Derive canonical name, businessType, location for backward compat with billing/scans
     const canonicalName = legalName || legacyName;

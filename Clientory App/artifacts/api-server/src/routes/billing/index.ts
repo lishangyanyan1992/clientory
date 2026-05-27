@@ -1,4 +1,5 @@
 import { Router, type IRouter } from "express";
+import { SubscribeBusinessBody } from "@workspace/api-zod";
 import { db } from "@workspace/db";
 import {
   usersTable,
@@ -38,11 +39,12 @@ router.post("/billing/subscribe", async (req, res) => {
       return;
     }
 
-    const { businessId } = req.body as { businessId?: string };
-    if (!businessId) {
-      res.status(400).json({ error: "businessId is required" });
+    const bodyResult = SubscribeBusinessBody.safeParse(req.body);
+    if (!bodyResult.success) {
+      res.status(400).json({ error: bodyResult.error.issues[0]?.message ?? "businessId is required" });
       return;
     }
+    const { businessId } = bodyResult.data;
 
     const businessIdNum = parseInt(businessId, 10);
     const [business] = await db
