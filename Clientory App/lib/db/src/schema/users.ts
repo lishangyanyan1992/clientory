@@ -1,4 +1,4 @@
-import { pgTable, text, serial, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp, boolean, integer } from "drizzle-orm/pg-core";
 
 export const usersTable = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -8,6 +8,8 @@ export const usersTable = pgTable("users", {
   passwordHash: text("password_hash"),
   stripeCustomerId: text("stripe_customer_id"),
   freeReportUsedAt: timestamp("free_report_used_at"),
+  // Incremented on logout — immediately invalidates all existing tokens for this user.
+  tokenVersion: integer("token_version").notNull().default(1),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

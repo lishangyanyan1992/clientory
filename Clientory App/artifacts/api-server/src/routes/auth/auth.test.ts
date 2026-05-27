@@ -200,14 +200,29 @@ describe("GET /api/auth/me", () => {
   });
 
   it("200 — valid token returns user info", async () => {
-    const user = await makeUser();
-    mockDbSelect.mockResolvedValueOnce([user]);
+    const TOKEN_VERSION = 3;
+    const user = await makeUser({ tokenVersion: TOKEN_VERSION });
+    // verifySessionToken does a DB lookup for tokenVersion, then /auth/me does another
+    mockDbSelect
+      .mockResolvedValueOnce([{ tokenVersion: TOKEN_VERSION }]) // version check
+      .mockResolvedValueOnce([user]);                           // user fetch
 
-    const token = createEmailToken("user@example.com");
+    // Token must carry the same version so verifySessionToken accepts it
+    const token = createEmailToken("user@example.com", undefined, TOKEN_VERSION);
     const res = await request(app).get("/api/auth/me").set("x-email-token", token);
 
     expect(res.status).toBe(200);
     expect(res.body.email).toBe("user@example.com");
     expect(res.body.isAdmin).toBe(false);
+  });
+
+  it("401 — revoked token (version mismatch) is rejected", async () => {
+    // Token carries version 1 but DB has version 2 (user logged out)
+    mockDbSelect.mockResolvedValueOnce([{ tokenVersion: 2 }]);
+
+    const token = createEmailToken("user@example.com", undefined, 1);
+    const res = await request(app).get("/api/auth/me").set("x-email-token", token);
+
+    expect(res.status).toBe(401);
   });
 });

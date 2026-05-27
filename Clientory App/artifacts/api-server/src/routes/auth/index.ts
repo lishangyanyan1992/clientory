@@ -6,11 +6,14 @@ import {
   createSessionToken,
   createVerifiedToken,
   verifyVerifiedToken,
+  verifySessionToken,
+  revokeAllTokens,
   hashPassword,
   verifyPassword,
 } from "../../services/otp";
 import { verifyTurnstile, isTurnstileConfigured } from "../../services/turnstile";
 import { checkRateLimit, hashIp, getClientIp } from "../../services/rate-limit";
+import { logSecurityEvent } from "../../services/security-logger";
 import { db } from "@workspace/db";
 import { usersTable } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
@@ -50,6 +53,7 @@ router.post("/auth/login", async (req, res) => {
     const ipRateKey = `login:ip:${hashIp(clientIp)}`;
     const ipRate = await checkRateLimit(ipRateKey, LOGIN_IP_MAX, LOGIN_IP_WINDOW_MS);
     if (!ipRate.allowed) {
+      logSecurityEvent("LOGIN_BLOCKED_RATE_LIMIT", { ip: clientIp, email });
       res.status(429).json({
         error: "Too many login attempts. Please try again later.",
         retryAfter: Math.ceil((ipRate.resetAt.getTime() - Date.now()) / 1000),
@@ -61,6 +65,7 @@ router.post("/auth/login", async (req, res) => {
     const emailRateKey = `login:email:${normalizedEmail}`;
     const emailRate = await checkRateLimit(emailRateKey, LOGIN_EMAIL_MAX, LOGIN_EMAIL_WINDOW_MS);
     if (!emailRate.allowed) {
+      logSecurityEvent("LOGIN_BLOCKED_RATE_LIMIT", { ip: clientIp, email: normalizedEmail });
       res.status(429).json({
         error: "Too many login attempts for this account. Please try again later.",
         retryAfter: Math.ceil((emailRate.resetAt.getTime() - Date.now()) / 1000),
@@ -71,6 +76,7 @@ router.post("/auth/login", async (req, res) => {
     const [user] = await db.select().from(usersTable).where(eq(usersTable.email, normalizedEmail));
 
     if (!user || !user.passwordHash) {
+      logSecurityEvent("LOGIN_FAILED", { ip: clientIp, email: normalizedEmail, reason: !user ? "user_not_found" : "no_password" });
       res.status(401).json({
         error: "No password set for this account. Use the one-time code option to sign in.",
         code: "NO_PASSWORD",
@@ -80,11 +86,13 @@ router.post("/auth/login", async (req, res) => {
 
     const correct = await verifyPassword(password, user.passwordHash);
     if (!correct) {
+      logSecurityEvent("LOGIN_FAILED", { ip: clientIp, email: normalizedEmail, reason: "wrong_password" });
       res.status(401).json({ error: "Incorrect password." });
       return;
     }
 
-    const emailToken = createSessionToken(normalizedEmail);
+    logSecurityEvent("LOGIN_SUCCESS", { ip: clientIp, email: normalizedEmail });
+    const emailToken = createSessionToken(normalizedEmail, user.tokenVersion);
     res.json({ success: true, emailToken, userId: String(user.id) });
   } catch (err) {
     console.error("POST /auth/login error:", err);
@@ -124,6 +132,7 @@ router.post("/auth/send-otp", async (req, res) => {
     const ipKey = `otp:ip:${hashIp(clientIp)}`;
     const rateResult = await checkRateLimit(ipKey, OTP_IP_MAX, OTP_IP_WINDOW_MS);
     if (!rateResult.allowed) {
+      logSecurityEvent("OTP_BLOCKED_RATE_LIMIT", { ip: clientIp, email });
       res.status(429).json({
         error: "Too many verification requests. Please try again later.",
         retryAfter: Math.ceil((rateResult.resetAt.getTime() - Date.now()) / 1000),
@@ -136,6 +145,7 @@ router.post("/auth/send-otp", async (req, res) => {
     const { sendOtpEmail } = await import("../../services/email");
     await sendOtpEmail(email, code);
 
+    logSecurityEvent("OTP_SENT", { ip: clientIp, email });
     res.json({ success: true, message: "Verification code sent" });
   } catch (err) {
     console.error("send-otp error:", err);
@@ -156,6 +166,7 @@ router.post("/auth/verify-otp", async (req, res) => {
     const ipRateKey = `verify:ip:${hashIp(clientIp)}`;
     const ipRate = await checkRateLimit(ipRateKey, VERIFY_IP_MAX, VERIFY_IP_WINDOW_MS);
     if (!ipRate.allowed) {
+      logSecurityEvent("OTP_BLOCKED_RATE_LIMIT", { ip: clientIp, email });
       res.status(429).json({
         error: "Too many attempts. Please try again later.",
         retryAfter: Math.ceil((ipRate.resetAt.getTime() - Date.now()) / 1000),
@@ -166,6 +177,7 @@ router.post("/auth/verify-otp", async (req, res) => {
     const emailRateKey = `verify:email:${email.toLowerCase()}`;
     const emailRate = await checkRateLimit(emailRateKey, VERIFY_EMAIL_MAX, VERIFY_EMAIL_WINDOW_MS);
     if (!emailRate.allowed) {
+      logSecurityEvent("OTP_BLOCKED_RATE_LIMIT", { ip: clientIp, email });
       res.status(429).json({
         error: "Too many attempts for this email. Please try again later.",
         retryAfter: Math.ceil((emailRate.resetAt.getTime() - Date.now()) / 1000),
@@ -175,6 +187,7 @@ router.post("/auth/verify-otp", async (req, res) => {
 
     const valid = await verifyOtp(email, code);
     if (!valid) {
+      logSecurityEvent("OTP_INVALID", { ip: clientIp, email });
       res.status(400).json({ error: "Invalid or expired code" });
       return;
     }
@@ -230,6 +243,7 @@ router.post("/auth/submit-password", async (req, res) => {
     if (user.passwordHash) {
       const correct = await verifyPassword(password, user.passwordHash);
       if (!correct) {
+        logSecurityEvent("PASSWORD_SUBMIT_FAILED", { email, reason: "wrong_password" });
         res.status(400).json({ error: "Incorrect password" });
         return;
       }
@@ -241,7 +255,7 @@ router.post("/auth/submit-password", async (req, res) => {
         .where(eq(usersTable.email, email));
     }
 
-    const emailToken = createEmailToken(email);
+    const emailToken = createEmailToken(email, undefined, user.tokenVersion);
     res.json({ success: true, emailToken, userId: String(user.id) });
   } catch (err) {
     console.error("submit-password error:", err);
@@ -256,12 +270,15 @@ router.get("/auth/me", async (req, res) => {
       res.status(401).json({ error: "Email verification required" });
       return;
     }
-    const { verifyEmailToken } = await import("../../services/otp");
-    const verifiedEmail = verifyEmailToken(emailToken);
+
+    // Full revocation-aware check — verifySessionToken validates HMAC + expiry + tokenVersion.
+    const verifiedEmail = await verifySessionToken(emailToken);
     if (!verifiedEmail) {
+      logSecurityEvent("TOKEN_INVALID", { reason: "failed_session_verify" });
       res.status(401).json({ error: "Invalid or expired email token" });
       return;
     }
+
     const [user] = await db.select().from(usersTable).where(eq(usersTable.email, verifiedEmail));
     if (!user) {
       res.status(401).json({ error: "User not found" });
@@ -271,6 +288,33 @@ router.get("/auth/me", async (req, res) => {
   } catch (err) {
     console.error("GET /auth/me error:", err);
     res.status(500).json({ error: "Failed to fetch user info" });
+  }
+});
+
+// Logout — increments tokenVersion, immediately invalidating all existing
+// tokens for this user across all devices and sessions.
+router.post("/auth/logout", async (req, res) => {
+  try {
+    const emailToken = req.headers["x-email-token"] as string | undefined;
+    if (!emailToken) {
+      res.status(401).json({ error: "Email verification required" });
+      return;
+    }
+
+    const verifiedEmail = await verifySessionToken(emailToken);
+    if (!verifiedEmail) {
+      logSecurityEvent("TOKEN_INVALID", { reason: "logout_with_invalid_token" });
+      res.status(401).json({ error: "Invalid or expired token" });
+      return;
+    }
+
+    await revokeAllTokens(verifiedEmail);
+    logSecurityEvent("LOGOUT", { email: verifiedEmail, ip: getClientIp(req) });
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("POST /auth/logout error:", err);
+    res.status(500).json({ error: "Logout failed" });
   }
 });
 

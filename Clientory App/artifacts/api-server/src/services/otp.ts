@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import { db } from "@workspace/db";
-import { otpCodesTable } from "@workspace/db/schema";
+import { otpCodesTable, usersTable } from "@workspace/db/schema";
 import { eq, and, gte } from "drizzle-orm";
 
 const OTP_EXPIRY_MS = 10 * 60 * 1000;
@@ -64,18 +64,21 @@ function signToken(payload: string): string {
   return Buffer.from(payload).toString("base64url") + "." + hmac;
 }
 
-export function createEmailToken(email: string, ttlMs = OTP_TOKEN_TTL_MS): string {
+// tokenVersion is embedded so logout (which increments the DB version) immediately
+// invalidates all tokens issued before the logout.
+export function createEmailToken(email: string, ttlMs = OTP_TOKEN_TTL_MS, tokenVersion = 0): string {
   const payload = JSON.stringify({
     email: email.toLowerCase(),
     ts: Date.now(),
     expiresAt: Date.now() + ttlMs,
+    tv: tokenVersion,
   });
   return signToken(payload);
 }
 
 // Issues a long-lived (7-day) token for password-based login sessions.
-export function createSessionToken(email: string): string {
-  return createEmailToken(email, SESSION_TOKEN_TTL_MS);
+export function createSessionToken(email: string, tokenVersion = 0): string {
+  return createEmailToken(email, SESSION_TOKEN_TTL_MS, tokenVersion);
 }
 
 export function createVerifiedToken(email: string): string {
@@ -122,6 +125,8 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
   });
 }
 
+// Synchronous HMAC + expiry check only. Use verifySessionToken for full
+// revocation-aware verification on authenticated routes.
 export function verifyEmailToken(token: string): string | null {
   const secret = getTokenSecret();
   const parts = token.split(".");
@@ -135,11 +140,52 @@ export function verifyEmailToken(token: string): string | null {
 
   try {
     const data = JSON.parse(payload) as { email: string; ts: number; expiresAt?: number };
-    // Use embedded expiresAt when present; fall back to 1-hour TTL for older tokens.
     const expiry = data.expiresAt ?? (data.ts + OTP_TOKEN_TTL_MS);
     if (Date.now() > expiry) return null;
     return data.email;
   } catch {
     return null;
   }
+}
+
+// Full verification: HMAC + expiry + tokenVersion check against DB.
+// Returns the verified email or null if invalid/revoked.
+export async function verifySessionToken(token: string): Promise<string | null> {
+  // First do the cheap synchronous checks.
+  const email = verifyEmailToken(token);
+  if (!email) return null;
+
+  // Extract the embedded token version.
+  const [payloadB64] = token.split(".");
+  let embeddedVersion = 0;
+  try {
+    const data = JSON.parse(Buffer.from(payloadB64, "base64url").toString("utf8")) as {
+      tv?: number;
+    };
+    embeddedVersion = data.tv ?? 0;
+  } catch {
+    return null;
+  }
+
+  // Compare against the current version in the DB.
+  const [user] = await db
+    .select({ tokenVersion: usersTable.tokenVersion })
+    .from(usersTable)
+    .where(eq(usersTable.email, email));
+
+  if (!user) return null;
+
+  // Tokens without a version (tv=0) or with a stale version are rejected.
+  if (embeddedVersion === 0 || embeddedVersion !== user.tokenVersion) return null;
+
+  return email;
+}
+
+// Increments tokenVersion, immediately invalidating all existing tokens for
+// this user across all devices/sessions.
+export async function revokeAllTokens(email: string): Promise<void> {
+  await db
+    .update(usersTable)
+    .set({ tokenVersion: usersTable.tokenVersion + 1 as unknown as number, updatedAt: new Date() })
+    .where(eq(usersTable.email, email.toLowerCase()));
 }
