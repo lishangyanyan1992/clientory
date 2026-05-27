@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/node";
 import express, { type Express } from "express";
 import cors from "cors";
 import router from "./routes";
@@ -14,5 +15,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);
+
+Sentry.setupExpressErrorHandler(app);
 
 export default app;
