@@ -1,0 +1,1 @@
+Write a realistic problem/symptom query a prospect would type into an AI assistant when they have a problem that would lead them to hire a professional for "{{deliverable}}". The query must be 8-20 words, first person. Return ONLY the query, no quotes, no explanation.

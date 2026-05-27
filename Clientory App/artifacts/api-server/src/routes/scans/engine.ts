@@ -3,6 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenAI } from "@google/genai";
 import { batchProcessWithSSE } from "@workspace/integrations-openai-ai-server/batch";
 import { db } from "@workspace/db";
+import { getLangfuse, traceContext, getCurrentTrace } from "../../services/langfuse";
 import {
   scansTable,
   scanPromptsTable,
@@ -12,7 +13,7 @@ import {
   symptomQueryCacheTable,
 } from "@workspace/db/schema";
 import { eq, desc } from "drizzle-orm";
-import type { Business, PromptItem } from "@workspace/db/schema";
+import type { Business, PromptItem, ScanPrompt } from "@workspace/db/schema";
 
 // ─── Model config (override via env vars) ────────────────────────────────────
 const OPENAI_MODEL = process.env.OPENAI_MODEL ?? "gpt-5.2";
@@ -277,18 +278,28 @@ async function getSymptomQuery(deliverable: string): Promise<string | null> {
 
   // L3: Claude Haiku
   try {
+    const promptText = `Write a realistic problem/symptom query a prospect would type into an AI assistant when they have a problem that would lead them to hire a professional for "${deliverable}". The query must be 8-20 words, first person. Return ONLY the query, no quotes, no explanation.`;
+    const gen = getCurrentTrace()?.generation({
+      name: "haiku-symptom-query",
+      model: SYMPTOM_MODEL,
+      input: [{ role: "user", content: promptText }],
+      metadata: { deliverable, cacheLevel: "L3-llm" },
+    });
     const message = await anthropic.messages.create({
       model: SYMPTOM_MODEL,
       max_tokens: 128,
-      messages: [
-        {
-          role: "user",
-          content: `Write a realistic problem/symptom query a prospect would type into an AI assistant when they have a problem that would lead them to hire a professional for "${deliverable}". The query must be 8-20 words, first person. Return ONLY the query, no quotes, no explanation.`,
-        },
-      ],
+      messages: [{ role: "user", content: promptText }],
     });
     const block = message.content[0];
     const query = block.type === "text" ? block.text.trim() : null;
+    gen?.end({
+      output: query,
+      usage: {
+        promptTokens: message.usage.input_tokens,
+        completionTokens: message.usage.output_tokens,
+        totalTokens: message.usage.input_tokens + message.usage.output_tokens,
+      },
+    });
     if (query && isValidPromptLength(query)) {
       symptomMemoryCache.set(normalized, query);
       // Persist to DB (fire-and-forget — don't block scan)
@@ -575,32 +586,50 @@ function generateTemplatePrompts(
   ];
 }
 
-async function queryOpenAI(prompt: string): Promise<string> {
+interface QueryResult {
+  text: string;
+  promptTokens?: number;
+  completionTokens?: number;
+}
+
+async function queryOpenAI(prompt: string): Promise<QueryResult> {
   const response = await openai.chat.completions.create({
     model: OPENAI_MODEL,
     max_completion_tokens: 1024,
     messages: [{ role: "user", content: prompt }],
   });
-  return response.choices[0]?.message?.content ?? "";
+  return {
+    text: response.choices[0]?.message?.content ?? "",
+    promptTokens: response.usage?.prompt_tokens,
+    completionTokens: response.usage?.completion_tokens,
+  };
 }
 
-async function queryAnthropic(prompt: string): Promise<string> {
+async function queryAnthropic(prompt: string): Promise<QueryResult> {
   const message = await anthropic.messages.create({
     model: ANTHROPIC_QUERY_MODEL,
     max_tokens: 1024,
     messages: [{ role: "user", content: prompt }],
   });
   const block = message.content[0];
-  return block.type === "text" ? block.text : "";
+  return {
+    text: block.type === "text" ? block.text : "",
+    promptTokens: message.usage.input_tokens,
+    completionTokens: message.usage.output_tokens,
+  };
 }
 
-async function queryGemini(prompt: string): Promise<string> {
+async function queryGemini(prompt: string): Promise<QueryResult> {
   const response = await genai.models.generateContent({
     model: GEMINI_MODEL,
     contents: [{ role: "user", parts: [{ text: prompt }] }],
     config: { maxOutputTokens: 1024 },
   });
-  return response.text ?? "";
+  return {
+    text: response.text ?? "",
+    promptTokens: response.usageMetadata?.promptTokenCount,
+    completionTokens: response.usageMetadata?.candidatesTokenCount,
+  };
 }
 
 // #2: Stopword-aware mention detection.
@@ -699,10 +728,16 @@ interface ScanTaskResult {
   promptId: number;
 }
 
-const providerQueryFns: Record<string, (prompt: string) => Promise<string>> = {
+const providerQueryFns: Record<string, (prompt: string) => Promise<QueryResult>> = {
   openai: queryOpenAI,
   anthropic: queryAnthropic,
   gemini: queryGemini,
+};
+
+const providerModels: Record<string, string> = {
+  openai: OPENAI_MODEL,
+  anthropic: ANTHROPIC_QUERY_MODEL,
+  gemini: GEMINI_MODEL,
 };
 
 const providerDisplayNames: Record<string, string> = {
@@ -712,9 +747,40 @@ const providerDisplayNames: Record<string, string> = {
 };
 
 export async function runScan(scanId: number, onProgress: ProgressCallback) {
+  // ── Langfuse trace ─────────────────────────────────────────────────────────
+  const lf = getLangfuse();
+  const trace = lf?.trace({
+    name: "visibility-scan",
+    // Stable ID so a re-triggered scan updates the same trace rather than
+    // creating a duplicate.
+    id: `scan-${scanId}`,
+    tags: ["scan"],
+    metadata: { scanId },
+  });
+
+  // Thread the trace through the entire async call tree (prompt generation +
+  // batch AI queries) without changing any internal function signatures.
+  return traceContext.run(trace, () => _runScan(scanId, onProgress, trace));
+}
+
+async function _runScan(
+  scanId: number,
+  onProgress: ProgressCallback,
+  trace: ReturnType<NonNullable<ReturnType<typeof getLangfuse>>["trace"]> | undefined,
+) {
   try {
     const [scan] = await db.select().from(scansTable).where(eq(scansTable.id, scanId));
     if (!scan) throw new Error("Scan not found");
+
+    // Attach business metadata to the trace once we have it.
+    trace?.update({
+      metadata: {
+        scanId,
+        businessName: scan.businessName,
+        businessType: scan.businessType,
+        location: scan.location,
+      },
+    });
 
     await db.update(scansTable).set({ status: "generating_prompts" }).where(eq(scansTable.id, scanId));
     onProgress({ type: "status", message: "Preparing search prompts..." });
@@ -764,7 +830,7 @@ export async function runScan(scanId: number, onProgress: ProgressCallback) {
       );
     }
 
-    const insertedPrompts = [];
+    const insertedPrompts: ScanPrompt[] = [];
     for (const p of promptsToUse) {
       const [inserted] = await db
         .insert(scanPromptsTable)
@@ -798,16 +864,49 @@ export async function runScan(scanId: number, onProgress: ProgressCallback) {
     const results = await batchProcessWithSSE<ScanTask, ScanTaskResult>(
       tasks,
       async (task) => {
+        // ── Langfuse generation per AI call ──────────────────────────────────
+        const gen = trace?.generation({
+          name: `${task.provider}-visibility-query`,
+          model: providerModels[task.provider],
+          input: [{ role: "user", content: task.prompt }],
+          metadata: {
+            provider: task.provider,
+            promptIndex: task.promptIndex,
+            category: (insertedPrompts[task.promptIndex] as { category?: string } | undefined)?.category,
+          },
+        });
+
         const queryFn = providerQueryFns[task.provider];
-        const response = await queryFn(task.prompt);
-        const mentioned = checkMention(response, scan.businessName);
+        let result: QueryResult = { text: "" };
+        try {
+          result = await queryFn(task.prompt);
+        } catch (err) {
+          gen?.end({ level: "ERROR", statusMessage: String(err) });
+          throw err;
+        }
+
+        const mentioned = checkMention(result.text, scan.businessName);
+
+        gen?.end({
+          output: result.text,
+          usage:
+            result.promptTokens !== undefined
+              ? {
+                  promptTokens: result.promptTokens,
+                  completionTokens: result.completionTokens ?? 0,
+                  totalTokens: (result.promptTokens ?? 0) + (result.completionTokens ?? 0),
+                }
+              : undefined,
+          metadata: { mentioned },
+        });
+
         await db.insert(scanResultsTable).values({
           scanPromptId: task.promptId,
           provider: task.provider,
-          response,
+          response: result.text,
           mentioned,
         });
-        return { response, mentioned, provider: task.provider, promptId: task.promptId };
+        return { response: result.text, mentioned, provider: task.provider, promptId: task.promptId };
       },
       (event: { type: string; [key: string]: unknown }) => {
         if (event.type === "processing") {
@@ -857,9 +956,16 @@ export async function runScan(scanId: number, onProgress: ProgressCallback) {
 
     const score = Math.round((totalMentions / totalChecks) * 100);
     await db.update(scansTable).set({ status: "completed", score }).where(eq(scansTable.id, scanId));
+
+    trace?.update({ output: { score, totalMentions, totalChecks } });
+    // Flush non-blocking — don't delay the SSE response.
+    getLangfuse()?.flushAsync().catch(() => undefined);
+
     onProgress({ type: "completed", score, message: `Scan complete! Visibility score: ${score}%` });
   } catch (err) {
     await db.update(scansTable).set({ status: "failed" }).where(eq(scansTable.id, scanId));
+    trace?.update({ metadata: { error: err instanceof Error ? err.message : "Scan failed" } });
+    getLangfuse()?.flushAsync().catch(() => undefined);
     onProgress({ type: "error", message: err instanceof Error ? err.message : "Scan failed" });
   }
 }

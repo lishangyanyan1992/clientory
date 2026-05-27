@@ -26,6 +26,7 @@
     "helmet": "^8.2.0",
     "openai": "^6.27.0",
     "resend": "^6.9.3",
+    "langfuse": "^3.33.0",
     "stripe": "^22.0.1"
   },
   "devDependencies": {

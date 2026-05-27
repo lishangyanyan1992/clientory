@@ -9,3 +9,6 @@ Clientory App - Prototype/.env
 Clientory App - Prototype/.env.*
 Clientory App/.env
 Clientory App/.env.*
+
+# PromptFoo eval results (regenerated on every run)
+Clientory App/evals/results/*.json

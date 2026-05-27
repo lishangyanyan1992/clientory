@@ -1,0 +1,132 @@
+# ── Clientory Eval Suite ──────────────────────────────────────────────────────
+# Tests the symptom-query prompt used by the scan engine's Claude Haiku call.
+# Goal: ensure generated prospect queries are realistic, first-person, correctly
+# sized, and free of meta-commentary — for every deliverable category Clientory supports.
+#
+# Run: npx promptfoo@latest eval
+# CI:  triggered weekly + on manual workflow_dispatch (see .github/workflows/evals.yml)
+# Results are automatically posted to Langfuse via LANGFUSE_* env vars.
+# ─────────────────────────────────────────────────────────────────────────────
+
+description: "Symptom-query prompt quality — Clientory scan engine"
+
+# Use Claude Haiku as the primary provider (matches production).
+# Also compare against GPT-4o-mini to catch model-specific regressions.
+providers:
+  - id: anthropic:claude-haiku-4-5
+    label: Claude Haiku (prod)
+    config:
+      max_tokens: 128
+      temperature: 0
+
+  - id: openai:gpt-4o-mini
+    label: GPT-4o-mini (baseline)
+    config:
+      max_tokens: 128
+      temperature: 0
+
+prompts:
+  - id: symptom-query
+    file: prompts/symptom-query.txt
+
+# ── Shared assertion set ──────────────────────────────────────────────────────
+# Applied to every test case via defaultTest.
+defaultTest:
+  assert:
+    # 1. Word count: 8–20 words
+    - type: javascript
+      value: file://assertions/word-count.js
+      threshold: 1
+
+    # 2. Must use first-person voice
+    - type: javascript
+      value: file://assertions/first-person.js
+      threshold: 1
+
+    # 3. No meta-commentary ("Here is a query:", "Sure!", etc.)
+    - type: javascript
+      value: file://assertions/no-meta.js
+      threshold: 1
+
+    # 4. LLM-as-judge: sounds like a real prospect query
+    # Uses the grader model (configurable via PROMPTFOO_GRADER_MODEL or defaults to gpt-4o-mini)
+    - type: llm-rubric
+      value: >-
+        The output is a realistic, first-person problem statement that a business
+        decision-maker would type into an AI assistant. It describes a concrete
+        business problem or situation. It is NOT a search keyword, NOT a generic
+        question about the service, and does NOT mention hiring or looking for
+        a professional directly. Score 1 if all criteria are met, 0 otherwise.
+      threshold: 0.8
+
+# ── Test cases (15 deliverables × 2 providers = 30 evals) ─────────────────────
+tests:
+  # ── Law firm deliverables ─────────────────────────────────────────────────
+  - description: "employment litigation"
+    vars:
+      deliverable: "employment litigation"
+
+  - description: "trademark registration"
+    vars:
+      deliverable: "trademark registration"
+
+  - description: "M&A advisory"
+    vars:
+      deliverable: "M&A advisory"
+
+  - description: "estate planning"
+    vars:
+      deliverable: "estate planning"
+
+  - description: "immigration law"
+    vars:
+      deliverable: "immigration law"
+
+  # ── Accounting firm deliverables ──────────────────────────────────────────
+  - description: "IRS audit defense"
+    vars:
+      deliverable: "IRS audit defense"
+
+  - description: "R&D credit studies"
+    vars:
+      deliverable: "R&D credit studies"
+
+  - description: "international tax"
+    vars:
+      deliverable: "international tax"
+
+  - description: "business valuation"
+    vars:
+      deliverable: "business valuation"
+
+  - description: "CFO advisory"
+    vars:
+      deliverable: "CFO advisory"
+
+  # ── Consulting firm deliverables ──────────────────────────────────────────
+  - description: "digital transformation"
+    vars:
+      deliverable: "digital transformation"
+
+  - description: "organizational design"
+    vars:
+      deliverable: "organizational design"
+
+  - description: "supply chain optimization"
+    vars:
+      deliverable: "supply chain optimization"
+
+  # ── Marketing agency deliverables ─────────────────────────────────────────
+  - description: "SEO strategy"
+    vars:
+      deliverable: "SEO strategy"
+
+  - description: "marketing attribution"
+    vars:
+      deliverable: "marketing attribution"
+
+# ── Output settings ───────────────────────────────────────────────────────────
+outputPath: ./results/latest.json   # persisted for CI artifact upload
+
+# Cache LLM calls so re-runs within 24 h don't cost anything.
+cache: true
