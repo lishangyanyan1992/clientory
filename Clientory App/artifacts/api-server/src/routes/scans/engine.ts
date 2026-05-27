@@ -1,9 +1,14 @@
-import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenAI } from "@google/genai";
 import { batchProcessWithSSE } from "@workspace/integrations-openai-ai-server/batch";
 import { db } from "@workspace/db";
-import { getLangfuse, traceContext, getCurrentTrace } from "../../services/langfuse";
+import {
+  observeOpenAI,
+  propagateAttributes,
+  startActiveObservation,
+  startObservation,
+} from "../../services/langfuse";
+import OpenAI from "openai";
 import {
   scansTable,
   scanPromptsTable,
@@ -13,7 +18,7 @@ import {
   symptomQueryCacheTable,
 } from "@workspace/db/schema";
 import { eq, desc } from "drizzle-orm";
-import type { Business, PromptItem, ScanPrompt } from "@workspace/db/schema";
+import type { Business, PromptItem, Scan, ScanPrompt } from "@workspace/db/schema";
 
 // ─── Model config (override via env vars) ────────────────────────────────────
 const OPENAI_MODEL = process.env.OPENAI_MODEL ?? "gpt-5.2";
@@ -21,7 +26,10 @@ const ANTHROPIC_QUERY_MODEL = process.env.ANTHROPIC_QUERY_MODEL ?? "claude-sonne
 const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
 const SYMPTOM_MODEL = process.env.SYMPTOM_MODEL ?? "claude-haiku-4-5";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// observeOpenAI wraps the client so every chat.completions.create() call is
+// automatically captured as a Langfuse generation (model, tokens, latency, cost).
+// Falls back to a plain OpenAI client when Langfuse is not configured.
+const openai = observeOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const genai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
 
@@ -276,15 +284,21 @@ async function getSymptomQuery(deliverable: string): Promise<string | null> {
     // DB unavailable — fall through to Haiku
   }
 
-  // L3: Claude Haiku
+  // L3: Claude Haiku — traced as a Langfuse generation, auto-nested under the
+  // active scan span via OTel context propagation.
   try {
     const promptText = `Write a realistic problem/symptom query a prospect would type into an AI assistant when they have a problem that would lead them to hire a professional for "${deliverable}". The query must be 8-20 words, first person. Return ONLY the query, no quotes, no explanation.`;
-    const gen = getCurrentTrace()?.generation({
-      name: "haiku-symptom-query",
-      model: SYMPTOM_MODEL,
-      input: [{ role: "user", content: promptText }],
-      metadata: { deliverable, cacheLevel: "L3-llm" },
-    });
+
+    const gen = startObservation(
+      "haiku-symptom-query",
+      {
+        model: SYMPTOM_MODEL,
+        input: [{ role: "user", content: promptText }],
+        metadata: { deliverable, cacheLevel: "L3-llm" } as Record<string, string>,
+      },
+      { asType: "generation" },
+    );
+
     const message = await anthropic.messages.create({
       model: SYMPTOM_MODEL,
       max_tokens: 128,
@@ -292,14 +306,14 @@ async function getSymptomQuery(deliverable: string): Promise<string | null> {
     });
     const block = message.content[0];
     const query = block.type === "text" ? block.text.trim() : null;
-    gen?.end({
-      output: query,
-      usage: {
-        promptTokens: message.usage.input_tokens,
-        completionTokens: message.usage.output_tokens,
-        totalTokens: message.usage.input_tokens + message.usage.output_tokens,
+
+    gen.update({
+      output: query ?? "",
+      usageDetails: {
+        input: message.usage.input_tokens,
+        output: message.usage.output_tokens,
       },
-    });
+    }).end();
     if (query && isValidPromptLength(query)) {
       symptomMemoryCache.set(normalized, query);
       // Persist to DB (fire-and-forget — don't block scan)
@@ -606,27 +620,59 @@ async function queryOpenAI(prompt: string): Promise<QueryResult> {
 }
 
 async function queryAnthropic(prompt: string): Promise<QueryResult> {
+  // Manual instrumentation — Anthropic has no Langfuse drop-in wrapper yet.
+  // startObservation creates a generation nested under the active scan span
+  // via OTel automatic context propagation.
+  const gen = startObservation(
+    "anthropic-visibility-query",
+    { model: ANTHROPIC_QUERY_MODEL, input: [{ role: "user", content: prompt }] },
+    { asType: "generation" },
+  );
+
   const message = await anthropic.messages.create({
     model: ANTHROPIC_QUERY_MODEL,
     max_tokens: 1024,
     messages: [{ role: "user", content: prompt }],
   });
   const block = message.content[0];
-  return {
-    text: block.type === "text" ? block.text : "",
-    promptTokens: message.usage.input_tokens,
-    completionTokens: message.usage.output_tokens,
-  };
+  const text = block.type === "text" ? block.text : "";
+
+  gen.update({
+    output: text,
+    usageDetails: {
+      input: message.usage.input_tokens,
+      output: message.usage.output_tokens,
+    },
+  }).end();
+
+  return { text, promptTokens: message.usage.input_tokens, completionTokens: message.usage.output_tokens };
 }
 
 async function queryGemini(prompt: string): Promise<QueryResult> {
+  // Manual instrumentation — Gemini has no Langfuse drop-in wrapper yet.
+  const gen = startObservation(
+    "gemini-visibility-query",
+    { model: GEMINI_MODEL, input: [{ role: "user", content: prompt }] },
+    { asType: "generation" },
+  );
+
   const response = await genai.models.generateContent({
     model: GEMINI_MODEL,
     contents: [{ role: "user", parts: [{ text: prompt }] }],
     config: { maxOutputTokens: 1024 },
   });
+  const text = response.text ?? "";
+
+  gen.update({
+    output: text,
+    usageDetails: {
+      input: response.usageMetadata?.promptTokenCount ?? 0,
+      output: response.usageMetadata?.candidatesTokenCount ?? 0,
+    },
+  }).end();
+
   return {
-    text: response.text ?? "",
+    text,
     promptTokens: response.usageMetadata?.promptTokenCount,
     completionTokens: response.usageMetadata?.candidatesTokenCount,
   };
@@ -734,12 +780,6 @@ const providerQueryFns: Record<string, (prompt: string) => Promise<QueryResult>>
   gemini: queryGemini,
 };
 
-const providerModels: Record<string, string> = {
-  openai: OPENAI_MODEL,
-  anthropic: ANTHROPIC_QUERY_MODEL,
-  gemini: GEMINI_MODEL,
-};
-
 const providerDisplayNames: Record<string, string> = {
   openai: "ChatGPT",
   anthropic: "Claude",
@@ -747,40 +787,37 @@ const providerDisplayNames: Record<string, string> = {
 };
 
 export async function runScan(scanId: number, onProgress: ProgressCallback) {
-  // ── Langfuse trace ─────────────────────────────────────────────────────────
-  const lf = getLangfuse();
-  const trace = lf?.trace({
-    name: "visibility-scan",
-    // Stable ID so a re-triggered scan updates the same trace rather than
-    // creating a duplicate.
-    id: `scan-${scanId}`,
-    tags: ["scan"],
-    metadata: { scanId },
-  });
+  // Fetch the scan first so we can add meaningful metadata to the trace.
+  const [scan] = await db.select().from(scansTable).where(eq(scansTable.id, scanId));
+  if (!scan) throw new Error("Scan not found");
 
-  // Thread the trace through the entire async call tree (prompt generation +
-  // batch AI queries) without changing any internal function signatures.
-  return traceContext.run(trace, () => _runScan(scanId, onProgress, trace));
-}
-
-async function _runScan(
-  scanId: number,
-  onProgress: ProgressCallback,
-  trace: ReturnType<NonNullable<ReturnType<typeof getLangfuse>>["trace"]> | undefined,
-) {
-  try {
-    const [scan] = await db.select().from(scansTable).where(eq(scansTable.id, scanId));
-    if (!scan) throw new Error("Scan not found");
-
-    // Attach business metadata to the trace once we have it.
-    trace?.update({
+  // propagateAttributes sets trace-level context (name, tags, metadata) that
+  // all nested observations (OpenAI, Anthropic, Gemini, Haiku) inherit
+  // automatically via OTel context propagation.
+  return propagateAttributes(
+    {
+      traceName: "visibility-scan",
+      tags: ["scan", scan.businessType],
       metadata: {
-        scanId,
+        scanId: String(scanId),
         businessName: scan.businessName,
         businessType: scan.businessType,
         location: scan.location,
       },
-    });
+    },
+    () => _runScan(scan, scanId, onProgress),
+  );
+}
+
+async function _runScan(
+  scan: Scan,
+  scanId: number,
+  onProgress: ProgressCallback,
+) {
+  // startActiveObservation creates the root span for this scan. All nested
+  // AI calls are automatically children via OTel's AsyncLocalStorage context.
+  return startActiveObservation("run-scan", async (obs) => {
+    try {
 
     await db.update(scansTable).set({ status: "generating_prompts" }).where(eq(scansTable.id, scanId));
     onProgress({ type: "status", message: "Preparing search prompts..." });
@@ -864,41 +901,13 @@ async function _runScan(
     const results = await batchProcessWithSSE<ScanTask, ScanTaskResult>(
       tasks,
       async (task) => {
-        // ── Langfuse generation per AI call ──────────────────────────────────
-        const gen = trace?.generation({
-          name: `${task.provider}-visibility-query`,
-          model: providerModels[task.provider],
-          input: [{ role: "user", content: task.prompt }],
-          metadata: {
-            provider: task.provider,
-            promptIndex: task.promptIndex,
-            category: (insertedPrompts[task.promptIndex] as { category?: string } | undefined)?.category,
-          },
-        });
-
+        // OpenAI calls are auto-traced by observeOpenAI.
+        // Anthropic/Gemini calls create their own startObservation inside
+        // queryAnthropic/queryGemini — they are automatically nested under
+        // startActiveObservation("run-scan") via OTel context propagation.
         const queryFn = providerQueryFns[task.provider];
-        let result: QueryResult = { text: "" };
-        try {
-          result = await queryFn(task.prompt);
-        } catch (err) {
-          gen?.end({ level: "ERROR", statusMessage: String(err) });
-          throw err;
-        }
-
+        const result = await queryFn(task.prompt);
         const mentioned = checkMention(result.text, scan.businessName);
-
-        gen?.end({
-          output: result.text,
-          usage:
-            result.promptTokens !== undefined
-              ? {
-                  promptTokens: result.promptTokens,
-                  completionTokens: result.completionTokens ?? 0,
-                  totalTokens: (result.promptTokens ?? 0) + (result.completionTokens ?? 0),
-                }
-              : undefined,
-          metadata: { mentioned },
-        });
 
         await db.insert(scanResultsTable).values({
           scanPromptId: task.promptId,
@@ -957,15 +966,15 @@ async function _runScan(
     const score = Math.round((totalMentions / totalChecks) * 100);
     await db.update(scansTable).set({ status: "completed", score }).where(eq(scansTable.id, scanId));
 
-    trace?.update({ output: { score, totalMentions, totalChecks } });
-    // Flush non-blocking — don't delay the SSE response.
-    getLangfuse()?.flushAsync().catch(() => undefined);
+    // Record the final score on the root observation so it appears as the
+    // trace output in the Langfuse UI.
+    obs.update({ output: { score, totalMentions, totalChecks } });
 
     onProgress({ type: "completed", score, message: `Scan complete! Visibility score: ${score}%` });
   } catch (err) {
     await db.update(scansTable).set({ status: "failed" }).where(eq(scansTable.id, scanId));
-    trace?.update({ metadata: { error: err instanceof Error ? err.message : "Scan failed" } });
-    getLangfuse()?.flushAsync().catch(() => undefined);
+    obs.update({ metadata: { error: err instanceof Error ? err.message : "Scan failed" } } as Parameters<typeof obs.update>[0]);
     onProgress({ type: "error", message: err instanceof Error ? err.message : "Scan failed" });
   }
+  }); // end startActiveObservation
 }

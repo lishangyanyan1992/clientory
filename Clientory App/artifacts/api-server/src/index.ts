@@ -1,3 +1,6 @@
+// ⚠️ Must be the very first import — starts OTel before any LLM clients initialise.
+import "./instrumentation";
+
 import * as Sentry from "@sentry/node";
 
 Sentry.init({
