@@ -44,6 +44,12 @@ jobs:
         working-directory: 'Clientory App'
         run: pnpm run typecheck
 
+      - name: Run tests
+        working-directory: 'Clientory App/artifacts/api-server'
+        run: pnpm test
+        env:
+          EMAIL_TOKEN_SECRET: ${{ secrets.EMAIL_TOKEN_SECRET || 'ci-test-secret' }}
+
       - name: Audit dependencies
         working-directory: 'Clientory App'
         run: pnpm audit --audit-level=critical
