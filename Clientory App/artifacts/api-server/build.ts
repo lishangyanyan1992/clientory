@@ -17,7 +17,10 @@ const allowlist = [
   "date-fns",
   "drizzle-orm",
   "drizzle-zod",
-  "express",
+  // express intentionally excluded — Sentry uses require-in-the-middle to
+  // instrument express for tracing. Bundling express prevents that patch from
+  // running. Keeping it external (loaded from node_modules at runtime) lets
+  // Sentry instrument it correctly via Sentry.init().
   "express-rate-limit",
   "express-session",
   "jsonwebtoken",
