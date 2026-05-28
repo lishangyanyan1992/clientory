@@ -1,0 +1,37 @@
+# Gitleaks configuration — secret scanning for pre-commit and CI.
+# Docs: https://github.com/gitleaks/gitleaks
+# NOTE: paths and regexes use RE2 syntax, not globs.
+
+title = "Clientory gitleaks config"
+
+[extend]
+# Start from the default rule set (covers AWS keys, GH tokens, Stripe, OpenAI, etc.)
+useDefault = true
+
+# ─── Project-specific allowlists ─────────────────────────────────────────────
+
+[allowlist]
+description = "Allow known placeholder / example strings and non-secret paths"
+
+# Paths (RE2 regex) that are never secret
+paths = [
+  '''node_modules''',
+  '''dist/''',
+  '''pnpm-lock\.yaml''',
+  '''\.git/''',
+  '''\.md$''',
+  '''\.d\.ts$''',
+]
+
+# Patterns that look like secrets but aren't
+regexes = [
+  '''pk-lf-…''',
+  '''sk-lf-…''',
+  '''your[_-]?key''',
+  '''example[_-]?secret''',
+  # Gitleaks own example in comments
+  '''LEAKTHIS''',
+]
+
+# Commits to skip
+commits = []
