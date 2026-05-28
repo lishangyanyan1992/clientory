@@ -15,6 +15,127 @@ export function getReadingTime(content: string): number {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: "prompt-to-page-worksheet-ai-questions-to-site",
+    title: "Prompt-to-Page Worksheet: Map Your Clients' Real AI Questions to Your Site",
+    excerpt: "A practical worksheet for immigration law firms to map real client prompts to existing pages, spot content gaps, and prioritize the pages AI assistants are most likely to cite.",
+    content: `Use this worksheet to map the real immigration questions clients ask AI to the pages on your site that should answer them.
+
+Clientory — [clientory.org](https://clientory.org)
+
+## How to Use This Worksheet
+
+AI assistants like ChatGPT and Google's AI Mode do not respond to keywords alone. They respond to questions. When a worried family asks, *"Can I still renew my DACA after the new ruling?"* the AI tends to return cited, localized answers that name specific firms and pages.
+
+This worksheet helps you:
+
+- Identify the real questions your clients ask, not just the keywords you have been targeting
+- Map each question to an existing page or flag a gap
+- Prioritize which pages to build or deepen first
+
+Where to find your prompts:
+
+- Intake call notes
+- Your most common RFE responses
+- Email inquiry subject lines
+- Consultation FAQs
+- Current immigration news your clients keep asking about
+
+## Part 1 — Your Top 10 Client Prompts
+
+List the 10 questions clients ask most often in their exact words, not legal terminology. Phrase them the way a non-attorney would type them into ChatGPT.
+
+| # | Client Prompt (verbatim) | Case Type | Current Page That Answers It | Gap? |
+| --- | --- | --- | --- | --- |
+| 1 | __________________ | __________________ | __________________ | Yes / No |
+| 2 | __________________ | __________________ | __________________ | Yes / No |
+| 3 | __________________ | __________________ | __________________ | Yes / No |
+| 4 | __________________ | __________________ | __________________ | Yes / No |
+| 5 | __________________ | __________________ | __________________ | Yes / No |
+| 6 | __________________ | __________________ | __________________ | Yes / No |
+| 7 | __________________ | __________________ | __________________ | Yes / No |
+| 8 | __________________ | __________________ | __________________ | Yes / No |
+| 9 | __________________ | __________________ | __________________ | Yes / No |
+| 10 | __________________ | __________________ | __________________ | Yes / No |
+
+## Part 2 — 2026 Prompts Already in Circulation
+
+These are the kinds of questions immigration clients are actively asking AI right now. Check which ones your site currently answers and flag the gaps.
+
+| Live Client Prompt | Driven By | Your Page | Answer Quality | Action Needed |
+| --- | --- | --- | --- | --- |
+| "Can I still renew my DACA after the new ruling?" | 2026 DACA litigation and *Matter of Santiago-Santiago* developments | __________________ | Strong / Partial / None | __________________ |
+| "What new questions will they ask me at my visa interview?" | 2026 consular interview scrutiny and embassy-specific screening changes | __________________ | Strong / Partial / None | __________________ |
+| "Why is my green card background check taking so long?" | 2026 background-check delays and family-based processing slowdowns | __________________ | Strong / Partial / None | __________________ |
+| "Did the H-1B lottery rules change this year?" | FY 2026 H-1B beneficiary-centric selection process | __________________ | Strong / Partial / None | __________________ |
+| "How do I know if my immigration lawyer is being recommended by AI?" | Google AI Mode and ChatGPT search behavior in 2026 | __________________ | Strong / Partial / None | __________________ |
+| "What does [your city] immigration court look like right now?" | Local immigration court backlog and scheduling delays | __________________ | Strong / Partial / None | __________________ |
+
+## Part 3 — Page Action Plan
+
+For every gap you flagged in Parts 1 and 2, prioritize using this scoring:
+
+- **Priority Score = Prompt Frequency × Client Urgency**
+- **Frequency:** How often do clients ask this? 1 = rarely, 3 = every week
+- **Urgency:** How high-stakes is this question for the client? 1 = low, 3 = removal or status-loss risk
+- **Score 6-9:** Build or deepen this page this month
+- **Score 3-5:** Schedule in the next quarter
+- **Score 1-2:** Monitor and address when capacity allows
+
+| Prompt / Case Type | Frequency (1-3) | Urgency (1-3) | Priority Score | Target Publish Date | Owner |
+| --- | --- | --- | --- | --- | --- |
+| __________________ | ___ | ___ | ___ | __________________ | __________________ |
+| __________________ | ___ | ___ | ___ | __________________ | __________________ |
+| __________________ | ___ | ___ | ___ | __________________ | __________________ |
+| __________________ | ___ | ___ | ___ | __________________ | __________________ |
+| __________________ | ___ | ___ | ___ | __________________ | __________________ |
+
+## Part 4 — Page Depth Checklist
+
+When you build or update a page to answer a client prompt, make sure it includes these elements so AI can cite it with confidence.
+
+### Content
+
+- [ ] The exact question, or a close variant, appears verbatim on the page
+- [ ] The answer is complete enough that a worried client could act on it without calling first
+- [ ] The page is specific to your jurisdiction, such as the local USCIS field office, processing realities, or state-specific nuances
+- [ ] 2026 developments are addressed and dated, for example: *"As of the April 2026 BIA ruling..."*
+- [ ] An FAQ section uses conversational, client-phrased questions
+
+### Proof
+
+- [ ] Attorney credentials and bar admissions are visible on or linked from the page
+- [ ] Case-type experience is stated, for example: *"We've handled 200+ DACA renewal cases"*
+- [ ] Client reviews or outcomes are referenced
+- [ ] A last-updated date is visible on the page
+
+### Technical
+
+- [ ] The page is server-side rendered and not blocked by a JavaScript wall or login gate
+- [ ] AI crawlers are not blocked in robots.txt
+- [ ] The page uses a clean heading structure: H1 -> H2 -> H3
+- [ ] FAQ schema markup is added when practical
+
+## Part 5 — Monthly Habit
+
+Repeat this worksheet once a month. Your top client prompts shift with the news cycle. New rulings, policy changes, and processing delays create new questions and new opportunities to be the answer AI cites.
+
+Monthly trigger:
+
+- After any major USCIS announcement
+- After any significant BIA ruling
+- After any State Department policy change
+- After any major local backlog or scheduling shift that changes what clients are asking
+
+When one of those events happens, add the new client questions to Part 2 and reprioritize your action plan.
+
+Built by Clientory — helping immigration law firms become visible to the families who need them most.
+
+[Request a GEO visibility audit](https://clientory.org/audit)`,
+    author: "Yanyan Li",
+    date: "2026-05-28",
+    tags: ["Worksheets", "Immigration Marketing", "AI Visibility"],
+  },
+  {
     slug: "why-city-h-1b-lawyer-pages-may-be-vanishing",
     title: `Why Your "[City] H-1B Lawyer" Pages May Be Vanishing — and What to Publish Instead`,
     excerpt: "Google's May 2026 Core Update is exposing thin city-targeted immigration pages. Here's what small firms should publish instead to stay visible and useful.",

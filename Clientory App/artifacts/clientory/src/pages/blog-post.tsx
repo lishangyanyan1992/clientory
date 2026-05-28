@@ -7,9 +7,10 @@ import { MarketingLayout } from "@/components/marketing-layout";
 import { blogPosts, getReadingTime } from "@/data/blogPosts";
 
 function renderMarkdown(content: string) {
-  // Simple markdown-to-JSX renderer for headings, bold, lists, paragraphs
+  // Simple markdown-to-JSX renderer for the markdown patterns we publish.
   return content.split("\n\n").map((block, i) => {
     const trimmed = block.trim();
+    const lines = trimmed.split("\n");
 
     if (trimmed.startsWith("## ")) {
       return (
@@ -27,9 +28,57 @@ function renderMarkdown(content: string) {
       );
     }
 
+    // Table block
+    if (
+      lines.length >= 2 &&
+      lines[0].includes("|") &&
+      /^\|?[\s:-]+(?:\|[\s:-]+)+\|?$/.test(lines[1].trim())
+    ) {
+      const parseRow = (row: string) => {
+        const cells = row.split("|").map((cell) => cell.trim());
+        if (cells[0] === "") cells.shift();
+        if (cells[cells.length - 1] === "") cells.pop();
+        return cells;
+      };
+
+      const headers = parseRow(lines[0]);
+      const rows = lines.slice(2).map(parseRow).filter((row) => row.length > 0);
+
+      return (
+        <div key={i} className="my-6 overflow-x-auto rounded-xl border border-border">
+          <table className="min-w-full text-sm">
+            <thead className="bg-muted/50">
+              <tr>
+                {headers.map((header, j) => (
+                  <th
+                    key={j}
+                    className="border-b border-border px-4 py-3 text-left font-semibold text-foreground align-top"
+                    dangerouslySetInnerHTML={{ __html: formatInline(header) }}
+                  />
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row, j) => (
+                <tr key={j} className="border-b border-border last:border-b-0">
+                  {row.map((cell, k) => (
+                    <td
+                      key={k}
+                      className="px-4 py-3 text-muted-foreground align-top"
+                      dangerouslySetInnerHTML={{ __html: cell ? formatInline(cell) : "" }}
+                    />
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
     // Blockquote
-    if (trimmed.split("\n").every((l) => l.startsWith("> "))) {
-      const inner = trimmed.split("\n").map((l) => l.replace(/^> /, "")).join("\n\n");
+    if (lines.every((l) => l.startsWith("> "))) {
+      const inner = lines.map((l) => l.replace(/^> /, "")).join("\n\n");
       return (
         <blockquote key={i} className="border-l-4 border-primary/30 pl-5 py-3 my-6 bg-muted/50 rounded-r-lg">
           {inner.split("\n\n").map((line, j) => (
@@ -39,11 +88,35 @@ function renderMarkdown(content: string) {
       );
     }
 
+    // Task list block
+    if (lines.every((l) => /^- \[(?: |x|X)\] /.test(l))) {
+      return (
+        <ul key={i} className="space-y-3 text-muted-foreground mb-4">
+          {lines.map((line, j) => {
+            const checked = /^- \[(?:x|X)\] /.test(line);
+            const text = line.replace(/^- \[(?: |x|X)\] /, "");
+
+            return (
+              <li key={j} className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  readOnly
+                  className="mt-1 h-4 w-4 rounded border-border accent-primary"
+                />
+                <span dangerouslySetInnerHTML={{ __html: formatInline(text) }} />
+              </li>
+            );
+          })}
+        </ul>
+      );
+    }
+
     // List block
-    if (trimmed.split("\n").every((l) => l.startsWith("- "))) {
+    if (lines.every((l) => l.startsWith("- "))) {
       return (
         <ul key={i} className="list-disc pl-6 space-y-2 text-muted-foreground mb-4">
-          {trimmed.split("\n").map((line, j) => (
+          {lines.map((line, j) => (
             <li key={j} dangerouslySetInnerHTML={{ __html: formatInline(line.replace("- ", "")) }} />
           ))}
         </ul>
@@ -51,10 +124,10 @@ function renderMarkdown(content: string) {
     }
 
     // Numbered list
-    if (trimmed.split("\n").every((l) => /^\d+\.\s/.test(l))) {
+    if (lines.every((l) => /^\d+\.\s/.test(l))) {
       return (
         <ol key={i} className="list-decimal pl-6 space-y-2 text-muted-foreground mb-4">
-          {trimmed.split("\n").map((line, j) => (
+          {lines.map((line, j) => (
             <li key={j} dangerouslySetInnerHTML={{ __html: formatInline(line.replace(/^\d+\.\s/, "")) }} />
           ))}
         </ol>
