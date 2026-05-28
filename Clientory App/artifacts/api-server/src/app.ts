@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/node";
-import express, { type Express } from "express";
+import express, { type Express, type Request, type Response, type NextFunction } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import router from "./routes";
@@ -8,6 +8,36 @@ import stripeWebhookRouter from "./routes/webhooks/stripe";
 const app: Express = express();
 
 app.set("trust proxy", 1);
+
+// ── Golden-signal request logger ─────────────────────────────────────────────
+// Emits one structured JSON line per request covering all four golden signals:
+//   latency   → durationMs (p50/p95/p99 queryable in Better Stack / Logtail)
+//   traffic   → every request is a data point; group by route for volume
+//   errors    → statusCode >= 400 filterable; Sentry still captures 5xx stacks
+//   saturation→ pair with Railway CPU/memory metrics in the same dashboard
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const start = Date.now();
+  res.on("finish", () => {
+    const durationMs = Date.now() - start;
+    // Normalise dynamic segments so /api/businesses/abc123 → /api/businesses/:id
+    const route = (req.route?.path as string | undefined)
+      ? `${req.baseUrl ?? ""}${req.route.path}`
+      : req.path;
+    // One JSON line — stdout on Railway is shipped to Logtail / Better Stack
+    process.stdout.write(
+      JSON.stringify({
+        level: res.statusCode >= 500 ? "error" : res.statusCode >= 400 ? "warn" : "info",
+        type: "http",
+        method: req.method,
+        route,
+        status: res.statusCode,
+        durationMs,
+        ts: new Date().toISOString(),
+      }) + "\n",
+    );
+  });
+  next();
+});
 
 // Security headers — sets X-Content-Type-Options, X-Frame-Options, HSTS,
 // Referrer-Policy, X-DNS-Prefetch-Control, and more.
