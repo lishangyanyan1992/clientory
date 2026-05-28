@@ -1,13 +1,6 @@
-// ⚠️ Must be the very first import — starts OTel before any LLM clients initialise.
+// ⚠️ Must be the very first import — initialises Sentry + OTel before any
+//    other module (including app.ts) loads. See instrumentation.ts for details.
 import "./instrumentation";
-
-import * as Sentry from "@sentry/node";
-
-Sentry.init({
-  dsn: process.env["SENTRY_DSN"],
-  environment: process.env["NODE_ENV"] ?? "production",
-  tracesSampleRate: 1.0,
-});
 
 import app from "./app";
 
