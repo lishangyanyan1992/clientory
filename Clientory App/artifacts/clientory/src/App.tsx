@@ -1,9 +1,22 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HelmetProvider } from "react-helmet-async";
+import { usePostHog } from "posthog-js/react";
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
+
+// Fires a $pageview event whenever the route changes.
+// Placed inside <BrowserRouter> so useLocation() is available.
+function PostHogPageView() {
+  const location = useLocation();
+  const posthog = usePostHog();
+  useEffect(() => {
+    posthog.capture("$pageview", { $current_url: window.location.href });
+  }, [location, posthog]);
+  return null;
+}
 
 import Home from "@/pages/home";
 import ScanForm from "@/pages/scan-form";
@@ -36,6 +49,7 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+            <PostHogPageView />
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<About />} />
