@@ -1,4 +1,5 @@
 import * as Sentry from "@sentry/react";
+import { Analytics } from "@vercel/analytics/react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
@@ -13,5 +14,6 @@ Sentry.init({
 createRoot(document.getElementById("root")!).render(
   <Sentry.ErrorBoundary fallback={<p>Something went wrong. Our team has been notified.</p>}>
     <App />
+    <Analytics />
   </Sentry.ErrorBoundary>
 );
