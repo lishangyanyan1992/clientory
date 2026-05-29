@@ -19,6 +19,7 @@ import { buildCacheKey, findCachedScan, storeCacheEntry } from "../../services/s
 import { checkRateLimit, hashIp, getClientIp } from "../../services/rate-limit";
 import { checkScanEntitlement } from "../../services/entitlement";
 import { getAppBaseUrl } from "../../services/app-base-url";
+import { timedQuery } from "../../services/business-logger";
 
 const router: IRouter = Router();
 
@@ -243,9 +244,15 @@ router.post("/scans", async (req, res) => {
 
         (async () => {
           try {
-            const prompts = await db.select().from(scanPromptsTable).where(eq(scanPromptsTable.scanId, scan.id));
-            const allResults = await Promise.all(
-              prompts.map((p) => db.select().from(scanResultsTable).where(eq(scanResultsTable.scanPromptId, p.id))),
+            const prompts = await timedQuery(
+              "email_prompts_fetch",
+              () => db.select().from(scanPromptsTable).where(eq(scanPromptsTable.scanId, scan.id)),
+            );
+            const allResults = await timedQuery(
+              "email_results_fetch",
+              () => Promise.all(
+                prompts.map((p) => db.select().from(scanResultsTable).where(eq(scanResultsTable.scanPromptId, p.id))),
+              ),
             );
             const flatResults = allResults.flat();
 

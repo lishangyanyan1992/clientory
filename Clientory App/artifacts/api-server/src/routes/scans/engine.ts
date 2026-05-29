@@ -8,6 +8,7 @@ import {
   startActiveObservation,
   startObservation,
 } from "../../services/langfuse";
+import { logBusinessEvent } from "../../services/business-logger";
 import OpenAI from "openai";
 import {
   scansTable,
@@ -817,7 +818,13 @@ async function _runScan(
   // startActiveObservation creates the root span for this scan. All nested
   // AI calls are automatically children via OTel's AsyncLocalStorage context.
   return startActiveObservation("run-scan", async (obs) => {
+    const scanStartMs = Date.now();
     try {
+
+    logBusinessEvent("scan_started", {
+      scanId,
+      businessId: scan.businessId ?? undefined,
+    });
 
     await db.update(scansTable).set({ status: "generating_prompts" }).where(eq(scansTable.id, scanId));
     onProgress({ type: "status", message: "Preparing search prompts..." });
@@ -966,6 +973,16 @@ async function _runScan(
     const score = Math.round((totalMentions / totalChecks) * 100);
     await db.update(scansTable).set({ status: "completed", score }).where(eq(scansTable.id, scanId));
 
+    logBusinessEvent("scan_completed", {
+      scanId,
+      businessId: scan.businessId ?? undefined,
+      score,
+      totalMentions,
+      totalChecks,
+      promptCount: insertedPrompts.length,
+      durationMs: Date.now() - scanStartMs,
+    });
+
     // Record the final score on the root observation so it appears as the
     // trace output in the Langfuse UI.
     obs.update({ output: { score, totalMentions, totalChecks } });
@@ -973,6 +990,14 @@ async function _runScan(
     onProgress({ type: "completed", score, message: `Scan complete! Visibility score: ${score}%` });
   } catch (err) {
     await db.update(scansTable).set({ status: "failed" }).where(eq(scansTable.id, scanId));
+
+    logBusinessEvent("scan_failed", {
+      scanId,
+      businessId: scan.businessId ?? undefined,
+      reason: err instanceof Error ? err.message : "Unknown error",
+      durationMs: Date.now() - scanStartMs,
+    });
+
     obs.update({ metadata: { error: err instanceof Error ? err.message : "Scan failed" } } as Parameters<typeof obs.update>[0]);
     onProgress({ type: "error", message: err instanceof Error ? err.message : "Scan failed" });
   }

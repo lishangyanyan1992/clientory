@@ -9,6 +9,7 @@ import {
 import { eq, and } from "drizzle-orm";
 import { constructWebhookEvent } from "../../services/stripe";
 import { PLAN_CONFIG } from "@workspace/billing";
+import { logBusinessEvent } from "../../services/business-logger";
 import type Stripe from "stripe";
 
 const router: IRouter = Router();
@@ -132,6 +133,12 @@ router.post("/", async (req, res) => {
             scansLimit: PLAN_CONFIG.scansPerCycle,
             scansUsed: 0,
           }).onConflictDoNothing();
+
+          logBusinessEvent("subscription_created", {
+            userId: parseInt(userId, 10),
+            businessId: businessIdNum,
+            stripeSubscriptionId: subscriptionId,
+          });
         }
 
         break;
@@ -179,6 +186,12 @@ router.post("/", async (req, res) => {
           })
           .where(eq(businessSubscriptionsTable.id, existingSub.id));
 
+        logBusinessEvent("subscription_updated", {
+          businessId: existingSub.businessId,
+          stripeSubscriptionId: subscription.id,
+          status,
+        });
+
         break;
       }
 
@@ -188,6 +201,11 @@ router.post("/", async (req, res) => {
           .update(businessSubscriptionsTable)
           .set({ status: "canceled", updatedAt: new Date() })
           .where(eq(businessSubscriptionsTable.stripeSubscriptionId, subscription.id));
+
+        logBusinessEvent("subscription_canceled", {
+          stripeSubscriptionId: subscription.id,
+        });
+
         break;
       }
 
@@ -232,6 +250,11 @@ router.post("/", async (req, res) => {
           .update(businessSubscriptionsTable)
           .set({ status: "past_due", updatedAt: new Date() })
           .where(eq(businessSubscriptionsTable.stripeSubscriptionId, subscriptionId));
+
+        logBusinessEvent("payment_failed", {
+          stripeSubscriptionId: subscriptionId,
+          reason: "invoice_payment_failed",
+        });
 
         break;
       }
