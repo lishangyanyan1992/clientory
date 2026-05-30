@@ -15,6 +15,69 @@ export function getReadingTime(content: string): number {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: "ai-search-shifts-solo-immigration-attorneys-june-2026",
+    title: "Three AI Search Shifts Solo Immigration Attorneys Should Act On Before Monday",
+    excerpt: "A LinkedIn-ready post pack for solo immigration attorneys on the latest AI search changes, what they mean for firm visibility, and the one page worth publishing before June 1, 2026.",
+    content: `Use this as a LinkedIn-ready asset for a solo immigration attorney growing their practice.
+
+Date note: the changes referenced below were announced on May 5, May 6, and May 19, 2026. They are not all from the same day, but together they define what matters right now for AI visibility.
+
+## Hook
+
+Three AI search shifts are shaping client discovery right now — here's the single page worth publishing before Monday, June 1, 2026.
+
+## Main Post
+
+Three AI search shifts happened recently. Here's what changed — and the one move worth making before Monday, June 1.
+
+1. **Google's published AI Search guidance is now explicit.**
+
+Google Search Central's guidance on succeeding in AI search experiences makes the priorities clear: unique, helpful content; pages Google can crawl and index cleanly; and structured data that matches the visible page. For solo immigration attorneys, that means depth on your signature topics, visible expertise, and proof that a real client can verify.
+
+2. **AI Mode now puts sources deeper inside the answer.**
+
+On May 6, 2026, Google announced more links directly inside AI responses, hover previews on desktop, and source modules that can appear under titles like *Community Perspectives*. A worried family researching H-1B options or DACA renewals is not clicking ten blue links anymore. They are acting on the sources the AI answer names and contextualizes.
+
+3. **GPT-5.5 Instant became ChatGPT's default model on May 5, 2026.**
+
+OpenAI says GPT-5.5 Instant rolled out as ChatGPT's default model on May 5, 2026. In OpenAI's internal evaluations, it produced 52.5% fewer hallucinated claims than GPT-5.3 Instant on high-stakes prompts in areas like law, medicine, and finance, and it improved when to use web search to provide a more useful answer. More accurate answers means users trust them more — and the firms those answers cite get the consultation.
+
+The common thread: AI is getting better at finding and naming the most verifiable, specific, useful source. That is not a large-firm advantage. A solo with one genuinely deep, proof-backed page on their signature case type — H-1B transfers, marriage-based green cards, asylum — can be cited alongside firms ten times their size.
+
+Pick the case type you most want more of. Build the best page on that topic that exists for your jurisdiction. That's the move.
+
+→ Link in comments.
+
+#ImmigrationLaw #ImmigrationAttorney #LegalMarketing #AISearch #GEO #ImmigrationFirm #LawFirmMarketing #SoloAttorney
+
+## Shorter Variant
+
+Three important things shifted in AI search recently: Google expanded how AI Mode surfaces and previews sources on May 6, 2026; AI Mode usage keeps growing, with Google reporting on May 19, 2026 that the average AI Mode search is triple the length of a traditional query; and GPT-5.5 Instant became ChatGPT's default on May 5, 2026, with OpenAI reporting 52.5% fewer hallucinated claims than GPT-5.3 Instant on high-stakes prompts.
+
+The pattern is consistent: AI rewards specificity and proof, not ad spend. A solo immigration attorney with one genuinely deep page on their signature case type can be cited next to firms ten times their size.
+
+Pick your case type. Build the best page for it. That's the move before Monday, June 1.
+
+→ Link in comments.
+
+#ImmigrationLaw #ImmigrationAttorney #LegalMarketing #AISearch #GEO #ImmigrationFirm #LawFirmMarketing #SoloAttorney
+
+## Comment Prompt
+
+Which case type are you most focused on building visibility for right now — and have you noticed AI tools starting to surface your firm for it yet?
+
+## Link Comment
+
+Full weekly wrap + GEO audit offer: [clientory.org](https://clientory.org)
+
+## CTA
+
+[Book a Clientory GEO visibility audit](https://clientory.org/audit)`,
+    author: "Yanyan Li",
+    date: "2026-05-29",
+    tags: ["LinkedIn Content", "AI Visibility", "Immigration Marketing"],
+  },
+  {
     slug: "prompt-to-page-worksheet-ai-questions-to-site",
     title: "Prompt-to-Page Worksheet: Map Your Clients' Real AI Questions to Your Site",
     excerpt: "A practical worksheet for immigration law firms to map real client prompts to existing pages, spot content gaps, and prioritize the pages AI assistants are most likely to cite.",
