@@ -7,6 +7,7 @@ import {
   propagateAttributes,
   startActiveObservation,
   startObservation,
+  getSymptomPrompt,
 } from "../../services/langfuse";
 import { logBusinessEvent } from "../../services/business-logger";
 import OpenAI from "openai";
@@ -288,7 +289,10 @@ async function getSymptomQuery(deliverable: string): Promise<string | null> {
   // L3: Claude Haiku — traced as a Langfuse generation, auto-nested under the
   // active scan span via OTel context propagation.
   try {
-    const promptText = `Write a realistic problem/symptom query a prospect would type into an AI assistant when they have a problem that would lead them to hire a professional for "${deliverable}". The query must be 8-20 words, first person. Return ONLY the query, no quotes, no explanation.`;
+    // Prompt text comes from Langfuse Prompt Management (editable in the UI,
+    // versioned) with a hardcoded fallback. `promptClient` links this generation
+    // to the exact prompt version so you can compare versions in the Langfuse UI.
+    const { text: promptText, promptClient } = await getSymptomPrompt(deliverable);
 
     const gen = startObservation(
       "haiku-symptom-query",
@@ -296,6 +300,7 @@ async function getSymptomQuery(deliverable: string): Promise<string | null> {
         model: SYMPTOM_MODEL,
         input: [{ role: "user", content: promptText }],
         metadata: { deliverable, cacheLevel: "L3-llm" } as Record<string, string>,
+        ...(promptClient ? { prompt: promptClient } : {}),
       },
       { asType: "generation" },
     );
