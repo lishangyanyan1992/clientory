@@ -16,9 +16,18 @@
  *   LANGFUSE_BASE_URL     – https://us.cloud.langfuse.com  (or EU / self-hosted)
  */
 
+import dns from "dns";
 import * as Sentry from "@sentry/node";
 import { NodeSDK } from "@opentelemetry/sdk-node";
 import { LangfuseSpanProcessor } from "@langfuse/otel";
+
+// ── IPv4-first DNS ────────────────────────────────────────────────────────────
+// pg v8.20+ changed sslmode=require semantics AND Node's newer DNS resolver
+// can return IPv6 (AAAA) records before IPv4 (A) records. Railway's network
+// has no outbound IPv6 path, causing "connect ENETUNREACH <ipv6>:5432".
+// Force IPv4 preference for ALL DNS lookups in this process so pg always
+// gets an IPv4 address for the database host.
+dns.setDefaultResultOrder("ipv4first");
 
 // ── Sentry ────────────────────────────────────────────────────────────────────
 // Must run before app.ts is imported so that setupExpressErrorHandler() sees an
