@@ -4,10 +4,23 @@ import cors from "cors";
 import helmet from "helmet";
 import router from "./routes";
 import stripeWebhookRouter from "./routes/webhooks/stripe";
+import { runWithRequestContext, getRequestId } from "./services/request-context";
 
 const app: Express = express();
 
 app.set("trust proxy", 1);
+
+// ── Request correlation ID ────────────────────────────────────────────────────
+// Assigns a unique UUID to every request via AsyncLocalStorage. All downstream
+// loggers (HTTP, business, security) automatically pick it up via getRequestId()
+// so every log line for a single request shares the same requestId — making it
+// trivial to grep or query all events for one user action.
+app.use((req: Request, res: Response, next: NextFunction) => {
+  runWithRequestContext(() => {
+    res.setHeader("X-Request-Id", getRequestId() ?? "");
+    next();
+  });
+});
 
 // ── Golden-signal request logger ─────────────────────────────────────────────
 // Emits one structured JSON line per request covering all four golden signals:
@@ -28,6 +41,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
       JSON.stringify({
         level: res.statusCode >= 500 ? "error" : res.statusCode >= 400 ? "warn" : "info",
         type: "http",
+        requestId: getRequestId(),
         method: req.method,
         route,
         status: res.statusCode,

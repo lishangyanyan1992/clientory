@@ -1,4 +1,5 @@
 import * as Sentry from "@sentry/node";
+import { getRequestId } from "./request-context";
 
 export type BusinessEvent =
   | "scan_started"
@@ -53,10 +54,12 @@ export function logBusinessEvent(
 ): void {
   const severity = SEVERITY[event];
 
+  const requestId = getRequestId();
   const entry = {
     level: severity,
     type: "business",
     event,
+    ...(requestId ? { requestId } : {}),
     ...ctx,
     ts: new Date().toISOString(),
   };

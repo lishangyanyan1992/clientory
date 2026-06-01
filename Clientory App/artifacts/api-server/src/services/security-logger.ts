@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/node";
 import { createHash } from "crypto";
+import { getRequestId } from "./request-context";
 
 export type SecurityEvent =
   | "LOGIN_SUCCESS"
@@ -51,10 +52,12 @@ export function logSecurityEvent(
 ): void {
   const severity = SEVERITY[event];
 
+  const requestId = getRequestId();
   const entry = {
     level: severity,
     type: "security",
     event,
+    ...(requestId ? { requestId } : {}),
     ...(ctx.email ? { email: maskEmail(ctx.email) } : {}),
     ...(ctx.ip ? { ipHash: hashIpForLog(ctx.ip) } : {}),
     ...(ctx.reason ? { reason: ctx.reason } : {}),
