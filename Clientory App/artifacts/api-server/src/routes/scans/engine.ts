@@ -7,6 +7,7 @@ import {
   startActiveObservation,
   startObservation,
   getSymptomPrompt,
+  getReportPrompt,
   recordTraceScore,
 } from "../../services/langfuse";
 import { logBusinessEvent } from "../../services/business-logger";
@@ -27,6 +28,7 @@ const OPENAI_MODEL = process.env.OPENAI_MODEL ?? "gpt-5.2";
 const ANTHROPIC_QUERY_MODEL = process.env.ANTHROPIC_QUERY_MODEL ?? "claude-sonnet-4-6";
 const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
 const SYMPTOM_MODEL = process.env.SYMPTOM_MODEL ?? "claude-haiku-4-5";
+const REPORT_MODEL = process.env.REPORT_MODEL ?? "claude-sonnet-4-6";
 
 // Model used per provider for the visibility queries — surfaced on each Langfuse generation.
 const MODEL_FOR: Record<string, string> = {
@@ -833,6 +835,123 @@ export function generateRecommendations(
 
   void totalPrompts;
   return recommendations;
+}
+
+// ─── LLM report synthesis (Option B: lazy, on first view, cached) ─────────────
+// Generated the first time a viewable report is opened (free first report OR a
+// paid subscriber), then memoized for the process lifetime. The cache is in-memory
+// by design — no DB migration — so a deploy/restart regenerates once. A single
+// Sonnet call per scan makes that acceptable; promote to a DB column later if the
+// regen cost or multi-replica duplication ever matters.
+const reportMemoryCache = new Map<number, string>();
+
+export interface ReportSynthesisInput {
+  scanId: number;
+  businessName: string;
+  businessType: string;
+  location: string;
+  memoryScore: number;
+  groundedScore: number;
+  /** Memory-mode mention counts, e.g. { openai: 4, anthropic: 2, gemini: 0 }. */
+  mentionsByProvider: Record<string, number>;
+  /** One entry per tested prompt with the providers that named the firm (memory mode). */
+  prompts: { text: string; mentionedBy: string[] }[];
+  /** A few verbatim response excerpts to ground the narrative. */
+  excerpts: { provider: string; prompt: string; text: string }[];
+}
+
+function formatMentionsByProvider(m: Record<string, number>): string {
+  return Object.entries(m)
+    .map(([p, n]) => `${providerDisplayNames[p] ?? p}: ${n}`)
+    .join(", ");
+}
+
+function formatPromptResults(prompts: { text: string; mentionedBy: string[] }[]): string {
+  return prompts
+    .map((p, i) => {
+      const named = p.mentionedBy.length
+        ? p.mentionedBy.map((x) => providerDisplayNames[x] ?? x).join(", ")
+        : "none";
+      return `${i + 1}. "${p.text}" — named by: ${named}`;
+    })
+    .join("\n");
+}
+
+function formatExcerpts(excerpts: { provider: string; prompt: string; text: string }[]): string {
+  if (excerpts.length === 0) return "(no excerpts available)";
+  return excerpts
+    .map(
+      (e) =>
+        `[${providerDisplayNames[e.provider] ?? e.provider} · "${e.prompt}"]\n${e.text.slice(0, 600).trim()}`,
+    )
+    .join("\n\n");
+}
+
+/**
+ * Synthesizes a written, firm-specific report from a completed scan's structured
+ * data using the managed `report-synthesis` Langfuse prompt. Memoized per scanId.
+ * Throws on LLM/prompt failure so the caller can fall back to generateRecommendations().
+ */
+export async function synthesizeReport(input: ReportSynthesisInput): Promise<string> {
+  const cached = reportMemoryCache.get(input.scanId);
+  if (cached) return cached;
+
+  const { messages, promptClient } = await getReportPrompt({
+    businessName: input.businessName,
+    businessType: input.businessType,
+    location: input.location,
+    memoryScore: String(input.memoryScore),
+    groundedScore: String(input.groundedScore),
+    mentionsByProvider: formatMentionsByProvider(input.mentionsByProvider),
+    promptResults: formatPromptResults(input.prompts),
+    responseExcerpts: formatExcerpts(input.excerpts),
+  });
+
+  const systemMsg = messages.find((m) => m.role === "system")?.content;
+  const turnMessages = messages
+    .filter((m) => m.role !== "system")
+    .map((m) => ({
+      role: m.role === "assistant" ? ("assistant" as const) : ("user" as const),
+      content: m.content,
+    }));
+
+  const gen = startObservation(
+    "report-synthesis",
+    {
+      model: REPORT_MODEL,
+      input: messages,
+      metadata: { scanId: String(input.scanId), memoryScore: input.memoryScore } as Record<string, unknown>,
+      ...(promptClient ? { prompt: promptClient } : {}),
+    },
+    { asType: "generation" },
+  );
+
+  try {
+    const message = await anthropic.messages.create({
+      model: REPORT_MODEL,
+      max_tokens: 1024,
+      ...(systemMsg ? { system: systemMsg } : {}),
+      messages: turnMessages,
+    });
+    const block = message.content[0];
+    const text = block?.type === "text" ? block.text.trim() : "";
+
+    gen.update({
+      output: text,
+      usageDetails: {
+        input: message.usage.input_tokens,
+        output: message.usage.output_tokens,
+      },
+    }).end();
+
+    if (text) reportMemoryCache.set(input.scanId, text);
+    return text;
+  } catch (err) {
+    gen.update({
+      metadata: { error: err instanceof Error ? err.message : "report synthesis failed" },
+    }).end();
+    throw err;
+  }
 }
 
 type Provider = "openai" | "anthropic" | "gemini";
