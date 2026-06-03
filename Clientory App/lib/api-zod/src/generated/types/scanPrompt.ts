@@ -12,4 +12,5 @@ export interface ScanPrompt {
   prompt: string;
   category: string;
   audience?: "individual" | "business" | null;
+  executed?: boolean;
 }

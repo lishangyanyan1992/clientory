@@ -706,6 +706,8 @@ components:
           type: string
           enum: [individual, business]
           nullable: true
+        executed:
+          type: boolean
       required:
         - id
         - scanId
@@ -773,6 +775,13 @@ components:
           type: array
           items:
             type: string
+        report:
+          type: string
+          nullable: true
+          description: >-
+            LLM-synthesized, firm-specific report (GitHub-flavored markdown).
+            Null when the scan is not viewable, not yet completed, or synthesis
+            failed (clients fall back to `recommendations`).
       required:
         - scan
         - prompts

@@ -244,9 +244,16 @@ router.post("/scans", async (req, res) => {
 
         (async () => {
           try {
+            // Only prompts that actually ran. On free-tier scans the unrun
+            // (locked) prompts have no results, so excluding them keeps the email
+            // accurate (no "15 not mentioned" noise) and matches the preview score.
             const prompts = await timedQuery(
               "email_prompts_fetch",
-              () => db.select().from(scanPromptsTable).where(eq(scanPromptsTable.scanId, scan.id)),
+              () =>
+                db
+                  .select()
+                  .from(scanPromptsTable)
+                  .where(and(eq(scanPromptsTable.scanId, scan.id), eq(scanPromptsTable.executed, true))),
             );
             const allResults = await timedQuery(
               "email_results_fetch",
@@ -438,6 +445,7 @@ router.get("/scans/:id", async (req, res) => {
             prompt: prompt.prompt,
             category: prompt.category,
             audience: prompt.audience ?? null,
+            executed: prompt.executed,
           },
           results: results.map((r) => ({
             id: String(r.id),

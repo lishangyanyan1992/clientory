@@ -20,7 +20,7 @@ import {
   businessesTable,
   symptomQueryCacheTable,
 } from "@workspace/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, inArray } from "drizzle-orm";
 import type { Business, PromptItem, Scan, ScanPrompt, ScanResultSource } from "@workspace/db/schema";
 
 // ─── Model config (override via env vars) ────────────────────────────────────
@@ -968,6 +968,53 @@ const ENABLED_PROVIDERS: Provider[] = (process.env.ENABLED_PROVIDERS ?? "openai,
   .map((s) => s.trim().toLowerCase())
   .filter((p): p is Provider => (ALL_PROVIDERS as string[]).includes(p));
 
+// Free-tier (isFreeReport) scans only query a small sample of prompts; the rest
+// are stored unrun and shown as locked upsell rows. Env-tunable.
+const FREE_SCAN_PROMPT_LIMIT = Number(process.env.FREE_SCAN_PROMPT_LIMIT ?? 5);
+
+// Category order for the free sample — prefer breadth (one prompt per category)
+// so the preview showcases the full range of searches the paid scan covers.
+const FREE_SAMPLE_CATEGORY_ORDER = [
+  "BRAND_DIRECT",
+  "CATEGORY_GEO",
+  "SPECIALTY_LONGTAIL",
+  "PROBLEM_SYMPTOM",
+  "PERSONA_DRIVEN",
+];
+
+// Pick up to `limit` prompts maximizing category coverage: one per category in
+// canonical order first, then fill remaining slots from leftovers (generation order).
+function selectFreeSample(prompts: ScanPrompt[], limit: number): ScanPrompt[] {
+  if (prompts.length <= limit) return prompts;
+  const byCategory = new Map<string, ScanPrompt[]>();
+  for (const p of prompts) {
+    if (!byCategory.has(p.category)) byCategory.set(p.category, []);
+    byCategory.get(p.category)!.push(p);
+  }
+  const orderedCats = [
+    ...FREE_SAMPLE_CATEGORY_ORDER.filter((c) => byCategory.has(c)),
+    ...[...byCategory.keys()].filter((c) => !FREE_SAMPLE_CATEGORY_ORDER.includes(c)),
+  ];
+  const picked: ScanPrompt[] = [];
+  const used = new Set<number>();
+  // Round 1: one per category.
+  for (const cat of orderedCats) {
+    if (picked.length >= limit) break;
+    const first = byCategory.get(cat)![0];
+    picked.push(first);
+    used.add(first.id);
+  }
+  // Round 2: fill remaining slots from leftovers, preserving generation order.
+  for (const p of prompts) {
+    if (picked.length >= limit) break;
+    if (!used.has(p.id)) {
+      picked.push(p);
+      used.add(p.id);
+    }
+  }
+  return picked.slice(0, limit);
+}
+
 const providerQueryFns: Record<Provider, (prompt: string, grounded: boolean) => Promise<QueryResult>> = {
   openai: queryOpenAI,
   anthropic: queryAnthropic,
@@ -1116,6 +1163,25 @@ async function _runScan(
 
     await db.update(scansTable).set({ status: "scanning" }).where(eq(scansTable.id, scanId));
 
+    // Free-tier gating: unpaid (isFreeReport) scans run only a category-spread
+    // sample; the rest stay in scan_prompts unrun (executed=false) and become
+    // locked upsell rows in the report. Paid scans run everything.
+    const promptsToRun = scan.isFreeReport
+      ? selectFreeSample(insertedPrompts, FREE_SCAN_PROMPT_LIMIT)
+      : insertedPrompts;
+    if (promptsToRun.length > 0) {
+      await db
+        .update(scanPromptsTable)
+        .set({ executed: true })
+        .where(inArray(scanPromptsTable.id, promptsToRun.map((p) => p.id)));
+    }
+    if (promptsToRun.length < insertedPrompts.length) {
+      onProgress({
+        type: "status",
+        message: `Running ${promptsToRun.length} of ${insertedPrompts.length} searches (free preview).`,
+      });
+    }
+
     const providers: Provider[] = ENABLED_PROVIDERS;
     const modes = [false, true] as const; // false = parametric (AI memory), true = web-grounded (AI answer)
 
@@ -1134,7 +1200,7 @@ async function _runScan(
     // the "results from each model for each prompt" tree. Each call self-retries on
     // rate limits, so the batch wrapper's own retry is disabled (retries: 0).
     await batchProcessWithSSE<ScanPrompt, void>(
-      insertedPrompts,
+      promptsToRun,
       async (promptRow, index) =>
         startActiveObservation(`prompt-${index}`, async (promptSpan) => {
           promptSpan.update({
@@ -1144,9 +1210,9 @@ async function _runScan(
           onProgress({
             type: "scanning",
             promptIndex: index,
-            totalPrompts: insertedPrompts.length,
+            totalPrompts: promptsToRun.length,
             prompt: promptRow.prompt,
-            message: `Testing prompt ${index + 1}/${insertedPrompts.length} across ${providers.length} AI assistants...`,
+            message: `Testing prompt ${index + 1}/${promptsToRun.length} across ${providers.length} AI assistants...`,
           });
 
           const perModeMentions: Record<string, boolean> = {};
@@ -1273,7 +1339,8 @@ async function _runScan(
       groundedScore,
       totalMentions: memoryMentions + answerMentions,
       totalChecks: memoryChecks + answerChecks,
-      promptCount: insertedPrompts.length,
+      promptCount: promptsToRun.length,
+      promptsGenerated: insertedPrompts.length,
       durationMs: Date.now() - scanStartMs,
     });
 

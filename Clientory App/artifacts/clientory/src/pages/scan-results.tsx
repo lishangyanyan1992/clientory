@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, type ReactNode } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Layout } from "@/components/layout";
 import { useGetScan, getBillingStatus } from "@workspace/api-client-react";
@@ -84,7 +84,14 @@ type RawResult = {
 };
 type AnalyzedResult = RawResult & { analysis: MentionAnalysis };
 type AnalyzedPrompt = {
-  prompt: { id: string; scanId: string; prompt: string; category: string; audience?: "individual" | "business" | null };
+  prompt: {
+    id: string;
+    scanId: string;
+    prompt: string;
+    category: string;
+    audience?: "individual" | "business" | null;
+    executed?: boolean;
+  };
   results: AnalyzedResult[];
 };
 
@@ -282,6 +289,32 @@ function PromptCard({ p, label }: { p: AnalyzedPrompt; label: string }) {
   );
 }
 
+// A prompt that was generated but not run (free-tier cap). The prompt text is
+// shown (so the user sees the search they're missing) but the AI results are gated.
+function LockedPromptCard({ p, label }: { p: AnalyzedPrompt; label: string }) {
+  return (
+    <Card className="overflow-hidden border-dashed border-border/60 shadow-sm">
+      <div className="p-5 bg-muted/20 border-b border-border/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex-1 min-w-0">
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1 block">
+            {label}
+          </span>
+          <h3 className="text-base font-medium text-muted-foreground">"{p.prompt.prompt}"</h3>
+        </div>
+        <span className="px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 whitespace-nowrap bg-muted/50 text-muted-foreground shrink-0">
+          <Lock className="w-3.5 h-3.5" /> Not run
+        </span>
+      </div>
+      <Link
+        to="/settings/billing"
+        className="flex items-center justify-center gap-2 p-4 text-sm font-medium text-primary hover:bg-primary/5 transition-colors"
+      >
+        <Lock className="w-4 h-4" /> Upgrade to run this search across the AI assistants <ArrowRight className="w-4 h-4" />
+      </Link>
+    </Card>
+  );
+}
+
 // ─── Level 2: category accordion ─────────────────────────────────────────────
 
 function ProviderDots({ prompts }: { prompts: AnalyzedPrompt[] }) {
@@ -324,7 +357,9 @@ function CategoryAccordion({ prompts }: { prompts: AnalyzedPrompt[] }) {
       {orderedKeys.map((key) => {
         const group = byCategory.get(key)!;
         const meta = categoryMeta(key);
-        const mentionedPrompts = group.filter((p) => p.results.some((r) => r.mentioned)).length;
+        const ran = group.filter((p) => p.prompt.executed !== false);
+        const lockedCount = group.length - ran.length;
+        const mentionedPrompts = ran.filter((p) => p.results.some((r) => r.mentioned)).length;
         return (
           <AccordionItem key={key} value={key} className="border-b-0 px-4">
             <AccordionTrigger className="hover:no-underline">
@@ -341,18 +376,27 @@ function CategoryAccordion({ prompts }: { prompts: AnalyzedPrompt[] }) {
                   )}
                 </div>
                 <div className="flex items-center gap-3">
-                  <ProviderDots prompts={group} />
+                  <ProviderDots prompts={ran} />
                   <span className="text-xs text-muted-foreground whitespace-nowrap tabular-nums">
-                    {mentionedPrompts} / {group.length} mentioned
+                    {ran.length > 0 ? `${mentionedPrompts} / ${ran.length} mentioned` : "locked"}
+                    {lockedCount > 0 && (
+                      <span className="ml-1.5 inline-flex items-center gap-0.5 text-primary/80">
+                        <Lock className="w-3 h-3" /> {lockedCount}
+                      </span>
+                    )}
                   </span>
                 </div>
               </div>
             </AccordionTrigger>
             <AccordionContent>
               <div className="grid gap-4 pb-2">
-                {group.map((p, i) => (
-                  <PromptCard key={p.prompt.id} p={p} label={`${meta.label} ${i + 1}`} />
-                ))}
+                {group.map((p, i) =>
+                  p.prompt.executed === false ? (
+                    <LockedPromptCard key={p.prompt.id} p={p} label={`${meta.label} ${i + 1}`} />
+                  ) : (
+                    <PromptCard key={p.prompt.id} p={p} label={`${meta.label} ${i + 1}`} />
+                  ),
+                )}
               </div>
             </AccordionContent>
           </AccordionItem>
@@ -454,6 +498,67 @@ function LockedFeature({ title, description }: { title: string; description: str
   );
 }
 
+// Render **bold** spans within a single line of markdown text.
+function renderInline(text: string, keyPrefix: string): ReactNode[] {
+  return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
+    /^\*\*[^*]+\*\*$/.test(part) ? (
+      <strong key={`${keyPrefix}-${i}`}>{part.slice(2, -2)}</strong>
+    ) : (
+      <span key={`${keyPrefix}-${i}`}>{part}</span>
+    ),
+  );
+}
+
+// Minimal, dependency-free markdown renderer for the synthesized report. Handles
+// the constrained subset the prompt emits: headings, bullet lists, paragraphs,
+// and inline **bold**. Intentionally not a full markdown engine — no raw HTML, so
+// it's safe to render model output directly.
+function MarkdownLite({ content }: { content: string }) {
+  const blocks: ReactNode[] = [];
+  let listItems: string[] = [];
+  let key = 0;
+
+  const flushList = () => {
+    if (listItems.length === 0) return;
+    const items = [...listItems];
+    blocks.push(
+      <ul key={`ul-${key++}`} className="list-disc pl-5 space-y-2 my-3">
+        {items.map((it, i) => (
+          <li key={i} className="text-foreground leading-relaxed">
+            {renderInline(it, `li-${key}-${i}`)}
+          </li>
+        ))}
+      </ul>,
+    );
+    listItems = [];
+  };
+
+  for (const raw of content.split("\n")) {
+    const line = raw.trimEnd();
+    if (/^\s*[-*]\s+/.test(line)) {
+      listItems.push(line.replace(/^\s*[-*]\s+/, ""));
+    } else if (/^#{1,6}\s+/.test(line)) {
+      flushList();
+      blocks.push(
+        <h3 key={`h-${key++}`} className="text-lg font-semibold mt-4 mb-2">
+          {renderInline(line.replace(/^#{1,6}\s+/, ""), `h-${key}`)}
+        </h3>,
+      );
+    } else if (line.trim() === "") {
+      flushList();
+    } else {
+      flushList();
+      blocks.push(
+        <p key={`p-${key++}`} className="text-foreground leading-relaxed my-2">
+          {renderInline(line, `p-${key}`)}
+        </p>,
+      );
+    }
+  }
+  flushList();
+  return <div>{blocks}</div>;
+}
+
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function ScanResults() {
@@ -532,7 +637,11 @@ export default function ScanResults() {
     );
   }
 
-  const { scan, recommendations } = data;
+  const { scan, recommendations, report } = data;
+  // The report/recommendations are populated by the backend only when the report
+  // is viewable (free first report OR paid). Their presence is the source of truth
+  // for whether this section is unlocked.
+  const hasImprovementContent = !!report || (recommendations?.length ?? 0) > 0;
   const score = scan.score || 0;
 
   // ── Level 1 aggregates ──
@@ -556,6 +665,11 @@ export default function ScanResults() {
 
   const showPaidFeatures = isPaid === true;
   const billingLoading = isPaid === null;
+
+  // Free-tier scans run only a sample of the generated searches.
+  const totalSearches = analyzed.length;
+  const ranSearches = analyzed.filter((p) => p.prompt.executed !== false).length;
+  const hasLockedSearches = ranSearches > 0 && ranSearches < totalSearches;
 
   return (
     <Layout>
@@ -605,6 +719,15 @@ export default function ScanResults() {
                   How often your firm was mentioned when we asked AI assistants for recommendations in your
                   practice areas.
                 </p>
+                {hasLockedSearches && (
+                  <Link
+                    to="/settings/billing"
+                    className="mt-3 inline-flex items-center gap-1.5 text-center text-xs font-medium text-primary hover:underline px-4"
+                  >
+                    <Lock className="w-3 h-3 shrink-0" />
+                    Based on a {ranSearches}-search sample — unlock all {totalSearches} for your complete score
+                  </Link>
+                )}
               </CardContent>
             </Card>
 
@@ -675,12 +798,21 @@ export default function ScanResults() {
 
           <h2 className="text-2xl font-bold pt-8">How to Improve</h2>
 
-          {!billingLoading && !showPaidFeatures && scan.status === "completed" ? (
+          {scan.status === "completed" && !hasImprovementContent ? (
             <LockedFeature
               title="Detailed recommendations locked"
               description="Subscribe to unlock all actionable recommendations and start improving your AI visibility today."
             />
+          ) : report ? (
+            // Preferred: LLM-synthesized, firm-specific report (markdown).
+            <Card className="glass-panel overflow-hidden border-primary/20 relative">
+              <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary to-accent"></div>
+              <CardContent className="p-6">
+                <MarkdownLite content={report} />
+              </CardContent>
+            </Card>
           ) : (
+            // Fallback: deterministic recommendations (synthesis failed or pending).
             <Card className="glass-panel overflow-hidden border-primary/20 relative">
               <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary to-accent"></div>
               <CardContent className="p-0">
