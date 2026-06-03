@@ -1,13 +1,13 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenAI } from "@google/genai";
-import { batchProcessWithSSE } from "@workspace/integrations-openai-ai-server/batch";
+import { batchProcessWithSSE, isRateLimitError } from "@workspace/integrations-openai-ai-server/batch";
 import { db } from "@workspace/db";
 import {
-  observeOpenAI,
   propagateAttributes,
   startActiveObservation,
   startObservation,
   getSymptomPrompt,
+  recordTraceScore,
 } from "../../services/langfuse";
 import { logBusinessEvent } from "../../services/business-logger";
 import OpenAI from "openai";
@@ -20,7 +20,7 @@ import {
   symptomQueryCacheTable,
 } from "@workspace/db/schema";
 import { eq, desc } from "drizzle-orm";
-import type { Business, PromptItem, Scan, ScanPrompt } from "@workspace/db/schema";
+import type { Business, PromptItem, Scan, ScanPrompt, ScanResultSource } from "@workspace/db/schema";
 
 // ─── Model config (override via env vars) ────────────────────────────────────
 const OPENAI_MODEL = process.env.OPENAI_MODEL ?? "gpt-5.2";
@@ -28,10 +28,18 @@ const ANTHROPIC_QUERY_MODEL = process.env.ANTHROPIC_QUERY_MODEL ?? "claude-sonne
 const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
 const SYMPTOM_MODEL = process.env.SYMPTOM_MODEL ?? "claude-haiku-4-5";
 
-// observeOpenAI wraps the client so every chat.completions.create() call is
-// automatically captured as a Langfuse generation (model, tokens, latency, cost).
-// Falls back to a plain OpenAI client when Langfuse is not configured.
-const openai = observeOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
+// Model used per provider for the visibility queries — surfaced on each Langfuse generation.
+const MODEL_FOR: Record<string, string> = {
+  openai: OPENAI_MODEL,
+  anthropic: ANTHROPIC_QUERY_MODEL,
+  gemini: GEMINI_MODEL,
+};
+
+// Plain OpenAI client. Scan queries are now instrumented manually (one Langfuse
+// generation per provider × mode, carrying uniform metadata) rather than via the
+// observeOpenAI drop-in, so OpenAI rows carry the same promptIndex/grounded/mentioned
+// tags as Anthropic and Gemini. Token/cost is preserved via usageDetails.
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const genai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
 
@@ -44,6 +52,10 @@ type ProgressCallback = (event: {
   mentioned?: boolean;
   message?: string;
   score?: number;
+  /** Which pass produced a `result` event — false = parametric (memory), true = web-grounded (answer). */
+  grounded?: boolean;
+  /** Web-grounded visibility score, sent on the final `completed` event alongside `score` (the memory score). */
+  groundedScore?: number;
 }) => void;
 
 // ─── Static symptom map (30 entries across law, accounting, consulting, marketing) ────────────────
@@ -608,77 +620,135 @@ function generateTemplatePrompts(
 
 interface QueryResult {
   text: string;
+  /** Cited web sources (grounded mode only; empty for ungrounded). */
+  sources: ScanResultSource[];
+  /** Whether web search actually fired (auto mode may skip it). */
+  searched: boolean;
   promptTokens?: number;
   completionTokens?: number;
 }
 
-async function queryOpenAI(prompt: string): Promise<QueryResult> {
-  const response = await openai.chat.completions.create({
+// Each query function is a pure API caller — Langfuse instrumentation lives in the
+// per-call wrapper in _runScan so every provider × mode generation gets uniform
+// metadata. `grounded` toggles the provider's native web-search tool in AUTO mode
+// (the model decides whether to search, mirroring real consumer-app behavior).
+
+async function queryOpenAI(prompt: string, grounded: boolean): Promise<QueryResult> {
+  if (!grounded) {
+    const response = await openai.chat.completions.create({
+      model: OPENAI_MODEL,
+      max_completion_tokens: 1024,
+      messages: [{ role: "user", content: prompt }],
+    });
+    return {
+      text: response.choices[0]?.message?.content ?? "",
+      sources: [],
+      searched: false,
+      promptTokens: response.usage?.prompt_tokens,
+      completionTokens: response.usage?.completion_tokens,
+    };
+  }
+
+  // Grounded: Responses API with the web_search tool in auto mode.
+  const res = await openai.responses.create({
     model: OPENAI_MODEL,
-    max_completion_tokens: 1024,
-    messages: [{ role: "user", content: prompt }],
+    input: prompt,
+    tools: [{ type: "web_search" }],
+    tool_choice: "auto",
   });
+  const sources: ScanResultSource[] = [];
+  const seen = new Set<string>();
+  let searched = false;
+  for (const item of res.output ?? []) {
+    if (item.type === "web_search_call") searched = true;
+    if (item.type === "message") {
+      for (const c of item.content ?? []) {
+        if (c.type === "output_text") {
+          for (const a of c.annotations ?? []) {
+            if (a.type === "url_citation" && a.url && !seen.has(a.url)) {
+              seen.add(a.url);
+              sources.push({ url: a.url, ...(a.title ? { title: a.title } : {}) });
+            }
+          }
+        }
+      }
+    }
+  }
   return {
-    text: response.choices[0]?.message?.content ?? "",
-    promptTokens: response.usage?.prompt_tokens,
-    completionTokens: response.usage?.completion_tokens,
+    text: res.output_text ?? "",
+    sources,
+    searched,
+    promptTokens: res.usage?.input_tokens,
+    completionTokens: res.usage?.output_tokens,
   };
 }
 
-async function queryAnthropic(prompt: string): Promise<QueryResult> {
-  // Manual instrumentation — Anthropic has no Langfuse drop-in wrapper yet.
-  // startObservation creates a generation nested under the active scan span
-  // via OTel automatic context propagation.
-  const gen = startObservation(
-    "anthropic-visibility-query",
-    { model: ANTHROPIC_QUERY_MODEL, input: [{ role: "user", content: prompt }] },
-    { asType: "generation" },
-  );
-
+async function queryAnthropic(prompt: string, grounded: boolean): Promise<QueryResult> {
   const message = await anthropic.messages.create({
     model: ANTHROPIC_QUERY_MODEL,
     max_tokens: 1024,
     messages: [{ role: "user", content: prompt }],
+    ...(grounded
+      ? { tools: [{ type: "web_search_20250305" as const, name: "web_search" as const, max_uses: 5 }] }
+      : {}),
   });
-  const block = message.content[0];
-  const text = block.type === "text" ? block.text : "";
 
-  gen.update({
-    output: text,
-    usageDetails: {
-      input: message.usage.input_tokens,
-      output: message.usage.output_tokens,
-    },
-  }).end();
-
-  return { text, promptTokens: message.usage.input_tokens, completionTokens: message.usage.output_tokens };
+  let text = "";
+  const sources: ScanResultSource[] = [];
+  const seen = new Set<string>();
+  let searched = false;
+  const addSource = (url?: string, title?: string) => {
+    if (url && !seen.has(url)) {
+      seen.add(url);
+      sources.push({ url, ...(title ? { title } : {}) });
+    }
+  };
+  for (const block of message.content) {
+    if (block.type === "text") {
+      text += block.text;
+      for (const cit of (block.citations ?? []) as Array<{ url?: string; title?: string }>) {
+        addSource(cit.url, cit.title);
+      }
+    } else if (block.type === "server_tool_use") {
+      searched = true;
+    } else if (block.type === "web_search_tool_result") {
+      searched = true;
+      const content = (block as { content?: Array<{ url?: string; title?: string }> }).content;
+      if (Array.isArray(content)) for (const r of content) addSource(r.url, r.title);
+    }
+  }
+  return {
+    text,
+    sources,
+    searched,
+    promptTokens: message.usage.input_tokens,
+    completionTokens: message.usage.output_tokens,
+  };
 }
 
-async function queryGemini(prompt: string): Promise<QueryResult> {
-  // Manual instrumentation — Gemini has no Langfuse drop-in wrapper yet.
-  const gen = startObservation(
-    "gemini-visibility-query",
-    { model: GEMINI_MODEL, input: [{ role: "user", content: prompt }] },
-    { asType: "generation" },
-  );
-
+async function queryGemini(prompt: string, grounded: boolean): Promise<QueryResult> {
   const response = await genai.models.generateContent({
     model: GEMINI_MODEL,
     contents: [{ role: "user", parts: [{ text: prompt }] }],
-    config: { maxOutputTokens: 1024 },
+    config: grounded
+      ? { tools: [{ googleSearch: {} }], maxOutputTokens: 1024 }
+      : { maxOutputTokens: 1024 },
   });
-  const text = response.text ?? "";
 
-  gen.update({
-    output: text,
-    usageDetails: {
-      input: response.usageMetadata?.promptTokenCount ?? 0,
-      output: response.usageMetadata?.candidatesTokenCount ?? 0,
-    },
-  }).end();
-
+  const sources: ScanResultSource[] = [];
+  const seen = new Set<string>();
+  const meta = response.candidates?.[0]?.groundingMetadata;
+  for (const chunk of meta?.groundingChunks ?? []) {
+    const uri = chunk.web?.uri;
+    if (uri && !seen.has(uri)) {
+      seen.add(uri);
+      sources.push({ url: uri, ...(chunk.web?.title ? { title: chunk.web.title } : {}) });
+    }
+  }
   return {
-    text,
+    text: response.text ?? "",
+    sources,
+    searched: (meta?.groundingChunks?.length ?? 0) > 0,
     promptTokens: response.usageMetadata?.promptTokenCount,
     completionTokens: response.usageMetadata?.candidatesTokenCount,
   };
@@ -765,22 +835,9 @@ export function generateRecommendations(
   return recommendations;
 }
 
-interface ScanTask {
-  promptId: number;
-  prompt: string;
-  provider: "openai" | "anthropic" | "gemini";
-  promptIndex: number;
-  totalPrompts: number;
-}
+type Provider = "openai" | "anthropic" | "gemini";
 
-interface ScanTaskResult {
-  response: string;
-  mentioned: boolean;
-  provider: string;
-  promptId: number;
-}
-
-const providerQueryFns: Record<string, (prompt: string) => Promise<QueryResult>> = {
+const providerQueryFns: Record<Provider, (prompt: string, grounded: boolean) => Promise<QueryResult>> = {
   openai: queryOpenAI,
   anthropic: queryAnthropic,
   gemini: queryGemini,
@@ -791,6 +848,20 @@ const providerDisplayNames: Record<string, string> = {
   anthropic: "Claude",
   gemini: "Gemini",
 };
+
+// Lightweight retry for transient rate-limit errors. Each provider × mode call is
+// wrapped individually so one slow provider never re-runs the others. Non-rate-limit
+// errors fail fast (no point retrying a malformed request).
+async function withRateLimitRetry<T>(fn: () => Promise<T>, retries = 4, baseMs = 2000): Promise<T> {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      if (!isRateLimitError(err) || attempt >= retries) throw err;
+      await new Promise((r) => setTimeout(r, Math.min(baseMs * 2 ** attempt, 30000)));
+    }
+  }
+}
 
 export async function runScan(scanId: number, onProgress: ProgressCallback) {
   // Fetch the scan first so we can add meaningful metadata to the trace.
@@ -834,59 +905,77 @@ async function _runScan(
     await db.update(scansTable).set({ status: "generating_prompts" }).where(eq(scansTable.id, scanId));
     onProgress({ type: "status", message: "Preparing search prompts..." });
 
-    let promptsToUse: { prompt: string; category: string; audience?: "individual" | "business" | null }[] = [];
+    // Prompt generation as its own observation — the Haiku symptom calls inside
+    // generateFirmPrompts nest under this span, and the generated list becomes its
+    // output (visible in the Langfuse UI as the first step of the pipeline).
+    const insertedPrompts = await startActiveObservation(
+      "generate-prompts",
+      async (genSpan): Promise<ScanPrompt[]> => {
+        let promptsToUse: { prompt: string; category: string; audience?: "individual" | "business" | null }[] = [];
+        let source: "locked" | "generated" | "template" = "template";
 
-    // Use the business's locked PromptSet if available
-    if (scan.businessId) {
-      const [latestSet] = await db
-        .select()
-        .from(promptSetsTable)
-        .where(eq(promptSetsTable.businessId, scan.businessId))
-        .orderBy(desc(promptSetsTable.createdAt))
-        .limit(1);
+        // Use the business's locked PromptSet if available
+        if (scan.businessId) {
+          const [latestSet] = await db
+            .select()
+            .from(promptSetsTable)
+            .where(eq(promptSetsTable.businessId, scan.businessId))
+            .orderBy(desc(promptSetsTable.createdAt))
+            .limit(1);
 
-      if (latestSet?.prompts && latestSet.isLocked) {
-        const items = latestSet.prompts as PromptItem[];
-        promptsToUse = items.map((p) => ({ prompt: p.text, category: p.category, audience: p.audience ?? null }));
-        onProgress({
-          type: "status",
-          message: `Using ${promptsToUse.length} locked prompts from firm profile...`,
+          if (latestSet?.prompts && latestSet.isLocked) {
+            const items = latestSet.prompts as PromptItem[];
+            promptsToUse = items.map((p) => ({ prompt: p.text, category: p.category, audience: p.audience ?? null }));
+            source = "locked";
+            onProgress({
+              type: "status",
+              message: `Using ${promptsToUse.length} locked prompts from firm profile...`,
+            });
+          }
+        }
+
+        // Fallback: generate using the combinatorial engine with firm profile data
+        if (promptsToUse.length === 0 && scan.businessId) {
+          const [business] = await db
+            .select()
+            .from(businessesTable)
+            .where(eq(businessesTable.id, scan.businessId));
+          if (business && (business.firmType || business.primaryServices || business.deliverables)) {
+            onProgress({ type: "status", message: "Generating prompts from firm profile..." });
+            const { prompts } = await generateFirmPrompts(business);
+            promptsToUse = prompts.map((p) => ({ prompt: p.text, category: p.category, audience: p.audience ?? null }));
+            source = "generated";
+          }
+        }
+
+        // Final fallback: simple templates
+        if (promptsToUse.length === 0) {
+          onProgress({ type: "status", message: "Generating search prompts..." });
+          promptsToUse = generateTemplatePrompts(
+            scan.businessName,
+            scan.businessType,
+            scan.location,
+            scan.description,
+          );
+          source = "template";
+        }
+
+        const inserted: ScanPrompt[] = [];
+        for (const p of promptsToUse) {
+          const [row] = await db
+            .insert(scanPromptsTable)
+            .values({ scanId, prompt: p.prompt, category: p.category, audience: p.audience ?? null })
+            .returning();
+          inserted.push(row);
+        }
+
+        genSpan.update({
+          output: inserted.map((p) => ({ text: p.prompt, category: p.category, audience: p.audience ?? null })),
+          metadata: { source, count: inserted.length },
         });
-      }
-    }
-
-    // Fallback: generate using the combinatorial engine with firm profile data
-    if (promptsToUse.length === 0 && scan.businessId) {
-      const [business] = await db
-        .select()
-        .from(businessesTable)
-        .where(eq(businessesTable.id, scan.businessId));
-      if (business && (business.firmType || business.primaryServices || business.deliverables)) {
-        onProgress({ type: "status", message: "Generating prompts from firm profile..." });
-        const { prompts } = await generateFirmPrompts(business);
-        promptsToUse = prompts.map((p) => ({ prompt: p.text, category: p.category, audience: p.audience ?? null }));
-      }
-    }
-
-    // Final fallback: simple templates
-    if (promptsToUse.length === 0) {
-      onProgress({ type: "status", message: "Generating search prompts..." });
-      promptsToUse = generateTemplatePrompts(
-        scan.businessName,
-        scan.businessType,
-        scan.location,
-        scan.description,
-      );
-    }
-
-    const insertedPrompts: ScanPrompt[] = [];
-    for (const p of promptsToUse) {
-      const [inserted] = await db
-        .insert(scanPromptsTable)
-        .values({ scanId, prompt: p.prompt, category: p.category, audience: p.audience ?? null })
-        .returning();
-      insertedPrompts.push(inserted);
-    }
+        return inserted;
+      },
+    );
 
     onProgress({
       type: "prompts_generated",
@@ -896,103 +985,176 @@ async function _runScan(
 
     await db.update(scansTable).set({ status: "scanning" }).where(eq(scansTable.id, scanId));
 
-    const providers: Array<"openai" | "anthropic" | "gemini"> = ["openai", "anthropic", "gemini"];
-    const tasks: ScanTask[] = [];
-    for (let i = 0; i < insertedPrompts.length; i++) {
-      for (const provider of providers) {
-        tasks.push({
-          promptId: insertedPrompts[i].id,
-          prompt: insertedPrompts[i].prompt,
-          provider,
-          promptIndex: i,
-          totalPrompts: insertedPrompts.length,
-        });
-      }
-    }
+    const providers: Provider[] = ["openai", "anthropic", "gemini"];
+    const modes = [false, true] as const; // false = parametric (AI memory), true = web-grounded (AI answer)
 
-    const results = await batchProcessWithSSE<ScanTask, ScanTaskResult>(
-      tasks,
-      async (task) => {
-        // OpenAI calls are auto-traced by observeOpenAI.
-        // Anthropic/Gemini calls create their own startObservation inside
-        // queryAnthropic/queryGemini — they are automatically nested under
-        // startActiveObservation("run-scan") via OTel context propagation.
-        const queryFn = providerQueryFns[task.provider];
-        const result = await queryFn(task.prompt);
-        const mentioned = checkMention(result.text, scan.businessName);
+    // Two scores: parametric "memory" (ungrounded) and web-grounded "answer".
+    let memoryMentions = 0, memoryChecks = 0;
+    let answerMentions = 0, answerChecks = 0;
+    const mentionsByProviderMode: Record<Provider, { memory: number; answer: number }> = {
+      openai: { memory: 0, answer: 0 },
+      anthropic: { memory: 0, answer: 0 },
+      gemini: { memory: 0, answer: 0 },
+    };
 
-        await db.insert(scanResultsTable).values({
-          scanPromptId: task.promptId,
-          provider: task.provider,
-          response: result.text,
-          mentioned,
-        });
-        return { response: result.text, mentioned, provider: task.provider, promptId: task.promptId };
-      },
-      (event: { type: string; [key: string]: unknown }) => {
-        if (event.type === "processing") {
-          const task = event.item as ScanTask;
+    // One sequential iteration per prompt (preserves SSE ordering + the retry
+    // skeleton). The 6 provider×mode calls fan out in PARALLEL inside each
+    // iteration, nested under a per-prompt Langfuse span via OTel context — giving
+    // the "results from each model for each prompt" tree. Each call self-retries on
+    // rate limits, so the batch wrapper's own retry is disabled (retries: 0).
+    await batchProcessWithSSE<ScanPrompt, void>(
+      insertedPrompts,
+      async (promptRow, index) =>
+        startActiveObservation(`prompt-${index}`, async (promptSpan) => {
+          promptSpan.update({
+            input: promptRow.prompt,
+            metadata: { promptIndex: index, category: promptRow.category, audience: promptRow.audience ?? "n/a" },
+          });
           onProgress({
             type: "scanning",
-            promptIndex: task.promptIndex,
-            totalPrompts: task.totalPrompts,
-            provider: task.provider,
-            prompt: task.prompt,
-            message: `Testing prompt ${task.promptIndex + 1}/${task.totalPrompts} on ${providerDisplayNames[task.provider]}...`,
+            promptIndex: index,
+            totalPrompts: insertedPrompts.length,
+            prompt: promptRow.prompt,
+            message: `Testing prompt ${index + 1}/${insertedPrompts.length} across ${providers.length} AI assistants...`,
           });
-        } else if (event.type === "progress") {
-          const result = event.result as ScanTaskResult | undefined;
-          const task = tasks[event.index as number];
-          if (result && task) {
-            onProgress({
-              type: "result",
-              promptIndex: task.promptIndex,
-              provider: task.provider,
-              prompt: task.prompt,
-              mentioned: result.mentioned,
-              message: result.mentioned
-                ? `Found mention on ${providerDisplayNames[task.provider]}!`
-                : `No mention on ${providerDisplayNames[task.provider]}`,
-            });
-          } else if (task) {
-            onProgress({
-              type: "result",
-              promptIndex: task.promptIndex,
-              provider: task.provider,
-              prompt: task.prompt,
-              mentioned: false,
-              message: `Error querying ${providerDisplayNames[task.provider]}`,
-            });
-          }
-        }
+
+          const perModeMentions: Record<string, boolean> = {};
+
+          await Promise.allSettled(
+            providers.flatMap((provider) =>
+              modes.map(async (grounded) => {
+                const modeLabel = grounded ? "grounded" : "ungrounded";
+                // One generation per provider × mode, nested under the prompt span.
+                const gen = startObservation(
+                  `${provider}-${modeLabel}`,
+                  {
+                    model: MODEL_FOR[provider],
+                    input: [{ role: "user", content: promptRow.prompt }],
+                    metadata: { provider, grounded, promptIndex: index, category: promptRow.category },
+                  },
+                  { asType: "generation" },
+                );
+                try {
+                  const result = await withRateLimitRetry(() =>
+                    providerQueryFns[provider](promptRow.prompt, grounded),
+                  );
+                  const mentioned = checkMention(result.text, scan.businessName);
+
+                  gen.update({
+                    output: result.text,
+                    usageDetails: { input: result.promptTokens ?? 0, output: result.completionTokens ?? 0 },
+                    metadata: {
+                      provider,
+                      grounded,
+                      mentioned,
+                      searched: result.searched,
+                      sourceCount: result.sources.length,
+                      sources: result.sources,
+                    },
+                  }).end();
+
+                  await db.insert(scanResultsTable).values({
+                    scanPromptId: promptRow.id,
+                    provider,
+                    response: result.text,
+                    mentioned,
+                    grounded,
+                    searched: result.searched,
+                    sources: result.sources.length ? result.sources : null,
+                  });
+
+                  if (grounded) {
+                    answerChecks++;
+                    if (mentioned) { answerMentions++; mentionsByProviderMode[provider].answer++; }
+                  } else {
+                    memoryChecks++;
+                    if (mentioned) { memoryMentions++; mentionsByProviderMode[provider].memory++; }
+                  }
+                  perModeMentions[`${provider}-${modeLabel}`] = mentioned;
+
+                  onProgress({
+                    type: "result",
+                    promptIndex: index,
+                    provider,
+                    grounded,
+                    prompt: promptRow.prompt,
+                    mentioned,
+                    message: `${mentioned ? "Found mention on" : "No mention on"} ${providerDisplayNames[provider]} (${grounded ? "web" : "memory"})`,
+                  });
+                } catch (err) {
+                  gen.update({
+                    metadata: { provider, grounded, error: err instanceof Error ? err.message : "query failed" },
+                  }).end();
+                  // A failed call still counts as a check (counts against the score), matching prior behavior.
+                  if (grounded) answerChecks++; else memoryChecks++;
+                  onProgress({
+                    type: "result",
+                    promptIndex: index,
+                    provider,
+                    grounded,
+                    prompt: promptRow.prompt,
+                    mentioned: false,
+                    message: `Error querying ${providerDisplayNames[provider]} (${grounded ? "web" : "memory"})`,
+                  });
+                }
+              }),
+            ),
+          );
+
+          promptSpan.update({ output: perModeMentions });
+        }),
+      () => {
+        // Per-prompt progress is emitted via onProgress inside the processor above.
       },
-      { retries: 5, minTimeout: 2000, maxTimeout: 30000 },
+      { retries: 0 },
     );
 
-    let totalMentions = 0;
-    const totalChecks = tasks.length;
-    for (const result of results) {
-      if (result && result.mentioned) totalMentions++;
-    }
+    const memoryScore = memoryChecks > 0 ? Math.round((memoryMentions / memoryChecks) * 100) : 0;
+    const groundedScore = answerChecks > 0 ? Math.round((answerMentions / answerChecks) * 100) : 0;
 
-    const score = Math.round((totalMentions / totalChecks) * 100);
-    await db.update(scansTable).set({ status: "completed", score }).where(eq(scansTable.id, scanId));
+    await db
+      .update(scansTable)
+      .set({ status: "completed", score: memoryScore, groundedScore })
+      .where(eq(scansTable.id, scanId));
+
+    // The analysis step (mention detection + scoring) as its own observation.
+    startObservation("score-analysis", {
+      output: {
+        memoryScore,
+        groundedScore,
+        memoryMentions,
+        memoryChecks,
+        answerMentions,
+        answerChecks,
+        mentionsByProviderMode,
+      },
+      metadata: { memoryScore, groundedScore },
+    }).end();
+
+    // Numeric trace scores power Langfuse's trend dashboards across scans over time.
+    recordTraceScore(obs.otelSpan, "memory_score", memoryScore);
+    recordTraceScore(obs.otelSpan, "answer_score", groundedScore);
 
     logBusinessEvent("scan_completed", {
       scanId,
       businessId: scan.businessId ?? undefined,
-      score,
-      totalMentions,
-      totalChecks,
+      score: memoryScore,
+      groundedScore,
+      totalMentions: memoryMentions + answerMentions,
+      totalChecks: memoryChecks + answerChecks,
       promptCount: insertedPrompts.length,
       durationMs: Date.now() - scanStartMs,
     });
 
-    // Record the final score on the root observation so it appears as the
-    // trace output in the Langfuse UI.
-    obs.update({ output: { score, totalMentions, totalChecks } });
+    // Record both scores on the root observation as the trace output in Langfuse.
+    obs.update({ output: { memoryScore, groundedScore, memoryChecks, answerChecks } });
 
-    onProgress({ type: "completed", score, message: `Scan complete! Visibility score: ${score}%` });
+    onProgress({
+      type: "completed",
+      score: memoryScore,
+      groundedScore,
+      message: `Scan complete! AI memory: ${memoryScore}% · AI answer: ${groundedScore}%`,
+    });
   } catch (err) {
     await db.update(scansTable).set({ status: "failed" }).where(eq(scansTable.id, scanId));
 

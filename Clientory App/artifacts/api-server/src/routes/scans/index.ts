@@ -254,7 +254,10 @@ router.post("/scans", async (req, res) => {
                 prompts.map((p) => db.select().from(scanResultsTable).where(eq(scanResultsTable.scanPromptId, p.id))),
               ),
             );
-            const flatResults = allResults.flat();
+            // Dual-layer: keep the report on the parametric "AI memory" rows
+            // (grounded=false) so it matches scan.score. Grounded rows are stored
+            // and exposed via GET /scans/:id but don't drive the existing email.
+            const flatResults = allResults.flat().filter((r) => !r.grounded);
 
             const makeProviderStats = () => ({
               openai: { name: "ChatGPT (OpenAI)", mentions: 0, total: 0 },
@@ -271,7 +274,7 @@ router.post("/scans", async (req, res) => {
               const pid = prompts[i].id;
               const provMap: Record<string, boolean> = { openai: false, anthropic: false, gemini: false };
               for (const r of allResults[i]) {
-                provMap[r.provider] = r.mentioned;
+                if (!r.grounded) provMap[r.provider] = r.mentioned;
               }
               resultsByPromptId.set(pid, provMap);
             }
@@ -442,16 +445,21 @@ router.get("/scans/:id", async (req, res) => {
             provider: r.provider,
             response: r.response,
             mentioned: r.mentioned,
+            grounded: r.grounded,
+            searched: r.searched,
+            sources: r.sources ?? [],
             createdAt: r.createdAt.toISOString(),
           })),
         };
       }),
     );
 
+    // Recommendations are driven by the parametric "AI memory" rows (grounded=false),
+    // matching scan.score. Grounded rows are returned to the client separately.
     const mentionsByProvider: Record<string, number> = { openai: 0, anthropic: 0, gemini: 0 };
     promptsWithResults.forEach((p) => {
       p.results.forEach((r) => {
-        if (r.mentioned) {
+        if (r.mentioned && !r.grounded) {
           mentionsByProvider[r.provider] = (mentionsByProvider[r.provider] || 0) + 1;
         }
       });
@@ -478,6 +486,7 @@ router.get("/scans/:id", async (req, res) => {
         website: scan.website,
         status: scan.status,
         score: scan.score,
+        groundedScore: scan.groundedScore,
         createdAt: scan.createdAt.toISOString(),
         businessId: scan.businessId ? String(scan.businessId) : null,
         isFreeReport: scan.isFreeReport,

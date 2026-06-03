@@ -40,6 +40,31 @@ export function isLangfuseEnabled(): boolean {
   return !!(process.env.LANGFUSE_PUBLIC_KEY && process.env.LANGFUSE_SECRET_KEY);
 }
 
+// The OTel Span type expected by score.observation, derived from the SDK signature
+// so we don't need a direct @opentelemetry/api dependency in this package.
+type ScoreableSpan = Parameters<LangfuseClient["score"]["observation"]>[0]["otelSpan"];
+
+/**
+ * Attaches a numeric score to a trace via one of its observations' OTel spans.
+ * Langfuse derives the trace/observation IDs from the span context. Scores power
+ * the trend dashboards in the Langfuse UI — we use them to track each scan's
+ * visibility scores (memory vs. answer) over time. No-op (and never throws) when
+ * Langfuse is disabled or the call fails — scoring must never break a scan.
+ */
+export function recordTraceScore(
+  otelSpan: ScoreableSpan,
+  name: string,
+  value: number,
+  comment?: string,
+): void {
+  if (!isLangfuseEnabled()) return;
+  try {
+    client().score.observation({ otelSpan }, { name, value, ...(comment ? { comment } : {}) });
+  } catch {
+    // Degrade silently.
+  }
+}
+
 // ── Prompt Management ─────────────────────────────────────────────────────────
 // The high-level client used to FETCH managed prompts (separate from the OTel
 // tracing exports above). Reads LANGFUSE_PUBLIC_KEY / LANGFUSE_SECRET_KEY /

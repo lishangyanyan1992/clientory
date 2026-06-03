@@ -637,6 +637,9 @@ components:
         score:
           type: number
           nullable: true
+        groundedScore:
+          type: number
+          nullable: true
         createdAt:
           type: string
           format: date-time
@@ -722,6 +725,21 @@ components:
           type: string
         mentioned:
           type: boolean
+        grounded:
+          type: boolean
+        searched:
+          type: boolean
+        sources:
+          type: array
+          items:
+            type: object
+            properties:
+              url:
+                type: string
+              title:
+                type: string
+            required:
+              - url
         createdAt:
           type: string
           format: date-time

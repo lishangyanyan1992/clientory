@@ -16,6 +16,7 @@ export interface Scan {
   website?: string | null;
   status: ScanStatus;
   score?: number | null;
+  groundedScore?: number | null;
   createdAt: Date;
   businessId?: string | null;
   isFreeReport?: boolean;

@@ -19,7 +19,11 @@ export const scansTable = pgTable("scans", {
   description: text("description"),
   website: text("website"),
   status: scanStatusEnum("status").notNull().default("pending"),
+  // Parametric "AI memory" score (ungrounded pass). Kept as `score` for
+  // backward compatibility — all existing reads continue to use it.
   score: real("score"),
+  // Web-grounded "AI answer" score (grounded pass). Null on legacy scans.
+  groundedScore: real("grounded_score"),
   userEmail: text("user_email"),
   ipHash: text("ip_hash"),
   businessId: integer("business_id").references(() => businessesTable.id),

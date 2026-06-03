@@ -13,5 +13,8 @@ export interface ScanResult {
   provider: ScanResultProvider;
   response: string;
   mentioned: boolean;
+  grounded?: boolean;
+  searched?: boolean;
+  sources?: { url: string; title?: string }[];
   createdAt: Date;
 }

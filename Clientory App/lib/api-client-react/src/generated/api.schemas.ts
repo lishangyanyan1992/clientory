@@ -97,6 +97,7 @@ export interface Scan {
   website?: string | null;
   status: ScanStatus;
   score?: number | null;
+  groundedScore?: number | null;
   createdAt: string;
   businessId?: string | null;
   isFreeReport?: boolean;
@@ -149,6 +150,9 @@ export interface ScanResult {
   provider: ScanResultProvider;
   response: string;
   mentioned: boolean;
+  grounded?: boolean;
+  searched?: boolean;
+  sources?: { url: string; title?: string }[];
   createdAt: string;
 }
 
