@@ -837,6 +837,18 @@ export function generateRecommendations(
 
 type Provider = "openai" | "anthropic" | "gemini";
 
+const ALL_PROVIDERS: Provider[] = ["openai", "anthropic", "gemini"];
+
+// Providers actually queried during a scan. Gemini is DISABLED by default — its
+// Google API key needs a billed project (free-tier quota is far too small for a
+// scan's fan-out; every call 429s with "exceeded your current quota"). Re-enable
+// once billing is sorted by setting ENABLED_PROVIDERS=openai,anthropic,gemini
+// in Railway — no code change or redeploy of this file needed.
+const ENABLED_PROVIDERS: Provider[] = (process.env.ENABLED_PROVIDERS ?? "openai,anthropic")
+  .split(",")
+  .map((s) => s.trim().toLowerCase())
+  .filter((p): p is Provider => (ALL_PROVIDERS as string[]).includes(p));
+
 const providerQueryFns: Record<Provider, (prompt: string, grounded: boolean) => Promise<QueryResult>> = {
   openai: queryOpenAI,
   anthropic: queryAnthropic,
@@ -985,7 +997,7 @@ async function _runScan(
 
     await db.update(scansTable).set({ status: "scanning" }).where(eq(scansTable.id, scanId));
 
-    const providers: Provider[] = ["openai", "anthropic", "gemini"];
+    const providers: Provider[] = ENABLED_PROVIDERS;
     const modes = [false, true] as const; // false = parametric (AI memory), true = web-grounded (AI answer)
 
     // Two scores: parametric "memory" (ungrounded) and web-grounded "answer".
