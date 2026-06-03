@@ -46,6 +46,10 @@ const PROVIDER_DISPLAY: Record<string, string> = {
   gemini: "Gemini",
 };
 const PROVIDER_ORDER = ["openai", "anthropic", "gemini"];
+// Providers actually run today. Gemini + Perplexity are surfaced as paid-unlock
+// upsells (Gemini needs a billed Google key; Perplexity is not yet integrated).
+const ACTIVE_PROVIDERS = ["openai", "anthropic"];
+const LOCKED_PROVIDERS = ["Gemini", "Perplexity"];
 
 const CATEGORY_META: Record<string, { label: string; tooltip: string }> = {
   BRAND_DIRECT: { label: "Brand Recognition", tooltip: "Searches for your firm by name" },
@@ -283,7 +287,7 @@ function PromptCard({ p, label }: { p: AnalyzedPrompt; label: string }) {
 function ProviderDots({ prompts }: { prompts: AnalyzedPrompt[] }) {
   return (
     <span className="flex items-center gap-1.5">
-      {PROVIDER_ORDER.map((prov) => {
+      {ACTIVE_PROVIDERS.map((prov) => {
         const mentioned = prompts.some((p) => p.results.some((r) => r.provider === prov && r.mentioned));
         return (
           <Tooltip key={prov}>
@@ -389,6 +393,47 @@ function PromptBreakdown({ prompts }: { prompts: AnalyzedPrompt[] }) {
 
 // ─── Locked feature gate (unchanged) ─────────────────────────────────────────
 
+// Banner + locked cards upselling the AI assistants we don't run on the free tier.
+function LockedProviders() {
+  return (
+    <div className="relative rounded-xl border border-dashed border-primary/30 bg-primary/[0.03] p-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5">
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+            <Lock className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <h3 className="font-semibold">Unlock Gemini &amp; Perplexity</h3>
+            <p className="text-sm text-muted-foreground">
+              See how your firm ranks on more AI assistants. Gemini and Perplexity coverage is available on paid
+              plans.
+            </p>
+          </div>
+        </div>
+        <Link
+          to="/settings/billing"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-primary to-accent text-white text-sm font-medium shrink-0"
+        >
+          Upgrade — {BILLING_PRICE_LABEL} <ArrowRight className="w-4 h-4" />
+        </Link>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        {LOCKED_PROVIDERS.map((name) => (
+          <Link
+            key={name}
+            to="/settings/billing"
+            className="group relative rounded-xl border border-dashed border-border bg-muted/30 p-5 text-center hover:border-primary/40 transition-colors"
+          >
+            <Lock className="w-4 h-4 mx-auto mb-2 text-muted-foreground transition-colors group-hover:text-primary" />
+            <p className="font-semibold text-muted-foreground">{name}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Upgrade to unlock</p>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function LockedFeature({ title, description }: { title: string; description: string }) {
   return (
     <div className="relative rounded-xl border border-dashed border-border bg-muted/20 p-8 text-center">
@@ -491,7 +536,7 @@ export default function ScanResults() {
   const score = scan.score || 0;
 
   // ── Level 1 aggregates ──
-  const providerStats = PROVIDER_ORDER.map((prov) => {
+  const providerStats = ACTIVE_PROVIDERS.map((prov) => {
     let total = 0;
     let mentions = 0;
     for (const p of analyzed) {
@@ -570,7 +615,7 @@ export default function ScanResults() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="flex-1">
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
                   {providerStats.map((s) => (
                     <StatCard
                       key={s.prov}
@@ -594,6 +639,9 @@ export default function ScanResults() {
               </CardContent>
             </Card>
           </div>
+
+          {/* ── Unlock more AI assistants (Gemini + Perplexity) ── */}
+          <LockedProviders />
 
           {!billingLoading && !showPaidFeatures && (
             <LockedFeature
