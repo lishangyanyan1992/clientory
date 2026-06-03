@@ -33,7 +33,13 @@ export {
 
 export { observeOpenAI } from "@langfuse/openai";
 
-import { LangfuseClient, type TextPromptClient } from "@langfuse/client";
+import { LangfuseClient, type TextPromptClient, type ChatPromptClient } from "@langfuse/client";
+
+/** Minimal chat message shape (role/content) — matches Langfuse's ChatMessage. */
+export interface ReportChatMessage {
+  role: string;
+  content: string;
+}
 
 /** Returns true when Langfuse env vars are configured. */
 export function isLangfuseEnabled(): boolean {
@@ -122,6 +128,81 @@ export async function getSymptomPrompt(deliverable: string): Promise<ResolvedPro
     return { text: prompt.compile({ deliverable }), promptClient: prompt };
   } catch {
     // Network error, auth error, etc. — degrade gracefully.
+    return compileFallback();
+  }
+}
+
+// ── Report synthesis prompt ────────────────────────────────────────────────────
+// The managed chat prompt that turns a completed scan's structured data into a
+// written, firm-specific report. Editable/versionable in the Langfuse UI exactly
+// like `symptom-query`. The fallback below is served until the prompt is created
+// in the UI, or whenever Langfuse is unreachable — synthesis must never break the
+// results route (the route falls back further to canned generateRecommendations()).
+export const REPORT_PROMPT_NAME = "report-synthesis";
+
+export const REPORT_PROMPT_FALLBACK: ReportChatMessage[] = [
+  {
+    role: "system",
+    content:
+      "You are an AI-visibility analyst for professional-services firms. You write " +
+      "concise, specific, non-generic reports explaining how often AI assistants " +
+      "(ChatGPT, Claude, Gemini) mention a firm, why, and what to do about it. Ground " +
+      "every claim in the data provided — never invent facts, scores, or sources not " +
+      "present in the input. No filler, no hype. Output GitHub-flavored markdown: a " +
+      "2-sentence plain-language summary, then 3-5 prioritized, firm-specific " +
+      "recommendations as a bulleted list. Each recommendation must be concrete and " +
+      "actionable for this firm, not boilerplate SEO advice.",
+  },
+  {
+    role: "user",
+    content:
+      "Firm: {{businessName}} ({{businessType}}) in {{location}}.\n" +
+      "AI-memory score: {{memoryScore}}/100 (how often the firm is named from the " +
+      "model's training knowledge).\n" +
+      "Web-grounded score: {{groundedScore}}/100 (how often it is named when the model " +
+      "can search the live web).\n" +
+      "Mentions by provider (memory mode): {{mentionsByProvider}}.\n\n" +
+      "Prompts tested and which assistants named the firm:\n{{promptResults}}\n\n" +
+      "Representative verbatim AI responses (excerpts):\n{{responseExcerpts}}\n\n" +
+      "Write the report.",
+  },
+];
+
+export interface ResolvedReportPrompt {
+  messages: ReportChatMessage[];
+  promptClient: ChatPromptClient | null;
+}
+
+/**
+ * Fetches the managed "report-synthesis" chat prompt from Langfuse and compiles it
+ * with the given variables. Falls back to the hardcoded copy when Langfuse is
+ * disabled or the request fails. The SDK caches fetched prompts in-process (60 s
+ * TTL), so this is cheap to call per report.
+ */
+export async function getReportPrompt(
+  vars: Record<string, string>,
+): Promise<ResolvedReportPrompt> {
+  const compileFallback = (): ResolvedReportPrompt => ({
+    messages: REPORT_PROMPT_FALLBACK.map((m) => ({
+      role: m.role,
+      content: Object.entries(vars).reduce(
+        (s, [k, v]) => s.replaceAll(`{{${k}}}`, v),
+        m.content,
+      ),
+    })),
+    promptClient: null,
+  });
+
+  if (!isLangfuseEnabled()) return compileFallback();
+
+  try {
+    const prompt = await client().prompt.get(REPORT_PROMPT_NAME, {
+      type: "chat",
+      fallback: REPORT_PROMPT_FALLBACK,
+    });
+    const compiled = prompt.compile(vars) as ReportChatMessage[];
+    return { messages: compiled, promptClient: prompt };
+  } catch {
     return compileFallback();
   }
 }

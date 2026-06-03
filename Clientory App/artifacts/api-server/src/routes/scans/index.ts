@@ -465,16 +465,57 @@ router.get("/scans/:id", async (req, res) => {
       });
     });
 
-    const recommendations =
-      hasPaidSubscription && scan.status === "completed"
-        ? (await getScanEngine()).generateRecommendations(
-            scan.score ?? 0,
-            scan.businessName,
-            scan.businessType,
-            mentionsByProvider,
-            prompts.length,
+    // A report is viewable for the free first report OR any paid subscriber.
+    const reportEligible = canViewScanData && scan.status === "completed";
+    const engine = await getScanEngine();
+
+    // Canned recommendations are kept as the deterministic fallback (rendered if
+    // LLM synthesis fails or Langfuse is unreachable).
+    const recommendations = reportEligible
+      ? engine.generateRecommendations(
+          scan.score ?? 0,
+          scan.businessName,
+          scan.businessType,
+          mentionsByProvider,
+          prompts.length,
+        )
+      : [];
+
+    // LLM-synthesized narrative report (Option B): generated lazily on first view,
+    // memoized per scan inside the engine. `null` when ineligible or on failure —
+    // the client then renders `recommendations`.
+    let report: string | null = null;
+    if (reportEligible) {
+      try {
+        const promptInputs = promptsWithResults.map((p) => ({
+          text: p.prompt.prompt,
+          mentionedBy: p.results.filter((r) => r.mentioned && !r.grounded).map((r) => r.provider),
+        }));
+        const excerpts = promptsWithResults
+          .flatMap((p) =>
+            p.results
+              .filter((r) => !r.grounded)
+              .map((r) => ({ provider: r.provider, prompt: p.prompt.prompt, text: r.response, mentioned: r.mentioned })),
           )
-        : [];
+          .sort((a, b) => Number(b.mentioned) - Number(a.mentioned))
+          .slice(0, 4)
+          .map(({ provider, prompt, text }) => ({ provider, prompt, text }));
+
+        report = await engine.synthesizeReport({
+          scanId: scan.id,
+          businessName: scan.businessName,
+          businessType: scan.businessType,
+          location: scan.location,
+          memoryScore: scan.score ?? 0,
+          groundedScore: scan.groundedScore ?? 0,
+          mentionsByProvider,
+          prompts: promptInputs,
+          excerpts,
+        });
+      } catch (err) {
+        console.error("Report synthesis failed; falling back to recommendations:", err);
+      }
+    }
 
     res.json({
       scan: {
@@ -493,6 +534,7 @@ router.get("/scans/:id", async (req, res) => {
       },
       prompts: promptsWithResults,
       recommendations,
+      report,
       locked: !canViewScanData,
     });
   } catch (err) {
