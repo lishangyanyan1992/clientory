@@ -4,6 +4,7 @@ import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { getPromptSet, createScan, listBusinesses, regeneratePromptSet } from "@workspace/api-client-react";
 import type { PromptSet, Business } from "@workspace/api-client-react";
+import { useAdminStatus } from "@/hooks/use-admin-status";
 import {
   Lock,
   ArrowRight,
@@ -163,9 +164,11 @@ export default function FirmPrompts() {
   const [loading, setLoading] = useState(!stateData?.promptSet);
   const [error, setError] = useState<string | null>(null);
   const [startingTest, setStartingTest] = useState(false);
+  const [startingMock, setStartingMock] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
 
   const emailToken = localStorage.getItem("emailToken");
+  const { isAdmin } = useAdminStatus(emailToken);
 
   useEffect(() => {
     if (stateData?.promptSet && stateData?.business) return;
@@ -232,6 +235,41 @@ export default function FirmPrompts() {
       }
     } finally {
       setStartingTest(false);
+    }
+  };
+
+  // Admin-only: run a mock scan (canned provider responses + canned report, no
+  // OpenAI/Anthropic calls). Posts the raw `mock` flag the generated client
+  // doesn't model; the server ignores it for non-admins.
+  const handleStartMock = async () => {
+    if (!id || !emailToken || !business) return;
+    setStartingMock(true);
+    setError(null);
+    try {
+      const businessName =
+        (business as Business & { legalName?: string; brandName?: string }).legalName || business.name;
+      const businessType = (business as Business & { firmType?: string }).firmType || business.businessType;
+      const res = await fetch("/api/scans", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-email-token": emailToken },
+        body: JSON.stringify({
+          businessId: id,
+          businessName,
+          businessType,
+          location: business.location,
+          mock: true,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || `Mock scan failed (${res.status})`);
+      }
+      const scan = await res.json();
+      navigate(`/scan/${scan.id}/progress`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to start mock scan.");
+    } finally {
+      setStartingMock(false);
     }
   };
 
@@ -348,9 +386,26 @@ export default function FirmPrompts() {
                     Regenerate
                   </Button>
                 )}
+                {isAdmin && (
+                  <Button
+                    onClick={handleStartMock}
+                    disabled={startingMock || startingTest}
+                    variant="outline"
+                    className="flex items-center gap-2 border-amber-400 text-amber-700 hover:bg-amber-50"
+                    title="Admin only — runs the full pipeline with canned data, no OpenAI/Anthropic calls"
+                  >
+                    {startingMock ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" /> Mocking...
+                      </>
+                    ) : (
+                      <>Generate mock report (no API)</>
+                    )}
+                  </Button>
+                )}
                 <Button
                   onClick={handleStartTesting}
-                  disabled={startingTest}
+                  disabled={startingTest || startingMock}
                   className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
                 >
                   {startingTest ? (

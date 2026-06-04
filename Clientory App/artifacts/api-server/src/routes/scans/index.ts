@@ -11,7 +11,7 @@ import {
   businessUsageEventsTable,
   businessUsagePeriodsTable,
 } from "@workspace/db/schema";
-import { eq, and, lte, gte, isNull, sql, gt } from "drizzle-orm";
+import { eq, and, lte, gte, isNull, sql, gt, desc } from "drizzle-orm";
 import { EventEmitter } from "events";
 import { verifyEmailToken } from "../../services/otp";
 import { validateScanInput } from "../../services/validation";
@@ -51,28 +51,7 @@ router.post("/scans", async (req, res) => {
       return;
     }
 
-    const cacheKey = buildCacheKey(body.businessName, body.businessType, body.location, verifiedEmail);
-
-    const cachedScanId = await findCachedScan(cacheKey);
-    if (cachedScanId) {
-      const [cachedScan] = await db.select().from(scansTable).where(eq(scansTable.id, cachedScanId));
-      if (cachedScan) {
-        res.status(200).json({
-          id: String(cachedScan.id),
-          businessName: cachedScan.businessName,
-          businessType: cachedScan.businessType,
-          location: cachedScan.location,
-          description: cachedScan.description,
-          website: cachedScan.website,
-          status: cachedScan.status,
-          score: cachedScan.score,
-          createdAt: cachedScan.createdAt.toISOString(),
-          cached: true,
-        });
-        return;
-      }
-    }
-
+    // Resolve the user up front so we know admin status before the cache check.
     const [user] = await db
       .insert(usersTable)
       .values({ email: verifiedEmail, emailVerified: true })
@@ -82,6 +61,37 @@ router.post("/scans", async (req, res) => {
     if (!user) {
       res.status(500).json({ error: "Failed to resolve user. Please try again." });
       return;
+    }
+
+    // Mock scans (admin-only): canned provider responses + canned report, no
+    // OpenAI/Anthropic calls. The flag is read raw (not via the zod body) and is
+    // ignored for non-admins.
+    const mock = user.isAdmin === true && (req.body as { mock?: unknown })?.mock === true;
+
+    // Admins always get a fresh run (so they see the latest pipeline on the
+    // front-end), and mock scans are never cached. Everyone else is served a
+    // recent completed report when one exists — saving tokens.
+    const cacheKey = buildCacheKey(body.businessName, body.businessType, body.location, verifiedEmail);
+    if (!user.isAdmin && !mock) {
+      const cachedScanId = await findCachedScan(cacheKey);
+      if (cachedScanId) {
+        const [cachedScan] = await db.select().from(scansTable).where(eq(scansTable.id, cachedScanId));
+        if (cachedScan) {
+          res.status(200).json({
+            id: String(cachedScan.id),
+            businessName: cachedScan.businessName,
+            businessType: cachedScan.businessType,
+            location: cachedScan.location,
+            description: cachedScan.description,
+            website: cachedScan.website,
+            status: cachedScan.status,
+            score: cachedScan.score,
+            createdAt: cachedScan.createdAt.toISOString(),
+            cached: true,
+          });
+          return;
+        }
+      }
     }
 
     const businessId = parseInt(body.businessId, 10);
@@ -136,6 +146,7 @@ router.post("/scans", async (req, res) => {
       ipHash: hashIp(clientIp),
       businessId: businessId,
       isFreeReport,
+      mock,
     }).returning();
 
     if (isFreeReport) {
@@ -240,7 +251,8 @@ router.post("/scans", async (req, res) => {
       }
 
       if (event.type === "completed" && event.score != null) {
-        storeCacheEntry(cacheKey, scan.id).catch(console.error);
+        // Never cache mock scans (synthetic data must not be served to anyone).
+        if (!mock) storeCacheEntry(cacheKey, scan.id).catch(console.error);
 
         (async () => {
           try {
@@ -375,6 +387,65 @@ router.post("/scans", async (req, res) => {
   }
 });
 
+// Returns the caller's most recent *viewable* completed scan (one that actually
+// produced results), so a returning user can re-open a recent report instead of
+// running a fresh scan and burning tokens. No AI calls. Declared before
+// "/scans/:id" so "latest" isn't captured as an :id.
+router.get("/scans/latest", async (req, res) => {
+  try {
+    const emailToken = req.headers["x-email-token"] as string | undefined;
+    if (!emailToken) {
+      res.status(401).json({ error: "Email verification required" });
+      return;
+    }
+    const verifiedEmail = verifyEmailToken(emailToken);
+    if (!verifiedEmail) {
+      res.status(401).json({ error: "Invalid or expired email token" });
+      return;
+    }
+
+    const [latest] = await db
+      .select({
+        id: scansTable.id,
+        businessName: scansTable.businessName,
+        score: scansTable.score,
+        groundedScore: scansTable.groundedScore,
+        createdAt: scansTable.createdAt,
+      })
+      .from(scansTable)
+      .where(
+        and(
+          eq(scansTable.userEmail, verifiedEmail),
+          eq(scansTable.status, "completed"),
+          sql`exists (
+            select 1 from ${scanResultsTable}
+            join ${scanPromptsTable} on ${scanPromptsTable.id} = ${scanResultsTable.scanPromptId}
+            where ${scanPromptsTable.scanId} = ${scansTable.id}
+          )`,
+        ),
+      )
+      .orderBy(desc(scansTable.createdAt))
+      .limit(1);
+
+    if (!latest) {
+      res.json({ scan: null });
+      return;
+    }
+
+    res.json({
+      scan: {
+        id: String(latest.id),
+        businessName: latest.businessName,
+        score: latest.score,
+        groundedScore: latest.groundedScore,
+        createdAt: latest.createdAt.toISOString(),
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ error: err instanceof Error ? err.message : "Failed to fetch latest scan" });
+  }
+});
+
 router.get("/scans/:id", async (req, res) => {
   try {
     const emailToken = req.headers["x-email-token"] as string | undefined;
@@ -406,6 +477,14 @@ router.get("/scans/:id", async (req, res) => {
       return;
     }
 
+    // Admins can always view their own scans in full (needed to inspect mock
+    // scans and to see the latest real run end-to-end on the front-end).
+    const [viewer] = await db
+      .select({ isAdmin: usersTable.isAdmin })
+      .from(usersTable)
+      .where(eq(usersTable.email, verifiedEmail));
+    const isAdminViewer = viewer?.isAdmin === true;
+
     let hasPaidSubscription = false;
 
     if (scan.businessId) {
@@ -429,7 +508,7 @@ router.get("/scans/:id", async (req, res) => {
       }
     }
 
-    const canViewScanData = scan.isFreeReport || hasPaidSubscription;
+    const canViewScanData = scan.isFreeReport || hasPaidSubscription || isAdminViewer;
 
     const prompts = canViewScanData
       ? await db.select().from(scanPromptsTable).where(eq(scanPromptsTable.scanId, scanId))
@@ -493,7 +572,10 @@ router.get("/scans/:id", async (req, res) => {
     // memoized per scan inside the engine. `null` when ineligible or on failure —
     // the client then renders `recommendations`.
     let report: string | null = null;
-    if (reportEligible) {
+    if (reportEligible && scan.mock) {
+      // Mock scans skip the Claude-backed synthesis entirely.
+      report = engine.MOCK_REPORT_MARKDOWN;
+    } else if (reportEligible) {
       try {
         const promptInputs = promptsWithResults.map((p) => ({
           text: p.prompt.prompt,

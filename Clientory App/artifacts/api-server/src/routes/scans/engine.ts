@@ -756,6 +756,49 @@ async function queryGemini(prompt: string, grounded: boolean): Promise<QueryResu
   };
 }
 
+// ─── Mock mode (admin-only) ───────────────────────────────────────────────────
+// Deterministic canned responses so admins can exercise the full pipeline +
+// front-end without spending OpenAI/Anthropic tokens. Mention is decided by a
+// stable hash so a mock scan yields a realistic mixed score (~60% mention rate),
+// and the same prompt always produces the same result.
+function stableHash(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+async function mockQuery(
+  provider: string,
+  prompt: string,
+  businessName: string,
+  grounded: boolean,
+): Promise<QueryResult> {
+  // Small async tick so the SSE progress stream animates like a real scan.
+  await new Promise((r) => setTimeout(r, 120));
+  const mentioned = stableHash(`${provider}|${prompt}|${grounded}`) % 10 < 6;
+  const modeLabel = grounded ? "web-grounded" : "from memory";
+  const text = mentioned
+    ? `[MOCK ${provider} ${modeLabel}] For "${prompt}", a strong option is ${businessName}, ` +
+      `which is well regarded for this kind of work and frequently recommended by peers.`
+    : `[MOCK ${provider} ${modeLabel}] For "${prompt}", there are several reputable providers to consider, ` +
+      `though no single firm stands out as the default choice.`;
+  const sources: ScanResultSource[] = grounded
+    ? [{ url: "https://example.com/mock-source", title: "Mock cited source" }]
+    : [];
+  return { text, sources, searched: grounded, promptTokens: 0, completionTokens: 0 };
+}
+
+// Canned report markdown for mock scans — used by the results route in place of
+// the Claude-backed synthesizeReport(), so a mock scan makes zero LLM calls.
+export const MOCK_REPORT_MARKDOWN = [
+  "**This is a mock report** generated without calling any AI provider — for testing the pipeline and UI only. The numbers below are synthetic.",
+  "",
+  "- **Brand queries:** the firm was named in most direct, by-name searches — baseline recognition looks healthy.",
+  "- **Category/geo queries:** mixed visibility; the firm surfaces in some \"best X in [city]\" prompts but not consistently.",
+  "- **Problem-symptom queries:** weakest area — prospects describing a problem rarely get pointed to the firm. Prioritise content that maps symptoms to services.",
+  "- **Next step:** run a real scan to replace these synthetic figures with live ChatGPT/Claude results.",
+].join("\n");
+
 // #2: Stopword-aware mention detection.
 // Exact phrase match is preferred; multi-word fallback requires ALL significant words present.
 // Avoids false positives from shared common words like "Law", "Group", "Associates".
@@ -1236,9 +1279,11 @@ async function _runScan(
                   { asType: "generation" },
                 );
                 try {
-                  const result = await withRateLimitRetry(() =>
-                    providerQueryFns[provider](promptRow.prompt, grounded),
-                  );
+                  const result = scan.mock
+                    ? await mockQuery(provider, promptRow.prompt, scan.businessName, grounded)
+                    : await withRateLimitRetry(() =>
+                        providerQueryFns[provider](promptRow.prompt, grounded),
+                      );
                   const mentioned = checkMention(result.text, scan.businessName);
 
                   gen.update({

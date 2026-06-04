@@ -28,6 +28,10 @@ export const scansTable = pgTable("scans", {
   ipHash: text("ip_hash"),
   businessId: integer("business_id").references(() => businessesTable.id),
   isFreeReport: boolean("is_free_report").notNull().default(false),
+  // Admin-only: a mock scan uses canned provider responses + a canned report
+  // (no OpenAI/Anthropic calls). Lets admins exercise the full front-end without
+  // burning tokens. Always false for non-admin scans.
+  mock: boolean("mock").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

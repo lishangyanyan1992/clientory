@@ -517,6 +517,11 @@ export default function ScanForm() {
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [suggestingCompetitors, setSuggestingCompetitors] = useState(false);
   const [freeReportUsed, setFreeReportUsed] = useState(false);
+  // After sign-in: a recent viewable report, offered so the user can re-open it
+  // instead of running a fresh scan (no AI calls). Null = none / go to intake.
+  const [recentReport, setRecentReport] = useState<
+    { id: string; businessName: string; score: number | null; createdAt: string } | null
+  >(null);
   const { isAdmin } = useAdminStatus(emailToken);
   const turnstileRef = useRef<HTMLDivElement>(null);
   const otpInputRef = useRef<HTMLInputElement>(null);
@@ -573,6 +578,24 @@ export default function ScanForm() {
   }, [step, renderTurnstile]);
 
   // ─── Password login handler ────────────────────────────────────────────────
+  // After successful auth, offer a recent report (no AI call) if one exists;
+  // otherwise continue into the intake flow.
+  const proceedAfterAuth = async (token: string) => {
+    try {
+      const res = await fetch("/api/scans/latest", { headers: { "x-email-token": token } });
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.scan) {
+          setRecentReport(data.scan);
+          return;
+        }
+      }
+    } catch {
+      /* ignore — fall through to intake */
+    }
+    setStep(2);
+  };
+
   const handleLogin = async () => {
     if (!formData.email || !loginPassword) {
       setError("Please enter your email and password.");
@@ -585,7 +608,7 @@ export default function ScanForm() {
       setEmailToken(result.emailToken);
       localStorage.setItem("emailToken", result.emailToken);
       setLoginPassword("");
-      setStep(2);
+      await proceedAfterAuth(result.emailToken);
     } catch (err) {
       const errObj = err as { status?: number; data?: { error?: string; code?: string } };
       if (errObj.data?.code === "NO_PASSWORD" || errObj.status === 401) {
@@ -657,7 +680,7 @@ export default function ScanForm() {
       setEmailToken(result.emailToken);
       localStorage.setItem("emailToken", result.emailToken);
       setVerifiedToken(null);
-      setStep(2);
+      await proceedAfterAuth(result.emailToken);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Incorrect password.");
     } finally {
@@ -1889,6 +1912,42 @@ export default function ScanForm() {
   const isLastStep = step === TOTAL_STEPS;
   const isOptionalStep = step >= 6 && step <= 8;
   const showNextButton = !isLastStep && step !== 1;
+
+  // Returning user with a recent report: offer to re-open it (no AI call) or
+  // start a fresh scan.
+  if (recentReport) {
+    return (
+      <Layout>
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-slate-50 to-blue-100 py-10 px-4 flex items-center justify-center">
+          <div className="max-w-md w-full bg-white rounded-2xl shadow-lg shadow-blue-100/50 border border-slate-100 p-8 text-center">
+            <h1 className="text-2xl font-bold mb-2">Welcome back</h1>
+            <p className="text-slate-600 mb-6">
+              You have a recent report for <strong>{recentReport.businessName}</strong>
+              {recentReport.score != null && <> — {Math.round(recentReport.score)}% AI visibility</>}, run{" "}
+              {new Date(recentReport.createdAt).toLocaleDateString()}. View it instantly, or run a fresh scan.
+            </p>
+            <div className="flex flex-col gap-3">
+              <Button
+                onClick={() => navigate(`/scan/${recentReport.id}/results`)}
+                className="bg-blue-600 hover:bg-blue-700 flex items-center justify-center gap-2"
+              >
+                View my latest report <ArrowRight className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setRecentReport(null);
+                  setStep(2);
+                }}
+              >
+                Start a new scan instead
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
