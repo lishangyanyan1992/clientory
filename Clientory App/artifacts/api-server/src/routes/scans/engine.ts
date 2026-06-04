@@ -1188,6 +1188,10 @@ async function _runScan(
     // Two scores: parametric "memory" (ungrounded) and web-grounded "answer".
     let memoryMentions = 0, memoryChecks = 0;
     let answerMentions = 0, answerChecks = 0;
+    // Count of provider responses actually persisted. If this stays 0, every API
+    // call failed (or none ran) — the scan must NOT be marked completed, or it
+    // becomes a bogus 0% report (and a poison cache entry).
+    let resultsStored = 0;
     const mentionsByProviderMode: Record<Provider, { memory: number; answer: number }> = {
       openai: { memory: 0, answer: 0 },
       anthropic: { memory: 0, answer: 0 },
@@ -1259,6 +1263,7 @@ async function _runScan(
                     searched: result.searched,
                     sources: result.sources.length ? result.sources : null,
                   });
+                  resultsStored++;
 
                   if (grounded) {
                     answerChecks++;
@@ -1305,6 +1310,14 @@ async function _runScan(
       },
       { retries: 0 },
     );
+
+    // Root-cause guard: if not a single provider response was persisted, the run
+    // is broken (no prompts ran, or every API call failed). Fail it rather than
+    // marking it "completed" with a misleading 0% — the catch below sets
+    // status=failed, emits scan_failed, and surfaces an error to the client.
+    if (resultsStored === 0) {
+      throw new Error("Scan produced no provider results (all queries failed or no prompts ran)");
+    }
 
     const memoryScore = memoryChecks > 0 ? Math.round((memoryMentions / memoryChecks) * 100) : 0;
     const groundedScore = answerChecks > 0 ? Math.round((answerMentions / answerChecks) * 100) : 0;
