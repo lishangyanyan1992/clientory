@@ -352,8 +352,20 @@ function CategoryAccordion({ prompts }: { prompts: AnalyzedPrompt[] }) {
     ...[...byCategory.keys()].filter((k) => !CATEGORY_ORDER.includes(k)),
   ];
 
+  // Open the first category that actually ran by default, so the prompt-level
+  // proof (the queries we sent + what each AI answered) is visible immediately
+  // rather than hidden behind a collapsed accordion.
+  const firstRanKey = orderedKeys.find((k) =>
+    byCategory.get(k)!.some((p) => p.prompt.executed !== false),
+  );
+  const defaultOpen = firstRanKey ? [firstRanKey] : orderedKeys.slice(0, 1);
+
   return (
-    <Accordion type="multiple" className="rounded-xl border border-border/60 divide-y divide-border/60 overflow-hidden">
+    <Accordion
+      type="multiple"
+      defaultValue={defaultOpen}
+      className="rounded-xl border border-border/60 divide-y divide-border/60 overflow-hidden"
+    >
       {orderedKeys.map((key) => {
         const group = byCategory.get(key)!;
         const meta = categoryMeta(key);
