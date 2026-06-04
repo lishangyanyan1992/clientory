@@ -12,4 +12,6 @@ export interface ScanDetail {
   scan: Scan;
   prompts: ScanDetailPromptsItem[];
   recommendations: string[];
+  /** LLM-synthesized, firm-specific report (GitHub-flavored markdown). Null when the scan is not viewable, not yet completed, or synthesis failed (clients fall back to `recommendations`). */
+  report?: string | null;
 }
