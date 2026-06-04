@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import { db } from "@workspace/db";
-import { scanCacheTable, scansTable } from "@workspace/db/schema";
-import { eq, and, gte } from "drizzle-orm";
+import { scanCacheTable, scansTable, scanPromptsTable, scanResultsTable } from "@workspace/db/schema";
+import { eq, and, gte, sql } from "drizzle-orm";
 
 const CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -29,6 +29,14 @@ export async function findCachedScan(cacheKey: string): Promise<number | null> {
         eq(scanCacheTable.cacheKey, cacheKey),
         gte(scanCacheTable.createdAt, cutoff),
         eq(scansTable.status, "completed"),
+        // Never serve a "completed" scan that produced no provider results — these
+        // are broken/aborted runs (no API calls landed). Serving them shows a bogus
+        // 0% report and, worse, suppresses a real re-scan. Require ≥1 stored result.
+        sql`exists (
+          select 1 from ${scanResultsTable}
+          join ${scanPromptsTable} on ${scanPromptsTable.id} = ${scanResultsTable.scanPromptId}
+          where ${scanPromptsTable.scanId} = ${scansTable.id}
+        )`,
       ),
     );
 
