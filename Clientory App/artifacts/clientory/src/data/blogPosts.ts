@@ -15,6 +15,70 @@ export function getReadingTime(content: string): number {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: "uscis-aos-memo-clients-googling-june-2026",
+    title: "The USCIS Memo Your Clients Can't Stop Googling — and Why Your Firm Needs to Answer It First",
+    excerpt: "USCIS's May 21, 2026 adjustment-of-status memo triggered a wave of client questions just as Google's May 2026 Core Update settled. Here's what immigration firms should publish and check now.",
+    content: `Two things happened in the last two weeks that every immigration firm should be paying attention to right now.
+
+On May 21, 2026, USCIS issued Policy Memorandum [PM-602-0199](https://uscis.gov/sites/default/files/document/memos/PM-602-0199-AdjustmentOfStatusAndDiscretion-20260521.pdf), alongside a press release framing adjustment of status as relief that should be granted only in "extraordinary circumstances." Then, on June 2, 2026, Google's May 2026 Core Update finished rolling out after nearly twelve days of volatility. The memo created an avalanche of anxious questions. The core update helped determine which firms are positioned to answer them visibly.
+
+If you have not done both — updated your content around adjustment of status and checked your Search Console data — this week is the moment.
+
+## What the Memo Actually Says, and Why the Gap Matters
+
+USCIS's public framing used dramatic language. That triggered headlines, client panic, and a surge of calls to immigration attorneys before many firms had even read the memo itself.
+
+The memo is more measured than the headline. It does not change the statute. It does not eliminate adjustment of status as a pathway. What it does is instruct officers to treat adjustment as a discretionary, extraordinary form of relief, weigh negative factors carefully, and view consular processing abroad as the ordinary path the immigration system is designed to use.
+
+That nuance matters because your clients do not read the memo the way an attorney reads it. They read the headline and go straight to AI with questions like:
+
+- "Does the new USCIS memo mean I have to leave the country to get my green card?"
+- "Can I still file for adjustment of status if I'm already in the U.S.?"
+- "How does the May 2026 USCIS memo affect my pending I-485?"
+
+AI systems are answering those questions right now, and they are citing sources. The firm that publishes a clear, credible, authoritative explanation of PM-602-0199 early has a real chance to be the source that gets named.
+
+## The Core Update Just Settled. Check Your Numbers.
+
+Google's May 2026 Core Update completed on June 2, 2026. Google's own guidance for core updates is to wait at least one full week after completion before drawing strong conclusions in Search Console. That puts the earliest clean comparison window at around June 9, 2026. But you can still look now to understand directionally what moved.
+
+Legal content is YMYL. It is consistently one of the most sensitive categories in broad core updates. The recent pattern has been straightforward: thin practice-area pages, templated city pages, and low-proof content are more vulnerable. Pages with clearer expertise signals, stronger evidence, and more substantive coverage are more resilient.
+
+Three things to check in Search Console this week:
+
+1. **Total clicks and impressions for your top 10 pages.** Compare the week before May 21 with the week after June 2. Any page down more than 20% deserves attention.
+2. **Your adjustment-of-status and green card pages specifically.** This is one of the hottest query clusters in immigration right now. If you do not have a page answering this question set, you are likely not even in the answer pool.
+3. **Query-level data on your best pages.** If you are appearing for searches like "adjustment of status attorney [city]" but getting weak clicks, the answer layer may be citing someone else. That usually means the page is discoverable, but not authoritative enough to own the citation.
+
+## The Memo and the Update Are Really the Same Problem
+
+Here is the connection many firms will miss: the USCIS memo did not just create client anxiety. It created a specific, urgent, real-world question that people are now typing into Google, ChatGPT, and other AI tools.
+
+And the May Core Update just finished deciding which immigration law firm websites look authoritative enough to be pulled into those answers.
+
+These are not two separate to-do list items. They are the same problem viewed from two angles. If your website does not have clear, substantive content addressing PM-602-0199 — what it says, what it does not change, what clients with a pending I-485 should do, and what employers sponsoring adjustment cases need to know — then you are much less likely to be in the answer pool. AI cites what it can verify. It tends to pass over firms that have not published anything useful on the question.
+
+## Four Things to Do This Week
+
+1. **Publish a plain-language explainer on the AOS memo.** Not a disclaimer-heavy legal brief. Write the page the way you would explain it to a client in consultation: what changed, what did not, and what it may mean for someone with a pending case. Include the memo number, PM-602-0199. Date the page. Make it clear that it is written by a licensed attorney.
+2. **Add an FAQ section to your adjustment of status page.** Five to seven questions, answered in direct language. These are the exact prompts clients are taking to AI: "Will USCIS deny my I-485 because of the new memo?" "How does the May 2026 policy change affect marriage-based green cards?" Write for the question, not the keyword.
+3. **Check whether your AOS page passes the proof test.** Does it state your firm's experience with I-485 filings? Does it name the USCIS field offices your firm practices before? Does it include outcome language, client experience, or evidence that someone reading the page can verify? AI assistants do not prefer generic pages. They prefer pages that read like they were written by someone who has actually done the work.
+4. **Open Search Console and flag your biggest movers.** You do not need to rewrite the entire site. Find the two or three pages that shifted most in the May update and understand why. A page that gained is doing something worth replicating. A page that dropped is often exposing thin content, weak proof, or shallow topical coverage.
+
+## The Bigger Picture
+
+Every major policy change creates the same opportunity window: a surge in client questions, a wave of AI queries, and a brief period before the rest of the market catches up. Most firms respond with a social post and move on. The firms that show up in AI answers months later are usually the ones that sat down and wrote the definitive resource while the question was live.
+
+The adjustment of status memo is this week's window. It will be followed by another one. The practice of building citation-ready, jurisdiction-specific, proof-backed content is not a one-time project. It is how you become the firm AI names when clients are most frightened and most ready to act.
+
+Clientory helps immigration law firms become visible to the families and individuals who need them most — turning AI search into consultations, and consultations into clients.
+
+[See your AI visibility score](https://clientory.org/scan)`,
+    author: "Yanyan Li",
+    date: "2026-06-05",
+    tags: ["Immigration Marketing", "AI Visibility", "SEO"],
+  },
+  {
     slug: "prompt-to-page-worksheet-ai-questions-to-site",
     title: "Prompt-to-Page Worksheet: Map Your Clients' Real AI Questions to Your Site",
     excerpt: "A practical worksheet for immigration law firms to map real client prompts to existing pages, spot content gaps, and prioritize the pages AI assistants are most likely to cite.",
