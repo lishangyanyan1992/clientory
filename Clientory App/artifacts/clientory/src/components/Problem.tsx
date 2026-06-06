@@ -1,6 +1,6 @@
-import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState } from "react";
-import { AlertCircle, Bot, Globe, Search } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { ArrowRight, Bot, Globe, Search } from "lucide-react";
 
 const timelineSteps = [
   {
@@ -23,83 +23,27 @@ const timelineSteps = [
   },
 ];
 
-const prompts = [
-  "Best marriage green card lawyer in Chicago",
-  "Top H-1B lawyer for startups in Austin",
-  "Immigration attorney for naturalization near Houston",
-  "Best removal defense lawyer in Dallas",
-];
-
-const aiResponses: Record<string, { intro: string; firms: string[] }> = {
-  [prompts[0]]: {
-    intro: "Top marriage green card lawyers in Chicago include:",
-    firms: ["Lakefront Immigration Law", "Northside Visa Counsel", "Midwest Family Immigration"],
-  },
-  [prompts[1]]: {
-    intro: "Here are some H-1B lawyers often recommended for startups in Austin:",
-    firms: ["Capital Tech Immigration", "Austin Founder Visa Group", "Hill Country Business Immigration"],
-  },
-  [prompts[2]]: {
-    intro: "Recommended naturalization attorneys near Houston:",
-    firms: ["Bayou Citizenship Law", "Houston Naturalization Counsel", "Lone Star Immigration Group"],
-  },
-  [prompts[3]]: {
-    intro: "Best removal defense lawyers in Dallas:",
-    firms: ["Metro Removal Defense", "Dallas Immigration Advocates", "Trinity Deportation Counsel"],
-  },
-};
+// "Today" is the present — it stays highlighted (no auto-cycling).
+const CURRENT = 1;
+const FILL_HORIZONTAL = CURRENT * 40; // % of the desktop track to the Today node
+const FILL_VERTICAL = (CURRENT / (timelineSteps.length - 1)) * 100; // % of the mobile track
 
 export default function Problem() {
-  const [promptIndex, setPromptIndex] = useState(0);
-  const [displayedText, setDisplayedText] = useState("");
-  const [isTyping, setIsTyping] = useState(true);
-  const [showResponse, setShowResponse] = useState(false);
-  const [activeStep, setActiveStep] = useState(0);
+  const reduce = useReducedMotion();
 
-  const currentPrompt = prompts[promptIndex];
-  const currentResponse = aiResponses[currentPrompt];
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveStep((prev) => (prev + 1) % 3);
-    }, 3000);
-    return () => clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
-    setDisplayedText("");
-    setIsTyping(true);
-    setShowResponse(false);
-    let i = 0;
-    const interval = setInterval(() => {
-      if (i < currentPrompt.length) {
-        setDisplayedText(currentPrompt.slice(0, i + 1));
-        i += 1;
-      } else {
-        clearInterval(interval);
-        setIsTyping(false);
-        setTimeout(() => setShowResponse(true), 300);
-      }
-    }, 35);
-    return () => clearInterval(interval);
-  }, [currentPrompt]);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setPromptIndex((prev) => (prev + 1) % prompts.length);
-    }, 6000);
-    return () => clearInterval(timer);
-  }, []);
+  const lineTransition = reduce
+    ? { duration: 0 }
+    : { duration: 0.8, ease: "easeInOut" as const };
 
   return (
     <section className="relative py-16 md:py-20">
       <div className="container mx-auto px-6">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={reduce ? false : { opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="mb-16 text-center"
+          className="mb-14 text-center"
         >
           <p className="mb-4 text-sm font-medium uppercase tracking-widest text-primary">The Shift</p>
           <h2 className="mx-auto max-w-3xl text-3xl font-bold leading-tight text-foreground md:text-5xl">
@@ -107,159 +51,113 @@ export default function Problem() {
           </h2>
         </motion.div>
 
+        {/* Timeline: horizontal on desktop, vertical on mobile */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={reduce ? false : { opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="mx-auto mb-16 max-w-3xl"
+          className="relative mx-auto mb-12 max-w-3xl"
         >
-          <div className="relative flex items-start justify-between">
-            <div className="absolute left-[10%] right-[10%] top-5 h-px bg-border" />
-            <motion.div
-              className="absolute left-[10%] top-5 h-px bg-primary/60"
-              initial={{ width: "0%" }}
-              whileInView={{ width: `${activeStep * 40}%` }}
-              transition={{ duration: 0.8, ease: "easeInOut" }}
-            />
+          {/* Desktop horizontal track + fill */}
+          <div className="absolute left-[10%] right-[10%] top-5 hidden h-px bg-border md:block" />
+          <motion.div
+            className="absolute left-[10%] top-5 hidden h-px bg-primary/60 md:block"
+            initial={{ width: reduce ? `${FILL_HORIZONTAL}%` : "0%" }}
+            whileInView={{ width: `${FILL_HORIZONTAL}%` }}
+            viewport={{ once: true }}
+            transition={lineTransition}
+          />
 
-            {timelineSteps.map((step, i) => (
-              <motion.div
-                key={step.label}
-                initial={{ opacity: 0, y: 12 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.15, duration: 0.4 }}
-                className="relative flex flex-1 flex-col items-center px-2 text-center"
-              >
-                <div
-                  className={`mb-3 flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all duration-500 ${
-                    i <= activeStep
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border bg-card text-muted-foreground"
-                  }`}
+          {/* Mobile vertical track + fill */}
+          <div className="absolute bottom-6 left-5 top-6 w-px bg-border md:hidden" />
+          <motion.div
+            className="absolute left-5 top-6 w-px bg-primary/60 md:hidden"
+            initial={{ height: reduce ? `${FILL_VERTICAL}%` : "0%" }}
+            whileInView={{ height: `${FILL_VERTICAL}%` }}
+            viewport={{ once: true }}
+            transition={lineTransition}
+          />
+
+          <div className="flex flex-col gap-8 md:flex-row md:justify-between md:gap-0">
+            {timelineSteps.map((step, i) => {
+              const reached = i <= CURRENT;
+              const isNow = i === CURRENT;
+              return (
+                <motion.div
+                  key={step.label}
+                  initial={reduce ? false : { opacity: 0, y: 12 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.12, duration: 0.4 }}
+                  className="relative flex flex-1 items-start gap-4 md:flex-col md:items-center md:gap-0 md:px-2 md:text-center"
                 >
-                  <step.icon className="h-4 w-4" />
-                </div>
-                <span
-                  className={`mb-1 text-[11px] font-medium uppercase tracking-widest transition-colors duration-300 ${
-                    i <= activeStep ? "text-primary" : "text-muted-foreground"
-                  }`}
-                >
-                  {step.label}
-                </span>
-                <span className="mb-1 text-sm font-semibold text-foreground">{step.title}</span>
-                <span className="hidden max-w-[160px] text-xs leading-relaxed text-muted-foreground sm:block">
-                  {step.description}
-                </span>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="mx-auto mb-16 max-w-lg"
-        >
-          <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-lg">
-            <div className="flex items-center gap-2 border-b border-border bg-muted/30 px-4 py-3">
-              <div className="flex gap-1.5">
-                <div className="h-2.5 w-2.5 rounded-full bg-destructive/60" />
-                <div className="h-2.5 w-2.5 rounded-full bg-accent/60" />
-                <div className="h-2.5 w-2.5 rounded-full bg-primary/40" />
-              </div>
-              <span className="ml-2 text-[11px] font-medium text-muted-foreground">AI Assistant</span>
-            </div>
-
-            <div className="p-4 pb-3">
-              <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/30 px-4 py-3">
-                <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
-                <span className="truncate text-sm text-foreground">
-                  {displayedText}
-                  {isTyping && (
-                    <motion.span
-                      animate={{ opacity: [1, 0] }}
-                      transition={{ duration: 0.5, repeat: Infinity }}
-                      className="ml-0.5 inline-block h-4 w-[2px] bg-primary align-middle"
-                    />
-                  )}
-                </span>
-              </div>
-            </div>
-
-            <div className="px-4 pb-4">
-              <AnimatePresence mode="wait">
-                {showResponse && (
-                  <motion.div
-                    key={currentPrompt}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -8 }}
-                    transition={{ duration: 0.4 }}
-                    className="rounded-xl border border-border/50 bg-muted/20 p-4"
+                  <div
+                    className={`relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 transition-all duration-500 ${
+                      reached
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-card text-muted-foreground"
+                    } ${isNow ? "ring-2 ring-primary/30 ring-offset-2 ring-offset-background" : ""}`}
                   >
-                    <p className="mb-3 text-sm text-foreground">{currentResponse.intro}</p>
-                    <ul className="mb-4 space-y-2">
-                      {currentResponse.firms.map((firm, i) => (
-                        <motion.li
-                          key={firm}
-                          initial={{ opacity: 0, x: -8 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: i * 0.12, duration: 0.3 }}
-                          className="flex items-center gap-2 text-sm text-muted-foreground"
-                        >
-                          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary/40" />
-                          {firm}
-                        </motion.li>
-                      ))}
-                    </ul>
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.5 }}
-                      className="flex items-center gap-2 border-t border-border/50 pt-3"
-                    >
-                      <AlertCircle className="h-3.5 w-3.5 text-destructive/70" />
-                      <span className="text-xs font-medium text-destructive/70">
-                        Your firm not mentioned
-                      </span>
-                    </motion.div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+                    <step.icon className="h-4 w-4" />
+                  </div>
 
-            <div className="flex justify-center gap-1.5 pb-3">
-              {prompts.map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-1 rounded-full transition-all duration-300 ${
-                    i === promptIndex ? "w-4 bg-primary" : "w-1.5 bg-border"
-                  }`}
-                />
-              ))}
-            </div>
+                  <div className="md:mt-3">
+                    <div className="flex items-center gap-2 md:justify-center">
+                      <span
+                        className={`text-[11px] font-medium uppercase tracking-widest ${
+                          reached ? "text-primary" : "text-muted-foreground"
+                        }`}
+                      >
+                        {step.label}
+                      </span>
+                      {isNow && (
+                        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+                          Now
+                        </span>
+                      )}
+                    </div>
+                    <span className="mt-1 block text-sm font-semibold text-foreground">
+                      {step.title}
+                    </span>
+                    <span className="mt-1 block max-w-[220px] text-xs leading-relaxed text-muted-foreground md:max-w-[160px]">
+                      {step.description}
+                    </span>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </motion.div>
 
+        {/* Thesis callout — the section's takeaway */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={reduce ? false : { opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="mx-auto max-w-2xl text-center"
+          className="mx-auto max-w-2xl"
         >
-          <h3 className="mb-4 text-xl font-bold text-foreground md:text-2xl">
-            Ranking on Google does not guarantee AI visibility.
-          </h3>
-          <p className="leading-relaxed text-muted-foreground">
-            AI assistants are becoming the new front door to immigration services. If your firm
-            is not mentioned in answers about visas, green cards, or deportation defense,
-            prospective clients may never put you on the shortlist.
-          </p>
+          <div className="flex gap-4 rounded-2xl border border-border bg-card p-6 shadow-lg md:gap-5 md:p-8">
+            <span className="w-1 shrink-0 self-stretch rounded-full bg-primary" aria-hidden />
+            <div>
+              <h3 className="mb-3 text-xl font-semibold leading-snug text-foreground md:text-2xl">
+                Ranking on Google does not guarantee AI visibility.
+              </h3>
+              <p className="leading-relaxed text-muted-foreground">
+                AI assistants are becoming the new front door to immigration services. If your firm
+                is not mentioned in answers about visas, green cards, or deportation defense,
+                prospective clients may never put you on the shortlist.
+              </p>
+              <Link
+                to="/scan"
+                className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary transition-all duration-300 hover:gap-2.5"
+              >
+                See if AI recommends your firm
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
         </motion.div>
       </div>
     </section>

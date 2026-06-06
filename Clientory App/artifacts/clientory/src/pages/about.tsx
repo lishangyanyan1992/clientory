@@ -1,5 +1,6 @@
 import { Helmet } from "react-helmet-async";
 import { MarketingLayout } from "@/components/marketing-layout";
+import Founders from "@/components/Founders";
 import {
   Table,
   TableHeader,
@@ -135,6 +136,9 @@ const About = () => {
             </div>
           </section>
           </article>
+
+          {/* Team — moved here from the landing page */}
+          <Founders />
         </main>
       </MarketingLayout>
     </>

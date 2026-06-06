@@ -4,7 +4,6 @@ import Hero from "@/components/Hero";
 import Problem from "@/components/Problem";
 import HowItWorks from "@/components/HowItWorks";
 import Features from "@/components/Features";
-import Founders from "@/components/Founders";
 import CTA from "@/components/CTA";
 
 export default function Home() {
@@ -19,18 +18,21 @@ export default function Home() {
         <link rel="canonical" href="https://clientory.org/" />
       </Helmet>
       <MarketingLayout>
-        <Hero />
-        <div id="problem">
-          <Problem />
+        {/* `stripe-landing` scopes the Stripe-inspired theme to the landing page
+            only (see .stripe-landing in index.css). Remove to revert. */}
+        <div className="stripe-landing bg-background text-foreground">
+          <Hero />
+          <div id="problem">
+            <Problem />
+          </div>
+          <div id="how">
+            <HowItWorks />
+          </div>
+          <div id="features">
+            <Features />
+          </div>
+          <CTA />
         </div>
-        <div id="how">
-          <HowItWorks />
-        </div>
-        <div id="features">
-          <Features />
-        </div>
-        <Founders />
-        <CTA />
       </MarketingLayout>
     </>
   );
