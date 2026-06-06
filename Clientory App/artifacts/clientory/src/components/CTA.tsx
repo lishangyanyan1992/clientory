@@ -43,7 +43,7 @@ export default function CTA() {
                   variant="outline"
                   className="h-14 rounded-full border-white/30 bg-transparent px-10 text-base text-white hover:bg-white/10 hover:text-white"
                 >
-                  Pricing
+                  View Pricing
                 </Button>
               </Link>
             </div>
