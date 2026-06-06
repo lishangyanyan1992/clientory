@@ -3,16 +3,15 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AIDashboard from "@/components/AIDashboard";
+import StripeGradient from "@/components/StripeGradient";
 
 export default function Hero() {
   return (
     <section className="relative flex min-h-[calc(100svh-7rem)] items-center justify-center overflow-hidden pt-28">
-      <div className="absolute inset-0 bg-gradient-glow" />
-      <motion.div
-        animate={{ opacity: [0.45, 0.8, 0.45], scale: [0.98, 1.02, 0.98] }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute left-1/2 top-0 h-[600px] w-[1000px] -translate-x-1/2 rounded-full bg-primary/5 blur-[100px]"
-      />
+      {/* Stripe's real animated WebGL gradient shader */}
+      <StripeGradient />
+      {/* Fade the gradient into the page + lift text legibility over it */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-background/30 via-background/55 to-background" />
 
       <div className="container relative z-10 mx-auto px-6 py-10 md:py-12">
         <motion.div
@@ -36,7 +35,9 @@ export default function Hero() {
           <h1 className="mb-8 text-5xl font-bold text-foreground md:text-6xl lg:text-7xl">
             Be found by AI.
             <br />
-            <span className="text-gradient">Win more immigration clients.</span>
+            {/* Solid navy over the gradient shader — Stripe never sets
+                gradient-on-gradient; keeps contrast high and legible. */}
+            <span>Win more immigration clients.</span>
           </h1>
 
           <p className="mx-auto mb-12 max-w-3xl text-lg leading-relaxed text-muted-foreground md:text-xl">

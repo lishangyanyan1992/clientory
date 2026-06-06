@@ -1,42 +1,56 @@
 import { motion } from "framer-motion";
-import { Activity, BrainCircuit, Globe, LineChart, Shield, Zap } from "lucide-react";
+import {
+  Activity,
+  BrainCircuit,
+  Eye,
+  Gauge,
+  Lightbulb,
+  Maximize2,
+  Shield,
+} from "lucide-react";
 
 const features = [
   {
-    icon: Activity,
+    icon: Activity, // live pulse → real-time tracking
     title: "Real-Time LLM Tracking",
     description:
       "Monitor your firm's mentions across ChatGPT, Perplexity, Gemini, Claude, and Copilot as AI recommendations shift.",
+    tint: "#6467f2", // indigo
   },
   {
-    icon: Globe,
+    icon: Gauge, // measure vs. the field → benchmarking
     title: "Competitor Benchmarking",
     description:
       "See how your immigration firm stacks up against competing firms for the exact prompts clients ask.",
+    tint: "#4f78ec", // blue-indigo
   },
   {
-    icon: Zap,
+    icon: Lightbulb, // ideas → recommendations
     title: "GEO Recommendations",
     description:
       "Get practical improvements for your Generative Engine Optimization strategy, tailored to immigration law.",
+    tint: "#3b9fd9", // brand blue
   },
   {
-    icon: LineChart,
+    icon: Eye, // visibility
     title: "Visibility Score",
     description:
       "Track your firm's AI presence over time with a single score that makes progress easy to measure.",
+    tint: "#22b0a8", // teal
   },
   {
-    icon: BrainCircuit,
+    icon: BrainCircuit, // intelligence
     title: "Query Intelligence",
     description:
       "Learn what prospective clients ask about H-1Bs, green cards, citizenship, waivers, and removal defense.",
+    tint: "#16b394", // teal-green
   },
   {
-    icon: Shield,
+    icon: Shield, // protection
     title: "Brand Protection",
     description:
       "Catch inaccurate or damaging AI answers about your firm before they cost you trust or consultations.",
+    tint: "#10b780", // emerald
   },
 ];
 
@@ -65,13 +79,33 @@ export default function Features() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.08 }}
-              className="group rounded-2xl border border-border bg-card p-8 card-hover"
+              className="group relative overflow-hidden rounded-2xl border border-border bg-card p-8 card-hover"
             >
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/5 transition-colors group-hover:bg-primary/10">
-                <feature.icon className="h-5 w-5 text-primary" />
+              {/* Stripe-style gradient corner-bleed, tinted per card */}
+              <span
+                aria-hidden
+                className="pointer-events-none absolute -bottom-20 -right-12 h-52 w-52 rounded-full opacity-40 blur-2xl transition-opacity duration-500 group-hover:opacity-70"
+                style={{ background: `radial-gradient(circle, ${feature.tint}, transparent 70%)` }}
+              />
+
+              {/* Expand affordance, like Stripe's feature cards */}
+              <div className="absolute right-5 top-5 flex h-7 w-7 items-center justify-center rounded-lg border border-border bg-card/70 text-muted-foreground/50 backdrop-blur-sm transition-all duration-300 group-hover:border-primary/30 group-hover:text-primary">
+                <Maximize2 className="h-3.5 w-3.5" />
               </div>
-              <h3 className="mb-2 text-lg font-semibold text-foreground">{feature.title}</h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">{feature.description}</p>
+
+              <div className="relative z-10">
+                <div
+                  className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl transition-transform duration-300 group-hover:scale-105"
+                  style={{
+                    background: `linear-gradient(135deg, ${feature.tint}29, ${feature.tint}0d)`,
+                    boxShadow: `inset 0 0 0 1px ${feature.tint}29, 0 6px 16px -8px ${feature.tint}80`,
+                  }}
+                >
+                  <feature.icon className="h-5 w-5" strokeWidth={2} style={{ color: feature.tint }} />
+                </div>
+                <h3 className="mb-2 text-xl font-semibold text-foreground">{feature.title}</h3>
+                <p className="text-sm leading-relaxed text-muted-foreground">{feature.description}</p>
+              </div>
             </motion.div>
           ))}
         </div>
