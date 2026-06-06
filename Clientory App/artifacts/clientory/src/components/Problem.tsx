@@ -151,7 +151,7 @@ export default function Problem() {
               </p>
               <Link
                 to="/scan"
-                className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary transition-all duration-300 hover:gap-2.5"
+                className="mt-5 inline-flex items-center gap-1.5 rounded-md text-sm font-semibold text-primary transition-all duration-300 hover:gap-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               >
                 See if AI recommends your firm
                 <ArrowRight className="h-4 w-4" />

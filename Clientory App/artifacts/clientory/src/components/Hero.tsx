@@ -40,10 +40,9 @@ export default function Hero() {
             <span>Win more immigration clients.</span>
           </h1>
 
-          <p className="mx-auto mb-12 max-w-3xl text-lg leading-relaxed text-muted-foreground md:text-xl">
-            ChatGPT, Gemini, Claude, and Perplexity are answering questions about green cards,
-            H-1Bs, naturalization, and removal defense. Clientory helps small and mid-sized
-            immigration law firms see whether AI assistants recommend them and what to fix next.
+          <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-muted-foreground md:text-xl">
+            When clients ask ChatGPT, Gemini, or Claude for an immigration lawyer, does your firm
+            come up? Clientory shows where you stand — and what to fix.
           </p>
 
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -62,6 +61,10 @@ export default function Hero() {
               </Button>
             </Link>
           </div>
+
+          <p className="mt-5 text-sm text-muted-foreground">
+            Free during beta · No credit card required
+          </p>
 
           <motion.div
             initial={{ opacity: 0, y: 40 }}
