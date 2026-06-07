@@ -5,7 +5,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useInView } from "framer-motion";
 import {
   BarChart3,
   Bot,
@@ -309,13 +309,16 @@ export default function HowItWorks() {
   const [active, setActive] = useState(0);
   const [auto, setAuto] = useState(true);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const sectionRef = useRef<HTMLElement>(null);
+  const inView = useInView(sectionRef, { amount: 0.2 });
 
-  // Auto-advance through the steps; resets the timer whenever `active` changes.
+  // Auto-advance through the steps, but only while the section is on-screen so
+  // the timer doesn't churn re-renders off-screen. Resets when `active` changes.
   useEffect(() => {
-    if (!auto) return;
+    if (!auto || !inView) return;
     const timer = setTimeout(() => setActive((prev) => (prev + 1) % steps.length), STEP_MS);
     return () => clearTimeout(timer);
-  }, [active, auto]);
+  }, [active, auto, inView]);
 
   const select = (i: number) => {
     setActive(i);
@@ -352,7 +355,7 @@ export default function HowItWorks() {
   const current = steps[active];
 
   return (
-    <section className="relative overflow-hidden bg-muted/30 py-16 md:py-20">
+    <section ref={sectionRef} className="relative overflow-hidden bg-muted/30 py-16 md:py-20">
       <div className="container relative mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -361,7 +364,7 @@ export default function HowItWorks() {
           transition={{ duration: 0.6 }}
           className="mb-14 text-center"
         >
-          <p className="mb-4 text-sm font-medium uppercase tracking-widest text-primary">
+          <p className="mb-4 text-sm font-medium uppercase tracking-widest text-label">
             How It Works
           </p>
           <h2 className="text-3xl font-bold leading-tight text-foreground md:text-5xl">
@@ -423,10 +426,9 @@ export default function HowItWorks() {
                     </div>
                     <div className="min-w-0">
                       <span
-                        className="block text-[10px] font-medium uppercase tracking-widest"
-                        style={{
-                          color: isActive ? step.tint : "hsl(var(--muted-foreground) / 0.7)",
-                        }}
+                        className={`block text-[10px] font-medium uppercase tracking-widest ${
+                          isActive ? "text-label" : "text-muted-foreground/70"
+                        }`}
                       >
                         Step {i + 1}
                       </span>
@@ -486,10 +488,7 @@ export default function HowItWorks() {
                       <current.icon className="h-5 w-5" strokeWidth={2} style={{ color: current.tint }} />
                     </div>
                     <div>
-                      <span
-                        className="text-[11px] font-medium uppercase tracking-widest"
-                        style={{ color: current.tint }}
-                      >
+                      <span className="text-[11px] font-medium uppercase tracking-widest text-label">
                         Step {active + 1}
                       </span>
                       <h3 className="text-xl font-semibold leading-tight text-foreground">

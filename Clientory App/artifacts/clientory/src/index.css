@@ -24,6 +24,9 @@
   --color-primary: hsl(var(--primary));
   --color-primary-foreground: hsl(var(--primary-foreground));
 
+  /* Accessible accent for small uppercase labels (passes AA on light bg) */
+  --color-label: hsl(var(--label));
+
   --color-secondary: hsl(var(--secondary));
   --color-secondary-foreground: hsl(var(--secondary-foreground));
 
@@ -66,6 +69,9 @@
 
   --primary: 239 84% 67%;
   --primary-foreground: 0 0% 100%;
+
+  /* Darker brand indigo for small labels — ~6:1 on white (AA) */
+  --label: 243 70% 54%;
 
   --secondary: 239 84% 96%;
   --secondary-foreground: 239 84% 30%;
@@ -152,8 +158,9 @@
      in :root). We only override the display font and the brand gradients. */
   --font-display: 'Inter', sans-serif;
 
-  /* Clientory brand gradients (indigo → emerald) */
-  --gradient-primary: linear-gradient(120deg, hsl(239 84% 67%), hsl(160 84% 42%));
+  /* Clientory brand gradients (indigo → emerald). Stops darkened so the green
+     end of gradient headings still clears 3:1 large-text contrast on white. */
+  --gradient-primary: linear-gradient(120deg, hsl(239 84% 62%), hsl(162 86% 30%));
   --gradient-accent: linear-gradient(135deg, hsl(239 84% 67%), hsl(160 84% 39%));
   /* CTA banner — deep Clientory navy with an indigo lift */
   --gradient-hero: radial-gradient(120% 120% at 20% 0%, hsl(239 70% 38%) 0%, hsl(224 76% 15%) 55%);

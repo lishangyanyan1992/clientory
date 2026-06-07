@@ -23,7 +23,7 @@ export default function Founders() {
           transition={{ duration: 0.6 }}
           className="mb-14 text-center"
         >
-          <p className="mb-4 text-sm font-medium uppercase tracking-widest text-primary">Team</p>
+          <p className="mb-4 text-sm font-medium uppercase tracking-widest text-label">Team</p>
           <h2 className="mx-auto max-w-3xl text-3xl font-bold leading-tight text-foreground md:text-5xl">
             Meet the <span className="text-gradient">Founder</span>
           </h2>
@@ -48,7 +48,7 @@ export default function Founders() {
                 />
               </div>
               <h3 className="text-xl font-semibold text-foreground">{founder.name}</h3>
-              <p className="mb-4 mt-1 text-sm font-medium text-primary">{founder.title}</p>
+              <p className="mb-4 mt-1 text-sm font-medium text-label">{founder.title}</p>
               <p className="mb-5 text-sm leading-relaxed text-muted-foreground">{founder.bio}</p>
               <a
                 href={founder.linkedin}

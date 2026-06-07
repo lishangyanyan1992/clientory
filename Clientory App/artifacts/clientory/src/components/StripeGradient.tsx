@@ -11,6 +11,9 @@ import { Gradient } from "whatamesh";
  * A static CSS gradient sits behind the canvas as a poster, so the hero looks
  * intentional before WebGL initializes, on unsupported devices, and when the
  * user prefers reduced motion (in which case the shader never starts).
+ *
+ * The shader is paused whenever the hero scrolls out of view or the tab is
+ * hidden, so it doesn't burn GPU/CPU off-screen.
  */
 export default function StripeGradient() {
   const reduce = useReducedMotion();
@@ -18,10 +21,36 @@ export default function StripeGradient() {
   useEffect(() => {
     if (reduce) return; // honor prefers-reduced-motion: keep the static poster
     // whatamesh queries the DOM + uses WebGL/rAF, so it must run client-side only.
-    const gradient = new Gradient() as { initGradient: (s: string) => void; pause?: () => void };
+    const gradient = new Gradient() as {
+      initGradient: (s: string) => void;
+      play?: () => void;
+      pause?: () => void;
+    };
     gradient.initGradient("#gradient-canvas");
+
+    const canvas = document.getElementById("gradient-canvas");
+    let inView = true;
+    const sync = () => {
+      if (inView && !document.hidden) gradient.play?.();
+      else gradient.pause?.();
+    };
+
+    let io: IntersectionObserver | undefined;
+    if (canvas && "IntersectionObserver" in window) {
+      io = new IntersectionObserver(
+        (entries) => {
+          inView = entries[entries.length - 1]?.isIntersecting ?? true;
+          sync();
+        },
+        { threshold: 0 },
+      );
+      io.observe(canvas);
+    }
+    document.addEventListener("visibilitychange", sync);
+
     return () => {
-      // Stop the animation loop when the hero unmounts.
+      io?.disconnect();
+      document.removeEventListener("visibilitychange", sync);
       gradient.pause?.();
     };
   }, [reduce]);

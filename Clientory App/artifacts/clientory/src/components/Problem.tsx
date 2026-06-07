@@ -45,7 +45,7 @@ export default function Problem() {
           transition={{ duration: 0.6 }}
           className="mb-14 text-center"
         >
-          <p className="mb-4 text-sm font-medium uppercase tracking-widest text-primary">The Shift</p>
+          <p className="mb-4 text-sm font-medium uppercase tracking-widest text-label">The Shift</p>
           <h2 className="mx-auto max-w-3xl text-3xl font-bold leading-tight text-foreground md:text-5xl">
             The future <span className="text-gradient">immigration client pipeline</span>
           </h2>
