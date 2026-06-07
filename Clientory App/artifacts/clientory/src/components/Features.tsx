@@ -1,13 +1,5 @@
 import { motion } from "framer-motion";
-import {
-  Activity,
-  BrainCircuit,
-  Eye,
-  Gauge,
-  Lightbulb,
-  Maximize2,
-  Shield,
-} from "lucide-react";
+import { Activity, BrainCircuit, Eye, Gauge, Lightbulb, Shield } from "lucide-react";
 
 const features = [
   {
@@ -65,7 +57,7 @@ export default function Features() {
           transition={{ duration: 0.6 }}
           className="mb-16 text-center"
         >
-          <p className="mb-4 text-sm font-medium uppercase tracking-widest text-primary">Features</p>
+          <p className="mb-4 text-sm font-medium uppercase tracking-widest text-label">Features</p>
           <h2 className="mx-auto max-w-3xl text-3xl font-bold leading-tight text-foreground md:text-5xl">
             Everything you need to <span className="text-gradient">own the AI answer</span>
           </h2>
@@ -87,11 +79,6 @@ export default function Features() {
                 className="pointer-events-none absolute -bottom-20 -right-12 h-52 w-52 rounded-full opacity-40 blur-2xl transition-opacity duration-500 group-hover:opacity-70"
                 style={{ background: `radial-gradient(circle, ${feature.tint}, transparent 70%)` }}
               />
-
-              {/* Expand affordance, like Stripe's feature cards */}
-              <div className="absolute right-5 top-5 flex h-7 w-7 items-center justify-center rounded-lg border border-border bg-card/70 text-muted-foreground/50 backdrop-blur-sm transition-all duration-300 group-hover:border-primary/30 group-hover:text-primary">
-                <Maximize2 className="h-3.5 w-3.5" />
-              </div>
 
               <div className="relative z-10">
                 <div
