@@ -15,6 +15,63 @@ export function getReadingTime(content: string): number {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: "ai-answers-dont-come-from-your-website",
+    title: "Why the AI Answers Your Clients See Don't Come from Your Website — and What Actually Changes That",
+    excerpt: "A first-page Google ranking is no longer enough. AI Overviews, AI Mode, and organic search draw from different source pools, and immigration firms need answer-ready content and verifiable entity signals.",
+    content: `Here is a fact that should reframe how you think about your firm's visibility: you can rank on the first page of Google for "immigration attorney [your city]" and still be completely absent from the answer a prospective client reads when they ask AI that exact question.
+
+It is not a glitch. It is how the system works. And most immigration firms — even the ones doing everything right on the traditional SEO side — have no idea this gap exists.
+
+This week, data from Ahrefs and independent citation research confirmed what Clientory has been observing in practice: only around 48-52% of URLs cited in Google AI Overviews overlap with traditional top-10 rankings. For Google's newer AI Mode, that divergence is steeper — just 14% of cited URLs match AI Overview citations, meaning the three systems (organic search, AI Overviews, and AI Mode) are pulling from largely different source pools. Your page-one ranking is a signal. It is not a guarantee of anything in the AI answer.
+
+For immigration firms, this is not an abstract SEO problem. It is a client pipeline problem. A family who just learned about the USCIS adjustment of status memo, or whose green card application has been in limbo under the 39-country pause, is not browsing a list of organic results. They are asking ChatGPT or Google AI Mode a direct question and acting on the answer they receive. If your practice is not in that answer, you are not in the conversation.
+
+## Why AI and Search Draw from Different Wells
+
+The intuitive assumption is that ranking well in Google should mean appearing in Google's AI answers. The data says otherwise, and the reason is structural.
+
+Traditional search ranks pages by relevance, authority, and link signals. It rewards pages that are trustworthy and broadly authoritative within a topic. AI Overviews and AI Mode have a different objective: they are trying to generate a useful, direct answer to a specific question. That means they favor pages built to answer the question as asked, not just pages that are generally authoritative about the broader topic area.
+
+Google's AI system uses what researchers call "query fan-out" — breaking a user's question into multiple sub-queries and pulling sources that address each component. A client asking "what does the new USCIS adjustment of status policy mean for my pending I-485" isn't searching for an immigration lawyer page optimized for "adjustment of status attorney Chicago." They are asking a specific question. AI wants a page that answers that specific question, with explanation, with dates, with case-type specifics.
+
+A beautifully optimized practice-area landing page that reads like a brochure fails this test every time.
+
+## The Three Gaps That Keep Immigration Firms Out of AI Answers
+
+Understanding the divergence comes down to three specific problems that are fixable without rebuilding your site.
+
+**The answer gap.** Most practice-area pages describe services. They explain that the firm handles family petitions, H-1B cases, asylum, naturalization. What they don't do is answer the questions clients are actually typing into AI. Right now, clients are asking: "Can I still file for adjustment of status in the U.S. after the new May 2026 memo?" "What does the court ruling on the 39-country freeze mean for my case?" "How long are green card background checks taking after the FBI processing changes?" If none of your pages answer these questions in plain language — question in the heading, answer in the first paragraph — you have an answer gap. AI cannot cite a page that doesn't contain the answer.
+
+**The structure gap.** AI systems parse content differently than humans read it. Research consistently shows that pages using clean heading hierarchies, FAQ sections, and structured lists are cited more frequently than pages that present the same information in undifferentiated prose. This is why schema markup matters — specifically FAQPage schema, which signals directly to Google that a page contains question-and-answer pairs, and Person or Attorney schema, which connects a named attorney to their areas of expertise in a way the AI can attribute. The majority of immigration firm sites have no attorney-level schema. In a system that rewards verifiable attribution, that absence is a concrete disadvantage.
+
+**The entity gap.** AI systems build their understanding of your firm through signals that exist beyond your website: your Google Business Profile, your state bar listing, legal directory profiles, attorney bios on AVVO and Martindale, LinkedIn presence, and any third-party mentions that connect your name to your practice areas and geography. When these signals are consistent, current, and specific — they describe what cases you handle, in which USCIS field offices, with what experience — the AI model has enough verification to name you confidently. When these signals are thin, stale, or inconsistent, the model passes you over for a firm it can verify.
+
+## What to Fix in the Next 30 Days
+
+This does not require a site rebuild. It requires a focused sprint on the content and signals that AI systems actually evaluate.
+
+1. **Build one direct-answer page this week.** Pick the question your clients are asking most urgently right now. Given the current immigration news cycle — the AOS memo, the court ruling on the 39-country freeze, and the ongoing background check delays — there is no shortage of live questions. Write a page that answers one of them completely: what happened, what it means for clients with pending cases, what they should do, what your firm's experience with this situation looks like. Date the page. Put an attorney's name on it.
+2. **Add FAQ sections to your top three practice pages.** Each FAQ should use conversational question phrasing — the kind a client would type into an AI tool, not a keyword tool. H-1B pages should address the weighted selection rule. Adjustment of status pages should address the May 2026 memo. Family petition pages should address background check delays. Five to seven questions per page, answered directly.
+3. **Add FAQPage schema to those pages.** If you use WordPress, there are plugins that make this a ten-minute task. If you use a legal-specific CMS, check whether it supports custom schema injection. This is one of the highest-leverage technical signals you can add with minimal technical lift.
+4. **Audit your attorney profiles across the web.** Spend one hour confirming that your Google Business Profile, AVVO, Martindale, and state bar listing all describe the same practice areas, the same location, and the same attorney names. Add case-type specifics wherever the platform allows. Any inconsistency — a profile that lists "immigration law" where another says "H-1B and family petitions" — dilutes the entity signal.
+5. **Open Search Console and check your AI performance report.** Google quietly launched dedicated AI Overviews and AI Mode performance reports in Search Console this week. If you have not looked at this data yet, now is the time. You can see which pages are generating impressions in AI answers, which queries are triggering them, and where the gap between your organic visibility and your AI visibility is widest. That gap is your content roadmap.
+
+## The Bigger Picture
+
+Traditional SEO and AI visibility are different games with significant overlap but critical divergences. A firm that ranks well for competitive head terms has real advantages — domain authority, link signals, and indexed content that AI systems can draw from. But those advantages only convert to AI citations when the content is structured to answer questions directly, when the firm's identity is verifiable across the web, and when the specific questions clients are asking right now have clear, attributed answers published somewhere on the site.
+
+The immigration news cycle is creating a continuous stream of urgent client questions. Every major policy shift — the AOS memo, the court ruling, the H-1B changes, the background check delays — is a wave of AI queries that will hit before most attorneys have had time to publish anything about it. The practices that build the habit of publishing direct-answer content on live questions are the ones that accumulate citation signals over time.
+
+You don't have to be the biggest firm in your market to show up in AI answers. You have to be the most answerable one.
+
+Clientory helps immigration law firms become visible to the families and individuals who need them most — turning AI search into consultations, and consultations into clients.
+
+[See your AI visibility score](https://clientory.org/scan)`,
+    author: "Yanyan Li",
+    date: "2026-06-09",
+    tags: ["Immigration Marketing", "AI Visibility", "SEO"],
+  },
+  {
     slug: "uscis-aos-memo-clients-googling-june-2026",
     title: "The USCIS Memo Your Clients Can't Stop Googling — and Why Your Firm Needs to Answer It First",
     excerpt: "USCIS's May 21, 2026 adjustment-of-status memo triggered a wave of client questions just as Google's May 2026 Core Update settled. Here's what immigration firms should publish and check now.",
