@@ -15,6 +15,122 @@ export function getReadingTime(content: string): number {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: "page-freshness-self-audit",
+    title: "Page Freshness Self-Audit: Is Your Firm's Website Fresh Enough to Be Cited by AI?",
+    excerpt: "A practical worksheet for law firms to inventory practice-area page freshness, identify stale AI citation signals, and prioritize the pages that need a substantive refresh first.",
+    content: `Is your firm's website fresh enough to be cited by AI?
+
+Clientory — [clientory.org](https://clientory.org)
+
+## How to Use This Worksheet
+
+Perplexity now handles over 1.2 billion queries a month, and freshness is its strongest single citation signal. On any query with commercial or comparison intent — "best immigration lawyer for an H-1B transfer," "should I file my naturalization now or wait" — it is materially less likely to cite content older than 12-18 months. Google's AI Mode and ChatGPT weigh dated, current content heavily too.
+
+Most law firm websites were built the opposite way: evergreen practice-area pages, written once, untouched for years. Those pages may still rank in traditional search while sitting entirely outside AI's citation window.
+
+This worksheet helps you:
+
+- Inventory your practice-area pages and find their real last-touched dates
+- Score each page's freshness against what AI assistants actually reward
+- Prioritize which pages to refresh first — without rebuilding your site
+
+Before you start: pull up your site's CMS, or ask whoever manages it, so you can see actual last-modified dates, not the dates you remember.
+
+## Part 1 — Practice-Area Page Inventory
+
+List your core practice-area pages — the ones that should win you consultations. For each, record when it was last substantively updated. Count new content, updated guidance, new FAQs, new timelines, or new policy references. Do not count typo fixes.
+
+| # | Page (URL or title) | Case Type | Last Substantive Update | Age | In AI's Window? |
+| --- | --- | --- | --- | --- | --- |
+| 1 | __________________ | __________________ | __________________ | ☐ <12 mo ☐ 12-18 mo ☐ >18 mo | ☐ Yes ☐ At risk ☐ No |
+| 2 | __________________ | __________________ | __________________ | ☐ <12 mo ☐ 12-18 mo ☐ >18 mo | ☐ Yes ☐ At risk ☐ No |
+| 3 | __________________ | __________________ | __________________ | ☐ <12 mo ☐ 12-18 mo ☐ >18 mo | ☐ Yes ☐ At risk ☐ No |
+| 4 | __________________ | __________________ | __________________ | ☐ <12 mo ☐ 12-18 mo ☐ >18 mo | ☐ Yes ☐ At risk ☐ No |
+| 5 | __________________ | __________________ | __________________ | ☐ <12 mo ☐ 12-18 mo ☐ >18 mo | ☐ Yes ☐ At risk ☐ No |
+| 6 | __________________ | __________________ | __________________ | ☐ <12 mo ☐ 12-18 mo ☐ >18 mo | ☐ Yes ☐ At risk ☐ No |
+| 7 | __________________ | __________________ | __________________ | ☐ <12 mo ☐ 12-18 mo ☐ >18 mo | ☐ Yes ☐ At risk ☐ No |
+| 8 | __________________ | __________________ | __________________ | ☐ <12 mo ☐ 12-18 mo ☐ >18 mo | ☐ Yes ☐ At risk ☐ No |
+
+Reading your results: under 12 months old = inside the citation window. 12-18 months = aging out, so refresh this quarter. Over 18 months = effectively invisible to freshness-weighted AI answers, no matter how well it performs in traditional search.
+
+## Part 2 — Freshness Signals Check
+
+Age is only what AI sees first. These signals tell the model a page is current and maintained. Run this check on your three most important pages from Part 1.
+
+| Freshness Signal | Page 1 | Page 2 | Page 3 |
+| --- | --- | --- | --- |
+| Visible "Last updated" date on the page | ☐ | ☐ | ☐ |
+| References at least one 2026 development by name and date, such as the weighted H-1B selection rule, the April BIA DACA ruling, or expanded background checks | ☐ | ☐ | ☐ |
+| Current processing times or timelines, not 2023 numbers | ☐ | ☐ | ☐ |
+| Current government fees, including recent filing fee changes | ☐ | ☐ | ☐ |
+| FAQ answers the questions clients are asking this year | ☐ | ☐ | ☐ |
+| No stale tells: dead links, former policy described as current, outdated form versions | ☐ | ☐ | ☐ |
+
+Stale tells matter most. One outdated filing fee or a reference to a superseded policy tells both the AI and a careful client that nobody is maintaining this page — and undermines every other signal on it.
+
+## Part 3 — Refresh Priority Plan
+
+You can't refresh everything at once. Score each at-risk page from Part 1:
+
+**Priority Score = Consultation Value × Staleness**
+
+Consultation Value: How much of the work you want comes through this case type? 1 = occasional, 3 = signature practice area.
+
+Staleness: 1 = aging, 12-18 months. 2 = stale, 18 months-3 years. 3 = ancient, 3+ years or pre-dates a major policy change.
+
+Score 6-9: Refresh this month.
+
+Score 3-5: Refresh this quarter.
+
+Score 1-2: Fold into your regular update cycle.
+
+| Page / Case Type | Consultation Value (1-3) | Staleness (1-3) | Priority Score | Refresh By | Owner |
+| --- | --- | --- | --- | --- | --- |
+| __________________ | ___ | ___ | ___ | __________________ | __________________ |
+| __________________ | ___ | ___ | ___ | __________________ | __________________ |
+| __________________ | ___ | ___ | ___ | __________________ | __________________ |
+| __________________ | ___ | ___ | ___ | __________________ | __________________ |
+| __________________ | ___ | ___ | ___ | __________________ | __________________ |
+
+## Part 4 — What a Real Refresh Looks Like
+
+A refresh is not changing the date stamp. AI assistants compare versions — a cosmetic edit with a new date can read as manipulation. A substantive refresh of an immigration practice page includes:
+
+### Update the Substance
+
+- [ ] Current processing times for your jurisdiction and field office
+- [ ] Current filing fees and form versions
+- [ ] 2026 policy changes addressed and dated, for example: "As of the February 2026 weighted selection rule..."
+- [ ] New client questions added to the FAQ — in the words clients actually use
+
+### Show the Maintenance
+
+- [ ] Visible "Last updated" date, updated honestly
+- [ ] Recent case outcomes or experience added, for example: "In the past year, we've handled..."
+- [ ] Removed or corrected anything a 2026 reader would catch as outdated
+
+### Make It Extractable
+
+- [ ] Clean heading structure: H1 -> H2 -> H3
+- [ ] FAQ schema markup where possible
+- [ ] Key answers stated directly, near the top — not buried in paragraph six
+
+## Part 5 — Quarterly Habit
+
+Freshness decays on a clock. Put a recurring entry on the calendar:
+
+Every quarter: re-run Part 1's age column and Part 2's signals check on your top pages. Any page crossing the 12-month line gets a scheduled refresh before it crosses 18.
+
+Immediate trigger: any USCIS announcement, BIA ruling, fee change, or State Department policy shift that touches a practice area = that page moves to the front of the refresh queue. The firms cited in AI answers about a new rule are the ones whose pages addressed it first.
+
+Built by Clientory — helping immigration law firms become visible to the families who need them most.
+
+[clientory.org](https://clientory.org) | [Request a GEO visibility audit](https://clientory.org/audit)`,
+    author: "Yanyan Li",
+    date: "2026-06-09",
+    tags: ["Worksheets", "Immigration Marketing", "AI Visibility"],
+  },
+  {
     slug: "ai-answers-dont-come-from-your-website",
     title: "Why the AI Answers Your Clients See Don't Come from Your Website — and What Actually Changes That",
     excerpt: "A first-page Google ranking is no longer enough. AI Overviews, AI Mode, and organic search draw from different source pools, and immigration firms need answer-ready content and verifiable entity signals.",
