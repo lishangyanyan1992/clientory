@@ -19,12 +19,11 @@ export default function Home() {
         <link rel="canonical" href="https://clientory.org/" />
       </Helmet>
       <MarketingLayout>
-        {/* `stripe-landing` scopes the Stripe-inspired theme to the landing page
-            only (see .stripe-landing in index.css). Remove to revert.
-            MotionConfig reducedMotion="user" makes every entrance animation in
-            this subtree honor the OS "reduce motion" setting. */}
+        {/* The design system is now global (see index.css). MotionConfig
+            reducedMotion="user" makes the landing's entrance animations honor
+            the OS "reduce motion" setting. */}
         <MotionConfig reducedMotion="user">
-          <div className="stripe-landing bg-background text-foreground">
+          <div className="bg-background text-foreground">
             <Hero />
             <div id="problem">
               <Problem />

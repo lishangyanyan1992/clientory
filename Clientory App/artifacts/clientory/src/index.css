@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -43,7 +43,7 @@
   --color-success-foreground: hsl(var(--success-foreground));
 
   --font-sans: 'Inter', sans-serif;
-  --font-display: 'Outfit', sans-serif;
+  --font-display: 'Inter', sans-serif;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -98,9 +98,11 @@
   --brand-light: 210 40% 98.8%;
   --brand-surface: 0 0% 100%;
 
-  --gradient-primary: linear-gradient(135deg, hsl(224 76% 33%), hsl(239 84% 67%));
+  /* Brand gradients (indigo → emerald). Primary stops darkened so the green end
+     of gradient headings clears 3:1 large-text contrast on white. */
+  --gradient-primary: linear-gradient(120deg, hsl(239 84% 62%), hsl(162 86% 30%));
   --gradient-accent: linear-gradient(135deg, hsl(239 84% 67%), hsl(160 84% 39%));
-  --gradient-hero: linear-gradient(135deg, hsl(224 76% 33%), hsl(239 84% 60%));
+  --gradient-hero: radial-gradient(120% 120% at 20% 0%, hsl(239 70% 38%) 0%, hsl(224 76% 15%) 55%);
   --gradient-subtle: linear-gradient(180deg, hsl(210 40% 98.8%), hsl(0 0% 100%));
   --gradient-glow: radial-gradient(ellipse 80% 50% at 50% -20%, hsl(239 84% 67% / 0.18), transparent);
 
@@ -146,49 +148,27 @@
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
-   Stripe-inspired theme — SCOPED TO THE LANDING PAGE ONLY (.stripe-landing)
-   Extracted from https://stripe.com/ (design-extract-output/). Overrides the
-   semantic tokens within the home page subtree so the rest of the app keeps
-   the original Clientory theme. Remove this block + the wrapper class in
-   home.tsx to revert.
+   Design system — applied globally across the product (promoted from the
+   landing page). Stripe-inspired typography, gradients, and card treatment
+   over Clientory's brand palette (indigo + emerald + navy, defined in :root).
    ────────────────────────────────────────────────────────────────────────── */
-.stripe-landing {
-  /* Keep the Stripe-style typography + gradient/card treatments, but pull all
-     colours from Clientory's brand palette (indigo + emerald + navy, defined
-     in :root). We only override the display font and the brand gradients. */
-  --font-display: 'Inter', sans-serif;
 
-  /* Clientory brand gradients (indigo → emerald). Stops darkened so the green
-     end of gradient headings still clears 3:1 large-text contrast on white. */
-  --gradient-primary: linear-gradient(120deg, hsl(239 84% 62%), hsl(162 86% 30%));
-  --gradient-accent: linear-gradient(135deg, hsl(239 84% 67%), hsl(160 84% 39%));
-  /* CTA banner — deep Clientory navy with an indigo lift */
-  --gradient-hero: radial-gradient(120% 120% at 20% 0%, hsl(239 70% 38%) 0%, hsl(224 76% 15%) 55%);
-}
-
-/* Stripe typography: light-weight display headings with tight negative
-   tracking (Söhne 300 @ -1.4px on stripe.com). Unlayered so these win over
-   the Tailwind font-bold/font-semibold utilities used in the components. */
-.stripe-landing h1,
-.stripe-landing h2 {
+/* Light-weight display headings with tight negative tracking. Unlayered so
+   they win over the Tailwind font-bold/font-semibold utilities in components. */
+h1,
+h2 {
   font-weight: 400;
   letter-spacing: -0.035em;
 }
 
-.stripe-landing h3 {
+h3 {
   font-weight: 500;
   letter-spacing: -0.02em;
 }
 
-/* Stripe body copy reads slightly lighter and more relaxed */
-.stripe-landing p {
-  font-weight: 400;
-  letter-spacing: -0.01em;
-}
-
-/* ── Stripe's real animated WebGL gradient (whatamesh) ──────────────────────
-   The shader reads these four stops from the canvas element. */
-.stripe-landing #gradient-canvas {
+/* Animated WebGL hero gradient (whatamesh). Only the landing hero mounts this
+   canvas; the shader reads its four brand stops here. */
+#gradient-canvas {
   --gradient-color-1: #6467f2;   /* Clientory indigo   */
   --gradient-color-2: #a5b4fc;   /* light indigo       */
   --gradient-color-3: #10b780;   /* Clientory emerald  */
@@ -196,17 +176,13 @@
   z-index: 0;
 }
 
-/* Respect users who prefer reduced motion — the component pauses the shader,
-   leaving a static first frame. */
 @media (prefers-reduced-motion: reduce) {
-  .stripe-landing #gradient-canvas { opacity: 0.9; }
+  #gradient-canvas { opacity: 0.9; }
 }
 
-/* ── Stripe-style cards ─────────────────────────────────────────────────────
-   Soft layered shadow at rest, generous radius, and a smooth lift on hover
-   using Stripe's signature rgba(50,50,93,…) shadow stack. Unlayered so these
-   win over the component utility classes (.card-hover, shadow-lg, rounded-2xl). */
-.stripe-landing .card-hover {
+/* Cards: soft layered shadow at rest, generous radius, smooth lift on hover
+   (Stripe's rgba(50,50,93,…) stack). Unlayered so they win over utilities. */
+.card-hover {
   border-radius: 16px;
   box-shadow:
     rgba(50, 50, 93, 0.07) 0px 6px 14px -4px,
@@ -217,20 +193,12 @@
     border-color 0.35s ease;
 }
 
-.stripe-landing .card-hover:hover {
+.card-hover:hover {
   transform: translateY(-4px);
   border-color: hsl(var(--primary) / 0.25);
   box-shadow:
     rgba(50, 50, 93, 0.18) 0px 13px 27px -5px,
     rgba(0, 0, 0, 0.16) 0px 8px 16px -8px;
-}
-
-/* Static mockup cards (dashboards, prompt panels) that use shadow-lg directly */
-.stripe-landing .shadow-lg {
-  box-shadow:
-    rgba(50, 50, 93, 0.12) 0px 30px 60px -20px,
-    rgba(0, 0, 0, 0.18) 0px 18px 36px -18px,
-    rgba(50, 50, 93, 0.06) 0px 0px 0px 1px !important;
 }
 
 @layer base {
@@ -268,15 +236,6 @@
 
 .bg-gradient-glow {
   background-image: var(--gradient-glow);
-}
-
-.card-hover {
-  @apply transition-all duration-300 ease-out;
-}
-
-.card-hover:hover {
-  @apply border-primary/20 -translate-y-0.5;
-  box-shadow: var(--shadow-lg);
 }
 
 .brand-gradient {

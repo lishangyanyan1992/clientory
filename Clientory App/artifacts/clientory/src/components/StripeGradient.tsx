@@ -6,7 +6,7 @@ import { Gradient } from "whatamesh";
 /**
  * Full-bleed animated WebGL mesh gradient — the real Stripe hero shader.
  * Reads its four colors from the `--gradient-color-1..4` CSS custom properties
- * set on `#gradient-canvas` (see .stripe-landing #gradient-canvas in index.css).
+ * set on `#gradient-canvas` (see the #gradient-canvas rule in index.css).
  *
  * A static CSS gradient sits behind the canvas as a poster, so the hero looks
  * intentional before WebGL initializes, on unsupported devices, and when the
