@@ -21,6 +21,7 @@ import {
   symptomQueryCacheTable,
 } from "@workspace/db/schema";
 import { eq, desc, inArray } from "drizzle-orm";
+import { analyzeMention, serviceKeywordsFromPrompt, computeTotalScore } from "./scoring";
 import type { Business, PromptItem, Scan, ScanPrompt, ScanResultSource } from "@workspace/db/schema";
 
 // ─── Model config (override via env vars) ────────────────────────────────────
@@ -58,6 +59,8 @@ type ProgressCallback = (event: {
   grounded?: boolean;
   /** Web-grounded visibility score, sent on the final `completed` event alongside `score` (the memory score). */
   groundedScore?: number;
+  /** Composite AI Visibility Score (coverage + quality), sent on the `completed` event. */
+  totalScore?: number;
 }) => void;
 
 // ─── Static symptom map (30 entries across law, accounting, consulting, marketing) ────────────────
@@ -1231,6 +1234,10 @@ async function _runScan(
     // Two scores: parametric "memory" (ungrounded) and web-grounded "answer".
     let memoryMentions = 0, memoryChecks = 0;
     let answerMentions = 0, answerChecks = 0;
+    // Mention-quality scores (0–4) for every mentioned result, across both modes —
+    // feeds the 30% quality component of the composite AI Visibility Score.
+    const qualityScores: number[] = [];
+    const scanCity = (scan.location || "").split(",")[0]?.trim() || null;
     // Count of provider responses actually persisted. If this stays 0, every API
     // call failed (or none ran) — the scan must NOT be marked completed, or it
     // becomes a bogus 0% report (and a poison cache entry).
@@ -1263,6 +1270,7 @@ async function _runScan(
           });
 
           const perModeMentions: Record<string, boolean> = {};
+          const serviceKeywords = serviceKeywordsFromPrompt(promptRow.prompt, scan.businessName, scanCity);
 
           await Promise.allSettled(
             providers.flatMap((provider) =>
@@ -1285,6 +1293,10 @@ async function _runScan(
                         providerQueryFns[provider](promptRow.prompt, grounded),
                       );
                   const mentioned = checkMention(result.text, scan.businessName);
+                  if (mentioned) {
+                    const q = analyzeMention(result.text, scan.businessName, { city: scanCity, serviceKeywords });
+                    qualityScores.push(q.qualityScore);
+                  }
 
                   gen.update({
                     output: result.text,
@@ -1366,10 +1378,19 @@ async function _runScan(
 
     const memoryScore = memoryChecks > 0 ? Math.round((memoryMentions / memoryChecks) * 100) : 0;
     const groundedScore = answerChecks > 0 ? Math.round((answerMentions / answerChecks) * 100) : 0;
+    const qualityAvg =
+      qualityScores.length > 0 ? qualityScores.reduce((a, b) => a + b, 0) / qualityScores.length : null;
+    const totalScore = computeTotalScore({
+      memoryScore,
+      groundedScore,
+      hasMemory: memoryChecks > 0,
+      hasWeb: answerChecks > 0,
+      qualityAvg,
+    });
 
     await db
       .update(scansTable)
-      .set({ status: "completed", score: memoryScore, groundedScore })
+      .set({ status: "completed", score: memoryScore, groundedScore, totalScore })
       .where(eq(scansTable.id, scanId));
 
     // The analysis step (mention detection + scoring) as its own observation.
@@ -1409,6 +1430,7 @@ async function _runScan(
       type: "completed",
       score: memoryScore,
       groundedScore,
+      totalScore,
       message: `Scan complete! AI memory: ${memoryScore}% · AI answer: ${groundedScore}%`,
     });
   } catch (err) {

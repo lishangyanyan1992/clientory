@@ -366,7 +366,8 @@ router.post("/scans", async (req, res) => {
               businessName: scan.businessName,
               businessType: scan.businessType,
               location: scan.location,
-              score: event.score ?? 0,
+              // Headline = composite AI Visibility Score (matches the report gauge).
+              score: event.totalScore ?? event.score ?? 0,
               scanId: scan.id,
               appBaseUrl,
               providerStats: Object.values(stats),
@@ -410,6 +411,7 @@ router.get("/scans/latest", async (req, res) => {
         businessName: scansTable.businessName,
         score: scansTable.score,
         groundedScore: scansTable.groundedScore,
+        totalScore: scansTable.totalScore,
         createdAt: scansTable.createdAt,
       })
       .from(scansTable)
@@ -438,6 +440,7 @@ router.get("/scans/latest", async (req, res) => {
         businessName: latest.businessName,
         score: latest.score,
         groundedScore: latest.groundedScore,
+        totalScore: latest.totalScore,
         createdAt: latest.createdAt.toISOString(),
       },
     });
@@ -618,6 +621,7 @@ router.get("/scans/:id", async (req, res) => {
         status: scan.status,
         score: scan.score,
         groundedScore: scan.groundedScore,
+        totalScore: scan.totalScore,
         createdAt: scan.createdAt.toISOString(),
         businessId: scan.businessId ? String(scan.businessId) : null,
         isFreeReport: scan.isFreeReport,

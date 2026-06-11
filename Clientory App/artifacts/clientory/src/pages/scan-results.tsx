@@ -36,6 +36,9 @@ import {
   ArrowRight,
   Users,
   Building2,
+  Globe,
+  Brain,
+  TrendingDown,
 } from "lucide-react";
 
 // ─── Static config ───────────────────────────────────────────────────────────
@@ -80,6 +83,11 @@ type RawResult = {
   provider: string;
   response: string | null;
   mentioned: boolean;
+  // Whether this answer was web-grounded (live search) vs. from the model's
+  // training memory. The same provider can appear twice per prompt, once each.
+  grounded?: boolean;
+  searched?: boolean;
+  sources?: unknown[];
   createdAt: string;
 };
 type AnalyzedResult = RawResult & { analysis: MentionAnalysis };
@@ -136,24 +144,119 @@ function ScoreGauge({ score }: { score: number }) {
 
 // ─── Level 1: provider + quality stat cards ──────────────────────────────────
 
+type StatTone = "good" | "warn" | "bad" | "muted";
+
+// Threshold-colour a mention rate so the section reads as a diagnostic at a
+// glance (strong / mixed / weak) rather than everything-is-green.
+function rateTone(rate: number): StatTone {
+  if (rate >= 60) return "good";
+  if (rate >= 35) return "warn";
+  if (rate > 0) return "bad";
+  return "muted";
+}
+
+const STAT_TONE_COLOR: Record<StatTone, string> = {
+  good: "text-success",
+  warn: "text-amber-500",
+  bad: "text-destructive",
+  muted: "text-muted-foreground",
+};
+
+// Official brand marks (single-path SVGs, Simple Icons). OpenAI's logo is
+// monochrome by design → currentColor; the others carry their brand color.
+const PROVIDER_LOGOS: Record<string, { path: string; color: string }> = {
+  ChatGPT: {
+    color: "currentColor",
+    path: "M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1038 8.364 15.1192 7.2a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.407-.667zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0804.0804 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.142.0805L8.704 5.459a.7948.7948 0 0 0-.3927.6813zm1.0976-2.3654l2.602-1.4998 2.6069 1.4998v2.9994l-2.5974 1.4997-2.6067-1.4997Z",
+  },
+  Claude: {
+    color: "#D97757",
+    path: "m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z",
+  },
+  Gemini: {
+    color: "#8E75B2",
+    path: "M11.04 19.32Q12 21.51 12 24q0-2.49.93-4.68.96-2.19 2.58-3.81t3.81-2.55Q21.51 12 24 12q-2.49 0-4.68-.93a12.3 12.3 0 0 1-3.81-2.58 12.3 12.3 0 0 1-2.58-3.81Q12 2.49 12 0q0 2.49-.96 4.68-.93 2.19-2.55 3.81a12.3 12.3 0 0 1-3.81 2.58Q2.49 12 0 12q2.49 0 4.68.96 2.19.93 3.81 2.55t2.55 3.81",
+  },
+  Perplexity: {
+    color: "#1FB8CD",
+    path: "M22.3977 7.0896h-2.3106V.0676l-7.5094 6.3542V.1577h-1.1554v6.1966L4.4904 0v7.0896H1.6023v10.3976h2.8882V24l6.932-6.3591v6.2005h1.1554v-6.0469l6.9318 6.1807v-6.4879h2.8882V7.0896zm-3.4657-4.531v4.531h-5.355l5.355-4.531zm-13.2862.0676 4.8691 4.4634H5.6458V2.6262zM2.7576 16.332V8.245h7.8476l-6.1149 6.1147v1.9723H2.7576zm2.8882 5.0404v-3.8852h.0001v-2.6488l5.7763-5.7764v7.0111l-5.7764 5.2993zm12.7086.0248-5.7766-5.1509V9.0618l5.7766 5.7766v6.5588zm2.8882-5.0652h-1.733v-1.9723L13.3948 8.245h7.8478v8.087z",
+  },
+};
+
+function ProviderLogo({ name, className = "w-4 h-4" }: { name: string; className?: string }) {
+  const logo = PROVIDER_LOGOS[name];
+  if (!logo) return null;
+  return (
+    <svg viewBox="0 0 24 24" className={`${className} shrink-0`} fill={logo.color} aria-hidden="true">
+      <path d={logo.path} />
+    </svg>
+  );
+}
+
 function StatCard({
   title,
   value,
   sub,
   tone,
+  split,
 }: {
   title: string;
   value: string;
   sub: string;
-  tone: "good" | "muted";
+  tone: StatTone;
+  split?: { memory: number; web: number } | null;
 }) {
-  const valueColor = tone === "good" ? "text-success" : "text-muted-foreground";
+  // Value is intentionally text-xl (not 2xl): the overall score gauge is the
+  // hero number, these per-AI metrics are subordinate.
   return (
     <div className="rounded-xl border border-border/60 bg-muted/10 p-4 flex flex-col gap-1">
-      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</span>
-      <span className={`text-2xl font-bold tabular-nums leading-tight ${valueColor}`}>{value}</span>
+      <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <ProviderLogo name={title} className="w-3.5 h-3.5" />
+        {title}
+      </span>
+      <span className={`text-xl font-bold tabular-nums leading-tight ${STAT_TONE_COLOR[tone]}`}>{value}</span>
       <span className="text-xs text-muted-foreground">{sub}</span>
+      {split && (
+        <div className="mt-1.5 pt-1.5 border-t border-border/40 flex items-center gap-3 text-[11px]">
+          <span className="flex items-center gap-1 text-muted-foreground" title="From training memory">
+            <Brain className="w-3 h-3 shrink-0" />
+            <span className={`font-semibold tabular-nums ${STAT_TONE_COLOR[rateTone(split.memory)]}`}>
+              {split.memory}%
+            </span>
+          </span>
+          <span className="flex items-center gap-1 text-muted-foreground" title="Live web search">
+            <Globe className="w-3 h-3 shrink-0" />
+            <span className={`font-semibold tabular-nums ${STAT_TONE_COLOR[rateTone(split.web)]}`}>
+              {split.web}%
+            </span>
+          </span>
+        </div>
+      )}
     </div>
+  );
+}
+
+// Same shape as StatCard, but gated behind a paid unlock. Shows an honest teaser
+// (this assistant ran 0 of N prompts) rather than a blurred fake number — a
+// concrete zero motivates more than a smudge.
+function LockedStatCard({ title, total }: { title: string; total: number }) {
+  return (
+    <Link
+      to="/settings/billing"
+      className="group rounded-xl border border-dashed border-border bg-muted/20 p-4 flex flex-col gap-1 hover:border-primary/40 transition-colors"
+    >
+      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+        <ProviderLogo
+          name={title}
+          className="w-3.5 h-3.5 grayscale opacity-50 transition group-hover:grayscale-0 group-hover:opacity-100"
+        />
+        {title}
+      </span>
+      <span className="text-xl font-bold tabular-nums leading-tight text-muted-foreground/40">—</span>
+      <span className="text-xs text-muted-foreground">
+        Ran 0 of {total} · <span className="font-medium text-primary group-hover:underline">unlock</span>
+      </span>
+    </Link>
   );
 }
 
@@ -190,7 +293,17 @@ function ProviderResult({ r }: { r: AnalyzedResult }) {
   return (
     <div className="p-5 flex flex-col gap-2.5">
       <div className="flex items-center justify-between">
-        <span className="font-semibold text-sm">{name}</span>
+        <span className="flex items-center gap-1.5">
+          <ProviderLogo name={name} className="w-4 h-4" />
+          <span className="font-semibold text-sm">{name}</span>
+          <span
+            className="inline-flex items-center gap-1 text-[10px] font-medium uppercase tracking-wide text-muted-foreground/80 bg-muted/40 px-1.5 py-0.5 rounded"
+            title={r.grounded ? "Answered using live web search" : "Answered from the model's training memory"}
+          >
+            {r.grounded ? <Globe className="w-2.5 h-2.5" /> : <Brain className="w-2.5 h-2.5" />}
+            {r.grounded ? "Web" : "Memory"}
+          </span>
+        </span>
         {r.mentioned ? (
           <span className="flex items-center gap-1 text-xs font-bold text-success bg-success/10 px-2 py-0.5 rounded-full">
             <CheckCircle2 className="w-3 h-3" /> Mentioned
@@ -449,47 +562,6 @@ function PromptBreakdown({ prompts }: { prompts: AnalyzedPrompt[] }) {
 
 // ─── Locked feature gate (unchanged) ─────────────────────────────────────────
 
-// Banner + locked cards upselling the AI assistants we don't run on the free tier.
-function LockedProviders() {
-  return (
-    <div className="relative rounded-xl border border-dashed border-primary/30 bg-primary/[0.03] p-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5">
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-            <Lock className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <h3 className="font-semibold">Unlock Gemini &amp; Perplexity</h3>
-            <p className="text-sm text-muted-foreground">
-              See how your firm ranks on more AI assistants. Gemini and Perplexity coverage is available on paid
-              plans.
-            </p>
-          </div>
-        </div>
-        <Link
-          to="/settings/billing"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-primary to-accent text-white text-sm font-medium shrink-0"
-        >
-          Upgrade — {BILLING_PRICE_LABEL} <ArrowRight className="w-4 h-4" />
-        </Link>
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        {LOCKED_PROVIDERS.map((name) => (
-          <Link
-            key={name}
-            to="/settings/billing"
-            className="group relative rounded-xl border border-dashed border-border bg-muted/30 p-5 text-center hover:border-primary/40 transition-colors"
-          >
-            <Lock className="w-4 h-4 mx-auto mb-2 text-muted-foreground transition-colors group-hover:text-primary" />
-            <p className="font-semibold text-muted-foreground">{name}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">Upgrade to unlock</p>
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function LockedFeature({ title, description }: { title: string; description: string }) {
   return (
     <div className="relative rounded-xl border border-dashed border-border bg-muted/20 p-8 text-center">
@@ -502,9 +574,9 @@ function LockedFeature({ title, description }: { title: string; description: str
       <p className="text-sm text-muted-foreground mb-4">{description}</p>
       <Link
         to="/settings/billing"
-        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-primary to-accent text-white text-sm font-medium"
+        className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
       >
-        Upgrade — {BILLING_PRICE_LABEL} <ArrowRight className="w-4 h-4" />
+        Unlock with {BILLING_PRICE_LABEL} <ArrowRight className="w-3.5 h-3.5" />
       </Link>
     </div>
   );
@@ -660,20 +732,92 @@ export default function ScanResults() {
   const providerStats = ACTIVE_PROVIDERS.map((prov) => {
     let total = 0;
     let mentions = 0;
+    let memT = 0;
+    let memM = 0;
+    let webT = 0;
+    let webM = 0;
     for (const p of analyzed) {
       for (const r of p.results) {
         if (r.provider !== prov) continue;
         total++;
         if (r.mentioned) mentions++;
+        if (r.grounded) {
+          webT++;
+          if (r.mentioned) webM++;
+        } else {
+          memT++;
+          if (r.mentioned) memM++;
+        }
       }
     }
     const rate = total > 0 ? Math.round((mentions / total) * 100) : 0;
-    return { prov, total, mentions, rate };
+    // Per-provider memory vs. web split — only meaningful when both modes ran.
+    const split =
+      memT > 0 && webT > 0
+        ? { memory: Math.round((memM / memT) * 100), web: Math.round((webM / webT) * 100) }
+        : null;
+    return { prov, total, mentions, rate, split };
   });
 
   const qualityScores: number[] = [];
   for (const p of analyzed) for (const r of p.results) if (r.mentioned) qualityScores.push(r.analysis.qualityScore);
   const quality = summarizeQuality(qualityScores);
+
+  // Memory vs. web-grounded split — how visibility changes when the assistant
+  // answers from training memory vs. a live web search. The web rate mirrors the
+  // backend's groundedScore; surfacing it exposes the gap the blended score hides.
+  let memHits = 0;
+  let memTotal = 0;
+  let webHits = 0;
+  let webTotal = 0;
+  for (const p of analyzed) {
+    for (const r of p.results) {
+      if (r.grounded) {
+        webTotal++;
+        if (r.mentioned) webHits++;
+      } else {
+        memTotal++;
+        if (r.mentioned) memHits++;
+      }
+    }
+  }
+  const memoryRate = memTotal > 0 ? Math.round((memHits / memTotal) * 100) : 0;
+  const webRate = webTotal > 0 ? Math.round((webHits / webTotal) * 100) : 0;
+  const showModeSplit = memTotal > 0 && webTotal > 0;
+
+  // Composite "AI Visibility Score": coverage (memory + web, equal) 70% +
+  // mention quality 30%. Quality avg is 0–4 → ×25 to put it on a 0–100 scale.
+  const coverage =
+    memTotal > 0 && webTotal > 0
+      ? Math.round((memoryRate + webRate) / 2)
+      : memTotal > 0
+        ? memoryRate
+        : webRate;
+  const qualityNorm = quality.avg !== null ? quality.avg * 25 : 0;
+  // Prefer the backend's canonical composite; fall back to a client-side compute
+  // for legacy scans run before the score was stored.
+  const clientTotalScore = Math.round(0.7 * coverage + 0.3 * qualityNorm);
+  const totalScore = scan.totalScore ?? clientTotalScore;
+
+  // Weakest search category — gives the report a spine ("fix this first").
+  const categoryStats = CATEGORY_ORDER.map((key) => {
+    let total = 0;
+    let mentions = 0;
+    for (const p of analyzed) {
+      if (p.prompt.category !== key) continue;
+      for (const r of p.results) {
+        total++;
+        if (r.mentioned) mentions++;
+      }
+    }
+    return { key, total, mentions, rate: total > 0 ? Math.round((mentions / total) * 100) : 0 };
+  }).filter((c) => c.total > 0);
+  // Only surface a callout when there's a genuine gap (a category below full coverage).
+  const weakest =
+    categoryStats.length > 0
+      ? categoryStats.reduce((lo, c) => (c.rate < lo.rate ? c : lo))
+      : null;
+  const weakestGap = weakest && weakest.rate < 100 ? weakest : null;
 
   const showPaidFeatures = isPaid === true;
   const billingLoading = isPaid === null;
@@ -683,21 +827,57 @@ export default function ScanResults() {
   const ranSearches = analyzed.filter((p) => p.prompt.executed !== false).length;
   const hasLockedSearches = ranSearches > 0 && ranSearches < totalSearches;
 
+  // Subtitle meta: tell the user the scope + freshness of the report.
+  // `ranSearches` (not totalSearches) so the count reflects what actually ran —
+  // a free-tier scan that only executed a 5-search sample reads "5 searches".
+  const scannedProviders = providerStats.map((s) => PROVIDER_DISPLAY[s.prov]).join(" & ");
+  const scannedOn = new Date(scan.createdAt).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+  // Title-case the raw businessType slug (e.g. "law" → "Law").
+  const cleanBusinessType = scan.businessType
+    ? scan.businessType.replace(/[-_]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+    : null;
+
   return (
     <Layout>
       <TooltipProvider delayDuration={150}>
-        <div className="bg-primary/5 border-b border-border/50 pt-12 pb-24">
+        <div className="bg-primary/5 border-b border-border/50 pt-12 pb-12">
           <div className="container max-w-6xl mx-auto px-4">
             <div className="max-w-2xl">
-              <h1 className="text-3xl md:text-4xl font-bold mb-2">Visibility Report: {scan.businessName}</h1>
-              <p className="text-muted-foreground text-lg flex items-center gap-2">
-                <Target className="w-5 h-5" /> {scan.businessType} in {scan.location}
-              </p>
+              <h1 className="text-3xl md:text-4xl font-bold mb-2">
+                AI Visibility Report
+                <span className="block text-xl md:text-2xl font-semibold text-foreground/70 mt-1">
+                  {scan.businessName}
+                </span>
+              </h1>
+              <div className="text-muted-foreground text-sm space-y-1">
+                <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <span className="flex items-center gap-1.5">
+                    <MapPin className="w-4 h-4 shrink-0" /> {scan.location}
+                  </span>
+                  {cleanBusinessType && (
+                    <>
+                      <span aria-hidden className="text-border">·</span>
+                      <span>{cleanBusinessType}</span>
+                    </>
+                  )}
+                </p>
+                <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <span>
+                    {ranSearches} search{ranSearches === 1 ? "" : "es"} on {scannedProviders}
+                  </span>
+                  <span aria-hidden className="text-border">·</span>
+                  <span>Scanned {scannedOn}</span>
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="container max-w-6xl mx-auto px-4 -mt-16 pb-24 space-y-8 z-10 relative">
+        <div className="container max-w-6xl mx-auto px-4 mt-8 pb-24 space-y-8 relative">
           <div className="flex items-center justify-between gap-4 p-4 bg-success/10 border border-success/20 rounded-xl text-sm">
             <div className="flex items-center gap-3">
               <Mail className="w-5 h-5 text-success shrink-0" />
@@ -725,12 +905,74 @@ export default function ScanResults() {
           <div className="grid lg:grid-cols-3 gap-8">
             <Card className="lg:col-span-1 glass-panel pt-6">
               <CardContent className="flex flex-col items-center">
-                <ScoreGauge score={score} />
-                <p className="mt-4 text-lg font-bold text-center">{verdictFor(score)}</p>
-                <p className="text-center text-sm text-muted-foreground mt-2 px-4">
-                  How often your firm was mentioned when we asked AI assistants for recommendations in your
-                  practice areas.
+                <ScoreGauge score={totalScore} />
+                <p className="mt-4 text-lg font-bold text-center">{verdictFor(totalScore)}</p>
+                <p className="text-center text-sm text-muted-foreground mt-2 px-4 inline-flex items-center justify-center gap-1 flex-wrap">
+                  Your overall AI visibility — how often and how prominently AI assistants name your firm.
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <HelpCircle className="w-3.5 h-3.5 text-muted-foreground/60 cursor-help shrink-0" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs text-left">
+                      <p className="font-semibold mb-1.5">How this score is built</p>
+                      <p className="mb-1.5">
+                        <span className="font-medium text-foreground">70% coverage</span> — how often you're named,
+                        averaging your memory ({memoryRate}%) and live-web ({webRate}%) scores.
+                      </p>
+                      <p>
+                        <span className="font-medium text-foreground">30% quality</span> — how prominently you're named
+                        when you are (rank, description, location &amp; service match).
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
                 </p>
+                {showModeSplit && (
+                  <div className="mt-4 w-full">
+                    <div className="flex items-center justify-center gap-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-1.5">
+                      Where AI finds you
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <HelpCircle className="w-3 h-3 text-muted-foreground/60 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs text-left font-normal normal-case tracking-normal">
+                          <p className="font-semibold mb-1.5">Two ways AI surfaces your firm</p>
+                          <p className="mb-1.5">
+                            <span className="font-medium text-foreground">From memory</span> — what the model already
+                            learned about you during training. Reflects your long-term reputation.
+                          </p>
+                          <p className="mb-1.5">
+                            <span className="font-medium text-foreground">Live web search</span> — whether you appear
+                            when the AI searches the web in real time. Depends on current web content, citations and
+                            freshness.
+                          </p>
+                          <p>
+                            A lower web score points to a content &amp; citation gap — AI can't find you when it looks
+                            you up live. As more assistants default to live search, this is increasingly the score that
+                            matters.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="rounded-lg border border-border/60 bg-muted/10 p-2.5 text-center">
+                        <div className="flex items-center justify-center gap-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                          <Brain className="w-3 h-3" /> From memory
+                        </div>
+                        <div className={`text-lg font-bold tabular-nums ${STAT_TONE_COLOR[rateTone(memoryRate)]}`}>
+                          {memoryRate}%
+                        </div>
+                      </div>
+                      <div className="rounded-lg border border-border/60 bg-muted/10 p-2.5 text-center">
+                        <div className="flex items-center justify-center gap-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                          <Globe className="w-3 h-3" /> Live web search
+                        </div>
+                        <div className={`text-lg font-bold tabular-nums ${STAT_TONE_COLOR[rateTone(webRate)]}`}>
+                          {webRate}%
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 {hasLockedSearches && (
                   <Link
                     to="/settings/billing"
@@ -744,39 +986,65 @@ export default function ScanResults() {
             </Card>
 
             <Card className="lg:col-span-2 glass-panel flex flex-col">
-              <CardHeader>
+              <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <CardTitle className="flex items-center gap-2">
                   <Bot className="w-5 h-5 text-primary" /> Performance by AI
                 </CardTitle>
+                <Link
+                  to="/settings/billing"
+                  className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline shrink-0"
+                >
+                  Unlock Gemini &amp; Perplexity <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
               </CardHeader>
-              <CardContent className="flex-1">
-                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+              <CardContent className="flex-1 space-y-3">
+                {/* Every AI assistant in one row — live metrics next to locked teasers. */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                   {providerStats.map((s) => (
                     <StatCard
                       key={s.prov}
                       title={PROVIDER_DISPLAY[s.prov]}
                       value={`${s.rate}%`}
-                      sub={`${s.mentions} of ${s.total} prompts`}
-                      tone={s.rate > 0 ? "good" : "muted"}
+                      sub={`${s.mentions} of ${s.total} answers`}
+                      tone={rateTone(s.rate)}
+                      split={s.split}
                     />
                   ))}
-                  <StatCard
-                    title="Mention Quality"
-                    value={quality.avg !== null ? quality.label : "—"}
-                    sub={
-                      quality.avg !== null
-                        ? `across ${qualityScores.length} mention${qualityScores.length === 1 ? "" : "s"}`
-                        : "not mentioned yet"
-                    }
-                    tone={quality.avg !== null && quality.avg >= 1 ? "good" : "muted"}
-                  />
+                  {LOCKED_PROVIDERS.map((name) => (
+                    <LockedStatCard key={name} title={name} total={providerStats[0]?.total ?? 0} />
+                  ))}
                 </div>
+                <StatCard
+                  title="Mention Quality"
+                  value={quality.avg !== null ? quality.label : "—"}
+                  sub={
+                    quality.avg !== null
+                      ? `across ${qualityScores.length} mention${qualityScores.length === 1 ? "" : "s"}`
+                      : "not mentioned yet"
+                  }
+                  tone={quality.avg !== null && quality.avg >= 1 ? "good" : "muted"}
+                />
               </CardContent>
             </Card>
           </div>
 
-          {/* ── Unlock more AI assistants (Gemini + Perplexity) ── */}
-          <LockedProviders />
+          {/* Spine: point the firm at the single weakest search type first. */}
+          {weakestGap && (
+            <div className="flex items-start gap-3 p-4 rounded-xl border border-amber-500/30 bg-amber-500/[0.06]">
+              <div className="w-9 h-9 rounded-lg bg-amber-500/15 flex items-center justify-center shrink-0">
+                <TrendingDown className="w-5 h-5 text-amber-600" />
+              </div>
+              <div className="text-sm">
+                <p className="font-semibold text-foreground">
+                  Biggest opportunity: {categoryMeta(weakestGap.key).label}
+                </p>
+                <p className="text-muted-foreground">
+                  You're named in just {weakestGap.rate}% of these searches ({weakestGap.mentions} of{" "}
+                  {weakestGap.total}) — the best place to focus first.
+                </p>
+              </div>
+            </div>
+          )}
 
           {!billingLoading && !showPaidFeatures && (
             <LockedFeature

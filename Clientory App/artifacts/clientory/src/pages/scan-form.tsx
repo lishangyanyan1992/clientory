@@ -520,7 +520,7 @@ export default function ScanForm() {
   // After sign-in: a recent viewable report, offered so the user can re-open it
   // instead of running a fresh scan (no AI calls). Null = none / go to intake.
   const [recentReport, setRecentReport] = useState<
-    { id: string; businessName: string; score: number | null; createdAt: string } | null
+    { id: string; businessName: string; score: number | null; totalScore?: number | null; createdAt: string } | null
   >(null);
   const { isAdmin } = useAdminStatus(emailToken);
   const turnstileRef = useRef<HTMLDivElement>(null);
@@ -1923,7 +1923,9 @@ export default function ScanForm() {
             <h1 className="text-2xl font-bold mb-2">Welcome back</h1>
             <p className="text-slate-600 mb-6">
               You have a recent report for <strong>{recentReport.businessName}</strong>
-              {recentReport.score != null && <> — {Math.round(recentReport.score)}% AI visibility</>}, run{" "}
+              {(recentReport.totalScore ?? recentReport.score) != null && (
+                <> — {Math.round((recentReport.totalScore ?? recentReport.score)!)}% AI visibility</>
+              )}, run{" "}
               {new Date(recentReport.createdAt).toLocaleDateString()}. View it instantly, or run a fresh scan.
             </p>
             <div className="flex flex-col gap-3">

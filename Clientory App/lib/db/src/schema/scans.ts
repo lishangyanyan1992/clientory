@@ -24,6 +24,9 @@ export const scansTable = pgTable("scans", {
   score: real("score"),
   // Web-grounded "AI answer" score (grounded pass). Null on legacy scans.
   groundedScore: real("grounded_score"),
+  // Composite "AI Visibility Score": 70% coverage (memory + web) + 30% mention
+  // quality. The canonical headline score. Null on legacy scans (pre-composite).
+  totalScore: real("total_score"),
   userEmail: text("user_email"),
   ipHash: text("ip_hash"),
   businessId: integer("business_id").references(() => businessesTable.id),
