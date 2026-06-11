@@ -98,6 +98,7 @@ export interface Scan {
   status: ScanStatus;
   score?: number | null;
   groundedScore?: number | null;
+  totalScore?: number | null;
   createdAt: string;
   businessId?: string | null;
   isFreeReport?: boolean;

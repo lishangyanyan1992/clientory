@@ -640,6 +640,9 @@ components:
         groundedScore:
           type: number
           nullable: true
+        totalScore:
+          type: number
+          nullable: true
         createdAt:
           type: string
           format: date-time
