@@ -260,6 +260,132 @@ function LockedStatCard({ title, total }: { title: string; total: number }) {
   );
 }
 
+// ─── Mention Quality scorecard ────────────────────────────────────────────────
+
+type SignalRates = { topThree: number; described: number; city: number; service: number };
+
+// Each quality signal maps to a concrete fix — that mapping is what turns the
+// score into advice. Copy is the action shown when this signal is the weakest.
+const QUALITY_SIGNAL_META: {
+  key: keyof SignalRates;
+  label: string;
+  icon: typeof Trophy;
+  explain: string;
+  action: (city: string | null) => string;
+}[] = [
+  {
+    key: "topThree",
+    label: "Top 3",
+    icon: Trophy,
+    explain: "How often a mention lands in the top 3 of a ranked list",
+    action: () =>
+      "AI names you but never in its top 3 — build authority with reviews, directories and “best of” placements.",
+  },
+  {
+    key: "described",
+    label: "Described",
+    icon: Briefcase,
+    explain: "How often AI says something substantive about your firm",
+    action: () =>
+      "AI knows your name but little else — give it material: richer site copy, a real About page, structured data.",
+  },
+  {
+    key: "city",
+    label: "City tied",
+    icon: MapPin,
+    explain: "How often the mention connects you to your location",
+    action: (city) =>
+      `AI often forgets you're in ${city ?? "your city"} — strengthen local signals: Google Business Profile and consistent location info.`,
+  },
+  {
+    key: "service",
+    label: "Service tied",
+    icon: Target,
+    explain: "How often the mention links you to the service being asked about",
+    action: () =>
+      "Mentions aren't tied to the services clients search for — build out dedicated practice-area pages.",
+  },
+];
+
+const SIGNAL_BAR_COLOR: Record<"good" | "warn" | "bad", string> = {
+  good: "bg-success",
+  warn: "bg-amber-500",
+  bad: "bg-destructive",
+};
+
+// Signals use a stricter tone than rateTone: 0% here is a failure, not "muted".
+function signalTone(rate: number): "good" | "warn" | "bad" {
+  if (rate >= 60) return "good";
+  if (rate >= 35) return "warn";
+  return "bad";
+}
+
+function MentionQualityCard({
+  label,
+  mentionCount,
+  rates,
+  tiers,
+  city,
+}: {
+  label: string;
+  mentionCount: number;
+  rates: SignalRates;
+  tiers: { strong: number; highlighted: number; described: number; bare: number };
+  city: string | null;
+}) {
+  const weakest = QUALITY_SIGNAL_META.reduce((lo, m) => (rates[m.key] < rates[lo.key] ? m : lo));
+  const tierParts = [
+    `${tiers.strong} strongly recommended`,
+    `${tiers.highlighted} highlighted`,
+    `${tiers.described} described`,
+    ...(tiers.bare > 0 ? [`${tiers.bare} bare`] : []),
+  ];
+
+  return (
+    <div className="rounded-xl border border-border/60 bg-muted/10 p-4 flex flex-col gap-3">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+        <div className="flex flex-col gap-0.5">
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Mention Quality
+          </span>
+          <span className="text-xl font-bold leading-tight text-success">{label}</span>
+        </div>
+        <span className="text-xs text-muted-foreground">{tierParts.join(" · ")}</span>
+      </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-2.5">
+        {QUALITY_SIGNAL_META.map((m) => {
+          const rate = rates[m.key];
+          const tone = signalTone(rate);
+          return (
+            <div key={m.key} title={m.explain}>
+              <div className="flex items-center justify-between text-[11px] font-medium text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <m.icon className="w-3 h-3 shrink-0" /> {m.label}
+                </span>
+                <span className={`font-semibold tabular-nums ${STAT_TONE_COLOR[tone]}`}>{rate}%</span>
+              </div>
+              <div className="h-1.5 rounded-full bg-muted/40 mt-1 overflow-hidden">
+                <div
+                  className={`h-full rounded-full ${SIGNAL_BAR_COLOR[tone]} transition-all duration-700`}
+                  style={{ width: `${rate}%` }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {mentionCount > 0 && rates[weakest.key] < 80 && (
+        <p className="flex items-start gap-1.5 text-xs text-muted-foreground border-t border-border/40 pt-2.5">
+          <Lightbulb className="w-3.5 h-3.5 shrink-0 text-amber-600 mt-[1px]" />
+          <span>{weakest.action(city)}</span>
+        </p>
+      )}
+    </div>
+  );
+}
+
 // ─── Level 3: per-provider result with Mention Quality breakdown ──────────────
 
 function QualityBadge({ analysis }: { analysis: MentionAnalysis }) {
@@ -763,6 +889,34 @@ export default function ScanResults() {
   for (const p of analyzed) for (const r of p.results) if (r.mentioned) qualityScores.push(r.analysis.qualityScore);
   const quality = summarizeQuality(qualityScores);
 
+  // Per-signal breakdown across all mentions — each signal maps to a concrete
+  // action (authority, site copy, local SEO, service pages), which is what makes
+  // the quality score actionable rather than a single opaque label.
+  const signalCounts = { topThree: 0, described: 0, city: 0, service: 0 };
+  const tierCounts = { strong: 0, highlighted: 0, described: 0, bare: 0 };
+  for (const p of analyzed) {
+    for (const r of p.results) {
+      if (!r.mentioned) continue;
+      const { signals, qualityScore } = r.analysis;
+      if (signals.topThree) signalCounts.topThree++;
+      if (signals.hasDescription) signalCounts.described++;
+      if (signals.cityMatched) signalCounts.city++;
+      if (signals.serviceMatched) signalCounts.service++;
+      if (qualityScore >= 4) tierCounts.strong++;
+      else if (qualityScore >= 2) tierCounts.highlighted++;
+      else if (qualityScore >= 1) tierCounts.described++;
+      else tierCounts.bare++;
+    }
+  }
+  const mentionCount = qualityScores.length;
+  const signalPct = (n: number) => (mentionCount > 0 ? Math.round((n / mentionCount) * 100) : 0);
+  const signalRates = {
+    topThree: signalPct(signalCounts.topThree),
+    described: signalPct(signalCounts.described),
+    city: signalPct(signalCounts.city),
+    service: signalPct(signalCounts.service),
+  };
+
   // Memory vs. web-grounded split — how visibility changes when the assistant
   // answers from training memory vs. a live web search. The web rate mirrors the
   // backend's groundedScore; surfacing it exposes the gap the blended score hides.
@@ -1014,16 +1168,17 @@ export default function ScanResults() {
                     <LockedStatCard key={name} title={name} total={providerStats[0]?.total ?? 0} />
                   ))}
                 </div>
-                <StatCard
-                  title="Mention Quality"
-                  value={quality.avg !== null ? quality.label : "—"}
-                  sub={
-                    quality.avg !== null
-                      ? `across ${qualityScores.length} mention${qualityScores.length === 1 ? "" : "s"}`
-                      : "not mentioned yet"
-                  }
-                  tone={quality.avg !== null && quality.avg >= 1 ? "good" : "muted"}
-                />
+                {mentionCount > 0 ? (
+                  <MentionQualityCard
+                    label={quality.label}
+                    mentionCount={mentionCount}
+                    rates={signalRates}
+                    tiers={tierCounts}
+                    city={(scan.location || "").split(",")[0]?.trim() || null}
+                  />
+                ) : (
+                  <StatCard title="Mention Quality" value="—" sub="not mentioned yet" tone="muted" />
+                )}
               </CardContent>
             </Card>
           </div>
