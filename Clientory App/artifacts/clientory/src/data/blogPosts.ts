@@ -15,6 +15,129 @@ export function getReadingTime(content: string): number {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: "ai-recommends-immigration-lawyer-avvo-not-your-website",
+    title: "When AI Recommends an Immigration Lawyer, It's Reading Avvo — Not Your Website. Here's How to Change That.",
+    excerpt: "AI legal recommendations are often built from Avvo, Justia, Martindale, and other directories before a firm's own website. Here's the two-track strategy immigration firms need now.",
+    content: `Ask ChatGPT or Google AI Mode to recommend an immigration attorney in your city, and watch what the answer is actually built from. It will not be your practice page, no matter how carefully you wrote it. In most cases it will be a profile on Avvo, Justia, or Martindale — a directory listing you may not have touched in three years.
+
+The [2026 Legal AI Visibility Report from 5W and Haute Lawyer](https://www.5wpr.com/ai-visibility-index/legal-ai-visibility-index-2026) puts numbers behind what many immigration firms have sensed anecdotally. Across virtually every legal query category the researchers tested, roughly seven directories — Avvo, Justia, Super Lawyers, Best Lawyers, Martindale-Hubbell, Chambers, and Legal 500 — own the AI citation layer. Even elite firms feel it: the report found that firms like Cravath see their own practice pages cited below directory profiles when AI assembles an answer. If that is true for the most authoritative names in the profession, it is true for a five-attorney immigration practice in Houston.
+
+This is not a reason to despair, and it is not a reason to pour money into directories. It is a reason to run a deliberate two-track strategy: make the directory profiles AI already reads as strong as they can be, while building the first-party pages that earn direct citations over time. One track buys you visibility today. The other buys you a durable advantage. You need both.
+
+## Key Takeaway for Immigration Firms
+
+AI search does not choose an immigration lawyer from your website alone. It verifies your firm across third-party sources, then decides whether your own pages are specific, current, and authoritative enough to cite directly.
+
+That means your fastest path to AI visibility is not a new homepage. It is:
+
+- Clean, consistent legal directory profiles
+- Strong Google Business Profile and state bar signals
+- Review text that mentions real case types
+- Direct-answer pages on current immigration questions
+- Attorney-bylined content with dates, jurisdictions, and proof
+
+## Why AI Trusts a Directory Over Your Firm
+
+The mechanism is less about prestige than about verification. When a model assembles a recommendation, it is looking for sources that confirm an entity — a named attorney, a practice area, a location — across multiple independent listings. Directories are built for exactly that. They present structured, consistent, machine-readable claims: this attorney, admitted in this state, practices immigration law, here, with this many reviews.
+
+Your website makes claims too, but it makes them about itself. A single self-published page is a weaker signal than seven third-party listings that agree with each other.
+
+There is a second reason, and it is the more uncomfortable one. The same report found that 79% of legal professionals now use AI internally — including 71% at solo firms — yet almost none have done anything about how AI represents them externally. The profession adopted AI as a tool faster than it noticed AI had become a referral channel. That gap, between how many attorneys use AI and how few manage their own AI visibility, is the entire opportunity. The directories are not winning because they are clever. They are winning because almost no one is competing.
+
+## Track One: Make the Profiles AI Already Reads Work for You
+
+If AI is reading Avvo to answer questions about your firm tonight, then your Avvo profile is your first impression — whether or not you have looked at it since you claimed it. The fastest visibility you can buy this month costs nothing but a focused afternoon: claim and enrich the profiles that already carry weight.
+
+Consistency is the whole game here. AI systems reward an entity that looks the same everywhere and grow uncertain about one that does not. If your Avvo profile says "immigration law," your Justia listing says "H-1B and family-based immigration," and your firm site says "removal defense and asylum," the model sees three slightly different practices and trusts none of them fully.
+
+Pick the precise description of what you actually do — the case types, the languages your team speaks, the jurisdictions and USCIS field offices you work with — and make every profile say it the same way.
+
+Then add the specifics directories let you add and most attorneys skip:
+
+- Practice-area detail beyond the generic "immigration" checkbox
+- Attorney credentials and bar admissions
+- Languages spoken
+- Jurisdictions, immigration courts, consular posts, and USCIS field offices served
+- Review volume and review text tied to specific case types
+
+Reviews matter here for a reason beyond reputation. They are independent text that mentions your name alongside your practice, which is exactly the kind of corroborating signal a model uses to decide it can name you with confidence.
+
+## Track Two: Build the Pages a Directory Can Never Replicate
+
+Track one gets you into the answer. Track two is how you stop renting space in it.
+
+Directories win on breadth and consistency, but they are generic by design. Every immigration profile on Avvo looks structurally similar. The pages they cannot replicate are the specific, verifiable, jurisdiction-aware ones only your firm can write.
+
+This is where immigration practices have an advantage that horizontal directories will never match. You know how your local field office actually processes adjustment-of-status interviews. You know what a strong response to an H-1B specialty-occupation RFE looks like. You know which consular posts are slow and what a family petition timeline really runs in 2026.
+
+Turn that knowledge into pages structured as the questions clients ask:
+
+- Put the question in the heading
+- Answer it completely in the first sentence
+- Add dates, local context, and case-type specifics below
+- Include a named attorney byline
+- Add FAQ schema where possible
+- Link to supporting government or court sources when relevant
+
+Attribution is what lets AI credit the page to a credible source rather than treating it as anonymous web text.
+
+These pages compound. A directory profile is a fixed asset; it says the same thing about you it says about every other firm in its database. A library of question-structured, proof-rich pages on live immigration questions accumulates citation authority that is yours alone, and gets harder for competitors to catch up to with every post you publish.
+
+## The Two-Track Sprint
+
+Here is how to run both tracks without it becoming a project that never ships.
+
+1. **This week — audit your entity.** Open your Google Business Profile, Avvo, Justia, and Martindale listings side by side with your state bar record. Write down every inconsistency in practice area, location, and attorney names. This is your punch list.
+2. **This week — pick one canonical description.** Decide the exact, specific phrasing of what your firm does, and the case types you want to be found for. This becomes the language every profile and page uses.
+3. **Weeks two and three — enrich the profiles.** Update each directory listing to match the canonical description. Add credentials, languages, jurisdictions, and prompt recent clients for reviews that mention specific case types.
+4. **This month — publish your first direct-answer page.** Take the immigration question your clients are asking most right now and answer it completely, structured as a question-heading with a one-sentence answer, dated, attorney-bylined.
+5. **This quarter — make it a habit.** One direct-answer page on a live question every week or two. The point is not volume; it is accumulation. Each page is another verifiable, first-party signal that you exist and that you are answerable.
+
+## Directory Profile Checklist
+
+Use this quick checklist for every profile AI is likely to read:
+
+- [ ] Firm name is identical across Avvo, Justia, Martindale, Google Business Profile, and your state bar listing
+- [ ] Attorney names match your website and bar records
+- [ ] Primary practice description uses the same case-type language everywhere
+- [ ] Location, phone number, and website URL are current
+- [ ] Languages spoken are listed where available
+- [ ] Reviews mention specific immigration matters, not just generic praise
+- [ ] Attorney credentials, memberships, and bar admissions are complete
+- [ ] Profile links back to the strongest relevant page on your site
+
+## FAQ: AI Visibility for Immigration Lawyers
+
+### Why does ChatGPT cite Avvo instead of my immigration law firm website?
+
+ChatGPT and other AI systems use directories because they provide structured third-party confirmation of an attorney's identity, location, practice area, reviews, and credentials. Your website still matters, but it has to be reinforced by consistent external signals.
+
+### Which legal directories matter most for AI search?
+
+For immigration firms, start with Avvo, Justia, Martindale-Hubbell, Super Lawyers, Best Lawyers, your state bar directory, and Google Business Profile. Larger firms may also need Chambers and Legal 500 coverage.
+
+### Can my firm website still earn direct AI citations?
+
+Yes. Your strongest opportunity is publishing current, attorney-bylined, direct-answer pages that directories cannot replicate: local field office guidance, USCIS policy explainers, RFE response guidance, consular processing updates, and case-type FAQs.
+
+### What should I update first?
+
+Start with entity consistency. Make your firm name, attorney names, practice areas, location, and case-type language match across your website, Google Business Profile, legal directories, and state bar records. Then publish one direct-answer page on a live client question.
+
+## The Expensive Option Is Waiting
+
+The reason to start now rather than next quarter is in the report's cost math: building equivalent AI citation authority gets 50-80% more expensive every year as the answer layer hardens around the sources that established themselves early. The firms claiming and enriching their entity today, and publishing the first specific pages in their market, are setting a baseline that later entrants will have to pay a compounding premium to overtake.
+
+You are not going to out-directory the directories, and you do not need to. You need to be the firm AI can verify and the firm that has already answered the question — coexisting with the directory layer on track one while building past it on track two. The practices that run both, starting this month, are the ones that will be named directly when a family asks AI who to trust.
+
+Clientory helps immigration law firms become visible to the families and individuals who need them most — turning AI search into consultations, and consultations into clients.
+
+[Book a Free Demo](https://clientory.org/scan)`,
+    author: "Yanyan Li",
+    date: "2026-06-16",
+    tags: ["Immigration Marketing", "AI Visibility", "SEO", "Legal Directories"],
+  },
+  {
     slug: "page-freshness-self-audit",
     title: "Page Freshness Self-Audit: Is Your Firm's Website Fresh Enough to Be Cited by AI?",
     excerpt: "A practical worksheet for law firms to inventory practice-area page freshness, identify stale AI citation signals, and prioritize the pages that need a substantive refresh first.",
