@@ -1,9 +1,22 @@
 name: Prompt Evals
 
 on:
-  # Run every Monday at 06:00 UTC to catch prompt regressions before the week starts
-  schedule:
-    - cron: "0 6 * * 1"
+  # Run prompt evals only when prompt/eval-related code changes.
+  pull_request:
+    paths:
+      - ".github/workflows/evals.yml"
+      - "Clientory App/evals/**"
+      - "Clientory App/artifacts/api-server/src/routes/scans/**"
+      - "Clientory App/artifacts/api-server/src/routes/businesses/**"
+
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/evals.yml"
+      - "Clientory App/evals/**"
+      - "Clientory App/artifacts/api-server/src/routes/scans/**"
+      - "Clientory App/artifacts/api-server/src/routes/businesses/**"
 
   # Also allow one-click trigger from the Actions tab (useful before a big prompt change)
   workflow_dispatch:
@@ -26,15 +39,34 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
 
       # Cache PromptFoo's LLM response cache so repeated runs don't cost API credits.
       - name: Cache PromptFoo responses
         uses: actions/cache@v4
         with:
-          path: ~/.cache/promptfoo
+          path: ~/.promptfoo/cache
           key: promptfoo-${{ runner.os }}-${{ hashFiles('Clientory App/evals/promptfooconfig.yaml') }}
           restore-keys: promptfoo-${{ runner.os }}-
+
+      - name: Validate provider credentials
+        run: |
+          missing=0
+
+          if [[ -z "${ANTHROPIC_API_KEY:-}" || "${ANTHROPIC_API_KEY}" == local-* || "${ANTHROPIC_API_KEY}" != sk-ant-* ]]; then
+            echo "::error title=Invalid ANTHROPIC_API_KEY::Set the ANTHROPIC_API_KEY repository secret to a valid Anthropic API key."
+            missing=1
+          fi
+
+          if [[ -z "${OPENAI_API_KEY:-}" || "${OPENAI_API_KEY}" == local-* || "${OPENAI_API_KEY}" != sk-* ]]; then
+            echo "::error title=Invalid OPENAI_API_KEY::Set the OPENAI_API_KEY repository secret to a valid OpenAI API key."
+            missing=1
+          fi
+
+          exit "$missing"
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
       - name: Run evals
         working-directory: "Clientory App/evals"
@@ -66,7 +98,16 @@ jobs:
             const f = 'results/latest.json';
             if (!fs.existsSync(f)) { console.log('No results file'); process.exit(0); }
             const data = JSON.parse(fs.readFileSync(f, 'utf8'));
-            const results = data.results || [];
+            const results = Array.isArray(data.results)
+              ? data.results
+              : Array.isArray(data.results?.results)
+                ? data.results.results
+                : [];
+            if (!results.length && data.error) {
+              const message = typeof data.error === 'string' ? data.error : data.error.message || JSON.stringify(data.error);
+              console.log(\`\\nEval did not produce result rows: \${message}\`);
+              process.exit(0);
+            }
             const total = results.length;
             const passed = results.filter(r => r.success).length;
             const pct = total ? Math.round(passed/total*100) : 0;
