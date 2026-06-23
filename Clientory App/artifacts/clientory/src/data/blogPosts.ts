@@ -15,6 +15,101 @@ export function getReadingTime(content: string): number {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: "ai-mode-information-agents-immigration-law-firm-visibility",
+    title: "AI Mode Watches Your Topic Around the Clock Now. The Question Is Whether It Keeps Coming Back to Your Firm.",
+    excerpt: "Google AI Mode information agents can monitor topics over time and return with fresh source links. For immigration firms, durable AI visibility now depends on living, dated, attorney-bylined pages.",
+    content: `[Google announced Search agents at I/O on May 19, 2026](https://blog.google/products-and-platforms/products/search/search-io-2026/), and on June 12, information agents started rolling out inside AI Mode for Google AI Ultra subscribers. The mechanics are simple to state and large in consequence: a user can ask AI Mode to keep them informed about a topic, and the agent will monitor that topic over time, returning with fresh answers — and fresh web links — whenever something new appears. For the first time, an AI search surface is not answering a question once and moving on. It is standing watch.
+
+For immigration attorneys, this changes the math of visibility. Until now, getting cited by AI was an event. Your page either made it into the answer the moment someone asked, or it didn't. An information agent turns that single event into a standing subscription. When a client asks AI Mode to keep them posted on H-1B registration changes, or the status of a DACA ruling, or new adjustment-of-status processing times, the agent will revisit the question again and again — and each time, it will reach for the sources it currently trusts most. The firms whose pages stay current and authoritative get cited repeatedly. The firms whose pages went stale get dropped from a conversation they did not even know was still happening.
+
+## Key Takeaway for Immigration Firms
+
+AI search visibility is becoming continuous. If Google AI Mode information agents keep monitoring immigration topics, your firm needs pages that are not just optimized once, but maintained over time.
+
+That means the pages most likely to keep earning AI citations are:
+
+- Focused on one live immigration question
+- Updated when the rule, timeline, or local practice changes
+- Dated with a visible publication or last-updated date
+- Attributed to a named attorney
+- Specific to a case type, jurisdiction, USCIS field office, consular post, or court
+- Structured so AI can extract the answer quickly
+
+## From One Citation to a Standing Subscription
+
+Think about what your clients actually track. Immigration is not a one-time question; it is a years-long process punctuated by moments of acute uncertainty. A family waiting on a priority date wants to know the second the visa bulletin moves. An H-1B beneficiary wants to know if the registration rules shift before the next cycle. Someone in removal proceedings wants to know what a new BIA decision means for cases like theirs. These are exactly the open-ended, evolving topics information agents are built to monitor.
+
+That means the AI is now doing, automatically, what a good firm newsletter used to do — keeping a worried person informed over months. The difference is that the agent decides which firm's analysis to surface. Win that slot and you are not earning a single click; you are earning a recurring placement in front of someone in active need, delivered by a system they already trust. Lose it, and a competitor's page becomes the voice that updates your prospective client every time the topic moves.
+
+## Why Freshness Now Drives Visibility
+
+Google reinforced the point the same week. Its June guidance on [Search Generative AI performance reports in Search Console](https://developers.google.com/search/blog/2026/06/gen-ai-performance-reports) makes clear that the company is tracking how content surfaces inside AI experiences, not just classic blue links. The dedicated Search Console help page says the report includes impressions for [AI Overviews and AI Mode](https://support.google.com/webmasters/answer/16984139), and shows which pages are getting the highest or lowest impressions in generative AI features.
+
+An agent revisiting a topic has a built-in bias toward what is current, because the entire feature exists to deliver what is new. A page dated eleven months ago, describing a policy that changed in the interim, is precisely the kind of source a monitoring agent learns to stop returning to.
+
+This is good news for small immigration firms, and it is worth being clear about why. Directories and national content mills produce volume, but they are slow and generic. They cannot tell a client what your local USCIS field office is actually doing with interview scheduling this month, or how an RFE trend is playing out in your jurisdiction. You can. The information agent rewards the source that is both authoritative and recently updated on the specific question — and on live, jurisdiction-aware immigration questions, the firm doing the work is better positioned to be that source than any aggregator.
+
+## What Makes a Page the One an Agent Returns To
+
+Durability in this new surface comes down to a few things, and none of them require a marketing budget. The agent is looking for a page it can keep citing without being embarrassed by it — a page that is still right next month.
+
+First, the page has to be unambiguously about one live question, with the answer stated plainly at the top. "What happens to my H-1B if I'm laid off in 2026?" should be answered in the first sentence, with the detail beneath. Second, it has to carry visible signals of currency: a real publication or "last updated" date, and content that actually reflects the current state of the rule. Third, it needs attribution — a named attorney's byline tells the system a credible, accountable person stands behind the claim. Fourth, it has to be maintained. A page you update when the rule changes signals to a monitoring agent that this is a source that keeps pace, which is exactly the quality an agent built to track change is selecting for.
+
+## Set Up Your Firm to Hold the Slot
+
+Here is how a small practice can position itself this week to be the source an information agent keeps returning to.
+
+1. **Pick your three monitored topics.** Identify the three immigration questions your clients most want ongoing updates on — visa bulletin movement, H-1B registration, a pending DACA or TPS development, whatever is live in your practice. These are the topics agents will be asked to watch.
+2. **Build or refresh one durable page per topic.** For each, write a single page that answers the question at the top, in plain language, under a question-style heading. Put the specifics — your jurisdiction, the relevant field office, real timelines — in the body.
+3. **Date everything and add a byline.** Stamp each page with a visible publication and last-updated date, and a named attorney byline. Undated, anonymous pages are the first ones a freshness-biased agent abandons.
+4. **Calendar the updates.** Put a recurring task on the calendar — monthly, or whenever the underlying rule moves — to revise each page and refresh its date. This is the single habit that separates a page an agent keeps citing from one it drops.
+5. **Watch the AI layer, not just rankings.** Check your generative AI performance reporting in Search Console for which pages are surfacing in AI experiences, and double down on the ones gaining ground.
+
+## Agent-Ready Page Checklist
+
+Use this checklist on any immigration page you want AI Mode to keep returning to:
+
+- [ ] The page answers one specific client question
+- [ ] The direct answer appears in the first paragraph
+- [ ] The page has a visible publication date or last-updated date
+- [ ] A named attorney is attached to the page
+- [ ] The content references the current rule, timeline, or policy status
+- [ ] Local details are included where relevant: USCIS field office, immigration court, service center, consular post, or state-specific issue
+- [ ] Old fee amounts, form editions, processing timelines, and dead links have been removed
+- [ ] The page is scheduled for review at least monthly or after any relevant policy change
+
+## FAQ: AI Mode Information Agents and Immigration Law Firm Visibility
+
+### What are Google AI Mode information agents?
+
+Information agents are Search agents inside Google AI Mode that can monitor a topic over time and return synthesized updates when new information appears. They were announced at Google I/O 2026 and began rolling out for Google AI Ultra subscribers on June 12, 2026.
+
+### Why do information agents matter for immigration lawyers?
+
+Immigration clients track changing topics over weeks or months: visa bulletin movement, USCIS processing times, H-1B registration rules, DACA developments, TPS changes, consular delays, and BIA decisions. If AI Mode monitors those topics, the firms with current, credible pages can earn repeated visibility.
+
+### What kind of immigration content is most likely to be useful for information agents?
+
+The strongest candidates are direct-answer pages on live questions: "What happens after an H-1B layoff in 2026?", "How long are adjustment-of-status interviews taking at the Chicago USCIS field office?", or "What does the latest DACA ruling mean for renewals?" These pages should be dated, attorney-bylined, and updated when the underlying facts change.
+
+### How should firms measure whether this is working?
+
+Use Search Console's generative AI performance reporting where available. Watch which pages earn impressions in AI Overviews and AI Mode, then refresh and expand the pages that are already gaining visibility.
+
+## The Opportunity Is in Who Shows Up to Maintain It
+
+The arrival of information agents is the clearest sign yet that AI search is becoming a relationship, not a transaction. A client who asks AI Mode to keep them informed has opened a channel that stays open for months — and the firm that fills it earns repeated, trusted exposure to someone actively deciding who to hire. That slot is not won by the biggest marketing spend. It is won by the firm willing to keep one well-built page current on a question its clients are living through.
+
+Most firms will not do this. They will publish once, move on, and let the page age out of the conversation. The few that treat their key pages as living documents — accurate, dated, attributed, maintained — will become the sources the agents keep coming back to. In a surface designed to reward what is current, showing up to stay current is the whole advantage.
+
+Clientory helps immigration law firms become visible to the families and individuals who need them most — turning AI search into consultations, and consultations into clients.
+
+[See Your AI Visibility Score](https://clientory.org/scan)`,
+    author: "Yanyan Li",
+    date: "2026-06-23",
+    tags: ["Immigration Marketing", "AI Visibility", "SEO", "Google AI Mode"],
+  },
+  {
     slug: "ai-recommends-immigration-lawyer-avvo-not-your-website",
     title: "When AI Recommends an Immigration Lawyer, It's Reading Avvo — Not Your Website. Here's How to Change That.",
     excerpt: "AI legal recommendations are often built from Avvo, Justia, Martindale, and other directories before a firm's own website. Here's the two-track strategy immigration firms need now.",
