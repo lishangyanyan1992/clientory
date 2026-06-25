@@ -15,6 +15,103 @@ export function getReadingTime(content: string): number {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: "practice-page-conversion-worksheet-ranking-to-cited",
+    title: "From Ranking to Cited: The Practice-Page Conversion Worksheet",
+    excerpt: "Turn a page that ranks #1 into a page AI actually names in the answer. A 60-minute worksheet that walks one strong-ranking practice page from rank-ready to citation-ready.",
+    content: `Turn a page that ranks #1 into a page AI actually names in the answer.
+
+Clientory — [clientory.org](https://clientory.org)
+
+## How to Use This Worksheet
+
+At Google I/O 2026, the company confirmed what the data had been signaling for months: rankings and citations have decoupled. The share of AI citations drawn from top-ten results fell from roughly 76% in mid-2025 to about 38% by early 2026. Being on page one is no longer enough to be named inside the answer. Since Gemini 3 became the default for AI Overviews in late January and AI Mode crossed a billion users, Google's query fan-out splits one client question into many sub-queries — and pulls the clearest, best-structured passages, not just the highest-ranked URLs.
+
+For an immigration firm that means a practice page can hold its #1 spot in traditional search and still go uncited when a prospective client asks an AI assistant *"who can help me with an H-1B transfer"* or *"do I qualify for adjustment of status."*
+
+This worksheet walks one of your strong-ranking practice pages through the conversion from rank-ready to citation-ready: a direct answer up top, dated proof, and clean structure an AI can lift verbatim. Budget under 60 minutes. Have the page open in one tab and your CMS in another.
+
+**Pick your page:** choose one practice-area page that ranks well but you suspect is not being cited. Write it here.
+
+- **Page URL / title:** __________________
+- **Case type:** __________________
+- **Current rank (if known):** __________________
+
+## Part 1 — The Decoupling Check
+
+First, confirm you actually have the problem this worksheet solves: strong ranking, weak citation. Run your page's primary query through two or three AI assistants (Google AI Mode, ChatGPT, Perplexity) and record what you see.
+
+| Assistant | Did your firm get cited? | Who got cited instead? | Notes |
+| --- | --- | --- | --- |
+| Google AI Mode | Yes / No / Partial | __________________ | __________________ |
+| ChatGPT | Yes / No / Partial | __________________ | __________________ |
+| Perplexity | Yes / No / Partial | __________________ | __________________ |
+
+**Reading your result:** if you rank on page one but were cited in zero or one of the three, you are living the decoupling — a page-one page that the answer layer skips over. That is the page worth converting. If a competitor keeps appearing, open their page in Part 4 and note what their answer block does that yours does not.
+
+## Part 2 — The Direct-Answer Test
+
+AI assistants lift the passage that answers the sub-question most directly and earliest. Most firm pages bury the answer under a warm-up paragraph about "navigating the complex immigration system." Check how your page opens.
+
+- [ ] The first 2–3 sentences directly answer the page's core question (e.g., *"An H-1B transfer lets you change employers without re-entering the lottery. Here's who qualifies and how long it takes."*)
+- [ ] The answer names the specific case type, agency, and form (USCIS, Form I-129, PERM, adjustment of status) rather than speaking in generalities.
+- [ ] A reader — or a model — gets a complete, quotable answer before any call-to-action or firm bio.
+- [ ] The opening avoids throat-clearing ("In today's ever-changing landscape...") and gets to substance in sentence one.
+- [ ] There is at least one clean, self-contained sentence that could be quoted on its own and still be true and useful.
+
+**Score:** ___ / 5 checked. What's missing: __________________
+
+## Part 3 — The Dated-Proof Test
+
+Models favor content that signals it is current and authoritative. Vague, undated claims read as stale — and in immigration, where rules move quarterly, stale is disqualifying.
+
+- [ ] The page carries a visible, honest "Last updated" date.
+- [ ] It references at least one 2026 development by name and date (e.g., the weighted H-1B selection rule, a recent BIA ruling, updated USCIS processing times or filing fees).
+- [ ] Processing times, fees, and form versions are current — not 2023 figures.
+- [ ] Claims of experience are specific (*"In the past year we've filed 40+ adjustment-of-status cases"*) rather than generic ("decades of experience").
+- [ ] No stale tells: dead links, superseded policy described as current, outdated form editions.
+
+**Score:** ___ / 5 checked. Notes: __________________
+
+## Part 4 — The Structure Test
+
+Query fan-out rewards pages a model can parse and extract cleanly. Tangled structure means your good answer never gets lifted.
+
+- [ ] One clear H1, with logical H2/H3 subheads that each pose or answer a real client question.
+- [ ] An FAQ section using the actual words clients type ("Can I change jobs on an H-1B?" not "Portability considerations").
+- [ ] FAQ or how-to schema markup is present where possible.
+- [ ] Key facts sit in short paragraphs or lists near the top — not buried in paragraph six.
+- [ ] Compare against the competitor cited in Part 1: note one structural thing their page does better.
+
+**Competitor's edge to copy:** __________________
+
+**Score:** ___ / 5 checked. Notes: __________________
+
+## Part 5 — Summary & Next Steps
+
+Tally your checks: **Part 2** ___/5 · **Part 3** ___/5 · **Part 4** ___/5 · **Total** ___/15
+
+- **11–15: Citation-ready.** Re-run Part 1 monthly and protect this page when policy shifts.
+- **6–10: Half-converted.** The answer or the proof is there but not both — finish the weakest part first.
+- **0–5: Ranking on borrowed time.** This is your highest-leverage page to rebuild this week.
+
+Based on your answers, your 2–3 highest-priority actions:
+
+- __________________
+- __________________
+- __________________
+
+**Refresh by:** __________   **Owner:** __________
+
+The pattern that wins citations is consistent: answer the question in the first three sentences, prove the page is current with a date and a 2026 fact, and structure it so a model can lift the answer whole. A #1 ranking earns the crawl. These three moves earn the citation.
+
+Built by Clientory — helping immigration law firms become visible to the families and individuals who need them most.
+
+[Request a GEO visibility audit](https://clientory.org/audit)`,
+    author: "Yanyan Li",
+    date: "2026-06-24",
+    tags: ["Worksheets", "Immigration Marketing", "AI Visibility", "Google AI Mode"],
+  },
+  {
     slug: "ai-mode-information-agents-immigration-law-firm-visibility",
     title: "AI Mode Watches Your Topic Around the Clock Now. The Question Is Whether It Keeps Coming Back to Your Firm.",
     excerpt: "Google AI Mode information agents can monitor topics over time and return with fresh source links. For immigration firms, durable AI visibility now depends on living, dated, attorney-bylined pages.",
