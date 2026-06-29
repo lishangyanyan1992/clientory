@@ -15,6 +15,95 @@ export function getReadingTime(content: string): number {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: "dual-engine-ai-visibility-audit",
+    title: "The Dual-Engine AI Visibility Audit",
+    excerpt: "Baseline your firm's presence on Google and Bing in under 60 minutes. For the first time, both major engines expose how often your firm appears in AI answers — this worksheet shows you exactly where you stand.",
+    content: `Baseline your firm's presence on Google and Bing in under 60 minutes.
+
+Clientory — [clientory.org](https://clientory.org)
+
+For the first time, you can measure how often your firm appears in AI answers on both major engines. Bing Webmaster Tools added Citation Share, Intents, and Topics on June 16; Google's Search Console gen-AI reports now show impressions inside AI Overviews and AI Mode. This worksheet walks a managing partner through a one-sitting baseline so you know exactly where your practice stands today — before you start defending those citations. Set a timer, pull up both consoles, and fill it in.
+
+## Section 1 — Set Up Your Two Measurement Surfaces
+
+You can't act on what you can't see. Confirm both engines are reporting before you measure anything else.
+
+- Is your firm's site verified in Google Search Console? (Y / N) __________
+- Can you see the Generative AI performance report (AI Overviews + AI Mode impressions)? (Y / N / Not yet rolled out) __________
+- Is your site verified in Bing Webmaster Tools? (Y / N) __________
+- Can you see the AI Performance dashboard with Citation Share? (Y / N / In preview) __________
+- Who on the team owns checking these monthly? __________
+
+**Score / Notes:** _____ / 5 setup steps complete. If you scored below 4, your only action this week is finishing verification — everything downstream depends on it.
+
+## Section 2 — Baseline the Numbers That Matter
+
+Remember the difference: a Google impression means your URL appeared inside an AI feature; a Bing citation means your content was actually used to build the answer. Record both — they tell you different things.
+
+| Metric | Your Number |
+| --- | --- |
+| Google AI features — total impressions, last 28 days | __________ |
+| Bing — total AI citations, last 30 days | __________ |
+| Bing Citation Share for your top grounding query (your % of all citations) | __________ |
+| Single page earning the most AI visibility across both engines | __________ |
+| Trend vs. prior period (Bing Compare view) | ↑ / → / ↓ |
+
+**Score / Notes:** Circle your honest read — **Strong / Mixed / Invisible**
+
+## Section 3 — Map Visibility to the Consultations You Actually Want
+
+Raw impressions don't pay the rent. Tie the data to the practice areas that drive consultations.
+
+- List your 3 highest-value practice areas (e.g., H-1B, family petitions, asylum, removal defense): __________
+- For each, does a relevant query appear in Bing's Intents or Topics clusters? (Y / N per area): __________
+- Where are you cited for informational queries but absent for commercial / local intent ones? __________
+- Which practice area has the widest gap between client demand and AI visibility? __________
+- Is your "[city] immigration attorney" / consular processing surface showing up at all? (Y / N) __________
+
+**Score / Notes:** Name the one practice area where visibility is costing you inquiries right now: __________
+
+## Section 4 — Pressure-Test the Content Behind Each Citation
+
+A citation is only as durable as the page holding it. AI Mode increasingly treats a citation as a recurring surface, not a one-time hit — stale pages get dropped.
+
+- [ ] Pick your top-cited page. When was it last substantively updated? __________
+- [ ] Does it reflect current rules (latest H-1B cap cycle, priority date movement, active RFE patterns, recent BIA or USCIS guidance)?
+- [ ] Does it answer the actual question a client would ask an AI assistant, in plain language?
+- [ ] Are your attorney bios, jurisdictions, and contact details consistent across the site?
+- [ ] What's the single weakest page currently earning AI visibility? __________
+
+**Score / Notes:** _____ / 4 freshness checks passed on your top page. Anything below 3 means that citation is at risk.
+
+## Section 5 — Decide Who Holds the Citation Next Month
+
+Visibility is now measurable, which means it's now manageable. Assign the work or it won't happen.
+
+- Monthly review date locked on the calendar? (Y / N — date: __________)
+- One page you will refresh this month to defend its citation: __________
+- One new page you will publish to claim an intent you're missing: __________
+- Owner for each action (name): __________
+- What does "good" look like in 90 days — a Citation Share or impression target you'll hold yourself to? __________
+
+**Score / Notes:** __________
+
+## Summary & Next Steps
+
+Tally where your honest answers clustered and commit to your top three:
+
+1. **Finish measurement setup** — if either console isn't reporting, nothing else counts. Close that gap first.
+2. **Defend your strongest citation** — refresh the single page earning the most AI visibility so it stays current and keeps the surface.
+3. **Claim one missing intent** — publish or rework one page targeting a high-value practice area where you're demand-rich but visibility-poor.
+
+Re-run this audit in 30 days using Bing's Compare view and Google's date range. The firms that baseline now will be the ones AI assistants keep recommending a year from now.
+
+Built by Clientory — helping immigration law firms become visible to the families and individuals who need them most.
+
+[Request a GEO visibility audit](https://clientory.org/audit)`,
+    author: "Yanyan Li",
+    date: "2026-06-29",
+    tags: ["Worksheets", "Immigration Marketing", "AI Visibility", "Google AI Mode"],
+  },
+  {
     slug: "practice-page-conversion-worksheet-ranking-to-cited",
     title: "From Ranking to Cited: The Practice-Page Conversion Worksheet",
     excerpt: "Turn a page that ranks #1 into a page AI actually names in the answer. A 60-minute worksheet that walks one strong-ranking practice page from rank-ready to citation-ready.",
