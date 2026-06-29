@@ -15,6 +15,54 @@ export function getReadingTime(content: string): number {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: "on-claude-one-citation-is-worth-ten",
+    title: "On Claude, One Citation Is Worth Ten",
+    excerpt: "Claude cites far fewer sources than ChatGPT — making each citation rarer and more valuable. Here's how small immigration firms can become the source Claude trusts enough to stand alone.",
+    content: `When a prospective client asks ChatGPT for an immigration attorney, the answer often arrives stuffed with eight, ten, sometimes a dozen linked sources. Ask Claude the same question and you get something leaner: a tight answer leaning on a handful of references it judged authoritative. Recent breakdowns of Claude's web-search behavior point to the same pattern — it searches more selectively and surfaces far fewer sources per answer than ChatGPT, drawing on a top set of roughly five to ten results rather than casting a wide net.
+
+For a small immigration firm, that scarcity changes the math entirely. On ChatGPT, being one of ten cited pages is a reasonable goal. On Claude, the citation slot is narrow, and being the page it names is rarer — and worth far more. The question stops being "how do I show up in the list?" and becomes "how do I become the source Claude trusts enough to stand alone?"
+
+## Why Claude Cites Less
+
+Claude's selectivity is a design choice, not a limitation. Anthropic has built the model to avoid citing what it cannot verify, to flag when data is unavailable rather than guess, and to favor primary, authoritative material over the commercial content mill. In practice that means government data, established news, peer-reviewed or vendor-neutral analysis, and long-form practitioner explainers tend to win over thin marketing blogs written to chase rankings.
+
+For immigration practitioners, this is actually familiar territory. You already weigh sources this way. A USCIS Policy Manual citation carries more weight than a forum thread. A published BIA decision settles an argument that a paralegal's summary cannot. Claude is applying the same instinct your practice runs on — it wants the firsthand, attributable, current source, and it is willing to ignore everything else to find it.
+
+## The Three Signals That Move a Page
+
+Analyses of what actually gets a page into Claude's narrow consideration set converge on three signals. None of them require a marketing budget. All of them favor the practitioner who knows the work.
+
+**The first is firsthand expertise.** Claude rewards content that demonstrates genuine subject knowledge — original analysis over rehashed summaries. A page that explains how a particular USCIS field office is handling adjustment-of-status interviews this quarter, or what a recent RFE trend on H-1B specialty-occupation petitions actually looks like in practice, reads as primary. The GEO research that informs this work is blunt about the payoff: citing original data and statistics with sources can lift citation likelihood by roughly 37 to 40 percent, and original research outperforms aggregated summaries every time. You have this material. It lives in your case files and your intake notes.
+
+**The second is attribution.** A named author with verifiable credentials is, for Claude, close to a prerequisite — not a nice-to-have. Expert quotes carrying a title and organization, author bios establishing relevant expertise, and clear authorship can lift citation rates by an estimated 25 to 30 percent. An anonymous "Team" byline tells Claude nothing. "Maria Gonzalez, Managing Partner, 14 years in removal defense" tells it exactly why the page should be trusted on a removal-defense question.
+
+**The third is freshness.** Immigration law moves weekly — a new USCIS policy memo, a shift in priority dates on the visa bulletin, a circuit ruling that changes how an asylum claim is argued. Claude favors material with clear freshness signals, and the data backs the urgency: recency filters can drive a two-to-three-times higher citation rate for content published in the last twelve months, and stale pages reportedly lose coverage at a measurable rate each month they sit untouched. A visible "Last updated" date is not decoration. It is the model's shortcut for deciding whether your page reflects the law as it stands today.
+
+## What This Looks Like in Practice
+
+Here is the work, ordered so a firm of one to fifteen attorneys can run it without hiring anyone.
+
+1. **Pick five questions your clients actually ask.** Not keywords — questions. "Can I travel while my I-485 is pending?" "What happens if I get an RFE on my H-1B?" Write these down exactly as clients phrase them in consultations.
+2. **Answer each one as the practitioner you are.** Draft 600 to 900 words per question, grounded in what you see in your own caseload. Name the agency, the form, the case type. Where you have a number — average RFE response time, approval trends you've observed — state it plainly. Specifics are what Claude reads as firsthand.
+3. **Sign every page.** Add a real byline with the attorney's name, role, and years in the relevant practice area. Include a short bio. If a colleague contributed expertise, attribute the quote with their title.
+4. **Date everything, then keep dating it.** Put a visible "Last updated" line at the top of each page. When the visa bulletin moves or a policy memo drops, revise the affected pages and update the date. Aim for a quarterly pass at minimum on your highest-value pages.
+5. **Cite your own sources.** Link the USCIS page, the policy memo, the published decision you're discussing. Claude trusts a page that shows its work, the same way you trust a brief that cites the record.
+6. **Check whether it's working.** Ask Claude the five questions yourself, monthly. Note when your firm gets named. That is your scoreboard now — not a ranking position, but whether the model reaches for you.
+
+## The Bigger Shift
+
+The open web rewarded volume: more pages, more backlinks, more keywords. Generative search inverts that. When a model only cites a handful of sources, depth beats breadth, and a firm that knows immigration law cold has an advantage no content farm can buy. The scarcity that makes Claude harder to crack is the same scarcity that protects you once you're in — there is no page-two to lose to, and far fewer competitors can clear the bar.
+
+Small firms have spent a decade being told they can't win the visibility game against bigger budgets. On Claude, the rules favor the practitioner. Firsthand knowledge, a real name behind it, and a recent date — that is a game you are built to win.
+
+Built by Clientory — helping immigration law firms become visible to the families and individuals who need them most.
+
+[See Your AI Visibility Score](https://clientory.org/scan)`,
+    author: "Yanyan Li",
+    date: "2026-06-29",
+    tags: ["AI Visibility", "Immigration Marketing", "GEO"],
+  },
+  {
     slug: "dual-engine-ai-visibility-audit",
     title: "The Dual-Engine AI Visibility Audit",
     excerpt: "Baseline your firm's presence on Google and Bing in under 60 minutes. For the first time, both major engines expose how often your firm appears in AI answers — this worksheet shows you exactly where you stand.",
