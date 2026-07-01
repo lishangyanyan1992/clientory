@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Github } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AIDashboard from "@/components/AIDashboard";
 import StripeGradient from "@/components/StripeGradient";
@@ -62,9 +62,20 @@ export default function Hero() {
             </Link>
           </div>
 
-          <p className="mt-5 text-sm text-muted-foreground">
-            Free during beta · No credit card required
-          </p>
+          <div className="mt-5 flex flex-col items-center justify-center gap-2 text-sm text-muted-foreground sm:flex-row">
+            <p>Free during beta · No credit card required</p>
+            <span className="hidden sm:inline" aria-hidden="true">·</span>
+            <a
+              href="https://github.com/lishangyanyan1992/clientory-ai-visibility-skill"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Open the Clientory AI Visibility Agent Skill repository on GitHub"
+              className="inline-flex items-center gap-1.5 font-medium text-foreground/80 underline-offset-4 transition-colors hover:text-primary hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <Github className="h-4 w-4" aria-hidden="true" />
+              Open-source AI Visibility Agent Skill
+            </a>
+          </div>
 
           <motion.div
             initial={{ opacity: 0, y: 40 }}
