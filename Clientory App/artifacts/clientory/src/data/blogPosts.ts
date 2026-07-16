@@ -15,6 +15,285 @@ export function getReadingTime(content: string): number {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: "used-vs-cited-ai-answers-immigration-firms",
+    title: `"Used" vs. "Cited": Why Your Firm Could Be Shaping AI Answers Without Ever Getting Credit`,
+    excerpt: "AI engines can silently use your firm's content without citing it. Here's why immigration firms need both consistent entity presence and structured, dated content worth linking to.",
+    content: `On July 7, 2026, Search Engine Land published [a framework](https://searchengineland.com/used-cited-brands-appear-ai-search-481664) that immigration firms need to sit with for a minute, because it changes what "AI visibility" actually means. The piece draws a hard line between two things marketers have been treating as one: a brand AI uses, pulling from silently to shape an answer with no visible mention, and a brand AI cites, naming or linking it as the source a searcher can click through to.
+
+Most firms only track the second one. That's a problem, because Ahrefs' underlying data shows the split is nearly even: across a large sample of ChatGPT responses, the model pulls in roughly the same number of cited URLs as uncited ones, about 16.6 of each per answer. Your firm's content, directory listing, state bar profile, or Google Business listing could be feeding an AI answer about H-1B timelines or family petition backlogs in your market right now, and you would have no direct way of knowing because nothing links back to you.
+
+That's the uncomfortable part. The useful part is that these two outcomes are earned differently, and a small firm can go after both on purpose instead of hoping one shows up.
+
+## Why Invisible Influence Is Not Good Enough
+
+Being used without being cited feels like winning until you look at what it actually gets you. If ChatGPT quietly draws on a paragraph from your practice page to answer "how long does adjustment of status take in Chicago," it shaped that answer, but the person reading it has no idea your firm exists. No name, no link, no path to a consultation.
+
+You influenced the outcome and got nothing downstream from it. For a firm that lives on inquiries, that's an expensive kind of invisible. The Search Engine Land framework matters because it names a gap most firms did not know they had: they have been optimizing for the version of AI visibility that does not convert.
+
+## The Reddit Problem Hiding Inside the Data
+
+Here is where it gets more specific, and more useful. The Ahrefs research behind this framework found that Reddit alone accounts for 67.8% of the uncited URLs ChatGPT retrieves. In plain terms: AI models lean on community platforms constantly to gauge sentiment and context, but they often do not point users back to the original thread.
+
+If your firm's visibility strategy is "get mentioned in an immigration subreddit," you are playing the used game, not the cited one. That can still be valuable, as long as you know the game you are playing. Reddit mentions, Avvo reviews, and forum answers can build the silent kind of trust models draw on, while rarely becoming the clickable source line under an AI answer.
+
+Community presence and citeable content are two different investments with two different payoffs. Firms that only make one of them leave half the opportunity on the table.
+
+## Entity Presence Earns "Used"; Structure Earns "Cited"
+
+The mechanism behind each outcome is different enough that it changes what you build first.
+
+Usage comes from entity recognition. The model needs to already "know" your firm exists and what it does before it will draw on your material at all. That is built through consistency: the same firm name, the same practice areas, the same location details repeated across your state bar profile, Google Business listing, LinkedIn page, and legal directories like Avvo or Martindale-Hubbell.
+
+None of that needs a link back to you to work. It just needs to be consistent enough, everywhere, that the model treats your firm as a known entity rather than an unverifiable claim.
+
+Citation comes from something different: original, structured, dated content the model can point to as a discrete source. A practice page that says "we handle EB-2 cases" is not especially citeable. A page dated this month that says "USCIS processing times for EB-2 at the Texas Service Center moved from 11 to 14 months in Q2 2026, based on our last 40 filings" is the kind of specific, sourceable claim an AI model can attach a link to.
+
+Vague authority gets used. Specific, dated, ownable data gets cited.
+
+## What to Do This Week
+
+1. **Audit your entity presence.** Pull up your state bar profile, Google Business listing, LinkedIn page, and directory listings like Avvo, Martindale-Hubbell, and FindLaw. Confirm your firm name, practice areas, and location are worded consistently across all of them. Inconsistency here is one of the biggest reasons firms do not get used.
+2. **Pick one practice area page and rebuild it around a specific, dated claim.** Not "we handle H-1B cases." Something closer to: "As of July 2026, we are seeing RFE rates on H-1B specialty occupation cases climb for [specific role type]." Specificity is what earns the citation.
+3. **Separate your community strategy from your citation strategy.** If you are active on Reddit or in immigration forums, keep doing it. It can build the entity trust that drives usage. Just do not expect those threads to be the thing AI links to. That job belongs to your website.
+4. **Run three real client questions through ChatGPT or Perplexity.** Use the kinds of questions your intake calls actually start with, then read the full answer, not just the sources footnote. Does it mention your firm by name anywhere in the body, even without a link? That is usage you would otherwise never see.
+5. **Add a dateline to your practice pages.** "Updated July 2026" signals freshness to a model deciding what is current enough to cite, and it costs you five minutes.
+
+## The Bigger Shift
+
+AI search was never going to work like Google search, and this is the clearest evidence yet of how differently it behaves. A single click-through metric cannot capture what is actually happening. Your firm can be shaping the decisions of families and individuals researching their options long before they ever land on your site, or it can be shaping nothing at all, and a citation count alone will not tell you which.
+
+The firms that get ahead here are not the ones chasing the biggest backlink count. They are the ones building a consistent, verifiable presence everywhere a model might learn who they are, and backing it with specific, current content worth pointing to.
+
+That is a more patient game than traditional SEO, but it is one small firms can actually win. You do not need a marketing department. You need consistency and specificity.
+
+Clientory helps immigration firms see both sides of this: where you are being used, where you are being cited, and what is missing from each, so visibility turns into consultations, not just impressions you cannot measure.
+
+[See Where Your Firm Shows Up in AI Answers](https://clientory.org)`,
+    author: "Yanyan Li",
+    date: "2026-07-09",
+    tags: ["AI Visibility", "Immigration Marketing", "GEO"],
+  },
+  {
+    slug: "ai-dead-end-audit-chatgpt-referred-clients",
+    title: "The AI Dead-End Audit: Is Your Site Losing the Clients ChatGPT Already Sent You?",
+    excerpt: "A 60-minute worksheet for finding whether ChatGPT and other AI referrals are landing on useful practice pages, internal search results, or dead ends.",
+    content: `New July 2026 data from Previsible and Search Engine Land, drawn from 6.77 million AI-referred sessions, found that roughly a quarter of AI-referred traffic lands on internal search results pages instead of a specific destination page. ChatGPT alone sends 28.8% of its referral traffic to internal search pages.
+
+That means the model trusted your domain enough to send the click. It just could not always pick the exact page. This worksheet helps you find out, in under 60 minutes, whether your site is catching those clients or dropping them at your own search box.
+
+Source: [Search Engine Land: ChatGPT commands 92% of AI referral traffic](https://searchengineland.com/chatgpt-ai-referral-traffic-sessions-data-481630)
+
+## Section 1: Where AI Traffic Actually Lands
+
+Pull up your analytics tool, such as GA4 or an equivalent platform, and filter for referral traffic from chatgpt.com, perplexity.ai, and other AI sources.
+
+| Question | Answer |
+| --- | --- |
+| What percentage of your total traffic is AI-referred this month? | _______________ |
+| Of that traffic, what is the single most common landing page? | _______________ |
+| Does any meaningful share land on your internal search results page or a 404? | _______________ |
+| What is the bounce rate on AI-referred sessions vs. your site average? | _______________ |
+| Which practice areas get the most AI-referred visits, such as H-1B, family petitions, or asylum? | _______________ |
+
+**Score / Notes:** _______________________________________________
+
+## Section 2: Test Your On-Site Search Like a Prospective Client
+
+Open an incognito window. Search your own site the way a stressed, unfamiliar visitor would.
+
+| Test | Result |
+| --- | --- |
+| Search "H-1B lawyer near me" or your top practice area. Does a relevant page appear first? | _______________ |
+| Search a misspelled or informal term, such as "green card help." Same result? | _______________ |
+| If your search returns zero results, what does the visitor see: a dead end or a helpful redirect? | _______________ |
+| How many clicks from your homepage to your best-converting practice page? | _______________ |
+| Does your search bar exist at all, and is it visible above the fold? | _______________ |
+
+**Score / Notes:** _______________________________________________
+
+## Section 3: Practice Page Findability
+
+| Question | Answer |
+| --- | --- |
+| List your top 3 practice areas by client value. Does each have a dedicated, well-titled page? | _______________ |
+| Are those pages linked from your homepage navigation, or buried in a dropdown? | _______________ |
+| Does each practice page have a clear next step, such as call, consultation form, or phone number, above the fold? | _______________ |
+| If someone landed on your homepage instead of the right page, could they self-navigate in under 10 seconds? | _______________ |
+
+**Score / Notes:** _______________________________________________
+
+## Section 4: Fixing the Dead Ends
+
+| Question | Answer |
+| --- | --- |
+| What is the single biggest leak you found in Sections 1-3? | _______________ |
+| What would it take to fix your internal search, such as better indexing, a "did you mean" prompt, or a redirect to a practice page? | _______________ |
+| Who owns this fix: you, a web developer, or your firm's marketing contact? | _______________ |
+| What is a realistic date to have it live? | _______________ |
+
+**Score / Notes:** _______________________________________________
+
+## Summary / Next Steps
+
+Based on your answers, write the two or three highest-priority actions below.
+
+1. _______________________________________________________________
+2. _______________________________________________________________
+3. _______________________________________________________________
+
+## What Good Looks Like
+
+After this audit, your goal is simple: AI-referred visitors should land on a page that answers their question, names the relevant practice area, and gives them a next step without forcing them to search your site again.
+
+If the model already sent you the client, your site should not make that client do the routing work.
+
+Download more tools at [Clientory.org](https://clientory.org)`,
+    author: "Yanyan Li",
+    date: "2026-07-08",
+    tags: ["Worksheets", "AI Visibility", "Immigration Marketing"],
+  },
+  {
+    slug: "risky-to-compliant-swap-worksheet",
+    title: "The Risky-to-Compliant Swap Worksheet",
+    excerpt: "Convert risky visibility tactics into earned equivalents with a one-hour remediation worksheet for safer AI and search visibility.",
+    content: `Convert every now-risky visibility tactic into its earned equivalent in one sitting.
+
+Google did not just name the offense on June 24. The same policy update points straight at the compliant playbook that replaces it. This worksheet pairs eight tactics that now carry demotion risk under the spam policy with the earned move that produces the same visibility without the exposure.
+
+Work down the list, name what your firm currently has in each risky category, write the compliant swap you will make, and assign an owner and due date. Finish this in under an hour and you leave with a one-page remediation plan.
+
+## Section 1: Off-Site Placements You Paid For
+
+These are the easiest to audit because they show up in an invoice, not just a search result.
+
+| Question | Answer |
+| --- | --- |
+| Do you currently pay for a spot in any **mention network** or "featured firm" package? | Y / N - vendor name: ________ |
+| How many **directories** is your firm listed in, and how many of those listings did you actually write yourself vs. a vendor auto-generate? | ________ |
+| Have you ever paid, directly or through a package, for a **backlink or citation** placement? | Y / N - where: ________ |
+| Compliant swap for each "Y" above: what earned equivalent will you pursue instead, such as a bar association profile, genuine press mention, or real client's public review? | ________ |
+| Owner | ________ |
+| Due date | ________ |
+
+**Score / Notes:** _____ / 3 off-site risks identified. Every "Y" needs a swap before it needs deleting.
+
+## Section 2: On-Site Pages Built to Harvest Citations, Not Answer Questions
+
+Pages engineered for AI visibility rather than a real client question are the update's clearest target.
+
+| Question | Answer |
+| --- | --- |
+| Do you have any "Best Immigration Attorneys in [city]" or similar **best-of listicle** pages, even ones that mention your firm favorably? | Y / N: ________ |
+| Do you run **scaled comparison pages**, such as "Firm X vs. Firm Y," built primarily to rank rather than to genuinely help a prospective client choose? | Y / N: ________ |
+| Do you have **doorway pages**: near-duplicate practice-area pages built for every city or keyword variant rather than one substantive page per real service? | Y / N - count: ________ |
+| Compliant swap: which of these becomes one **primary-source-cited practice page**, citing USCIS, DOL, BIA, or statute directly, or one **original firsthand case explainer** in your own voice? | ________ |
+| Owner | ________ |
+| Due date | ________ |
+
+**Score / Notes:** _____ / 3 on-site risks identified. Name the single page you will rebuild first: ________
+
+## Section 3: Social Proof That Is Not Fully Yours
+
+Reviews and "recommendations" are where earned and planted signals look most alike from the outside.
+
+| Question | Answer |
+| --- | --- |
+| Have you ever solicited, incentivized, or had a vendor place **reviews** that were not from your own verified clients? | Y / N: ________ |
+| Have you or a vendor ever engaged in **recommendation poisoning**: instructing an AI tool, prompt, or content designed to make a model treat your site as an authority regardless of merit? | Y / N: ________ |
+| Compliant swap: which real, recent client outcome can become a **named testimonial**, with permission, this month? | ________ |
+| Compliant swap: which real case can become an **original firsthand case explainer**, written in your own voice and citing what actually happened? | ________ |
+| Owner | ________ |
+| Due date | ________ |
+
+**Score / Notes:** _____ / 2 social-proof risks identified. Circle your honest read: Clean / One to fix / Several to fix.
+
+## Section 4: Lock In Ownership and Timing
+
+A swap that has no owner and no date does not happen. This section turns the audit into a plan.
+
+| Question | Answer |
+| --- | --- |
+| Total risky tactics identified across Sections 1-3 | ________ / 8 |
+| Which single swap will you complete first, and why that one? | ________ |
+| Who reviews progress on this list, and how often: weekly, biweekly, or monthly? | ________ |
+| Target date to have every "Y" above converted to its compliant twin | ________ |
+| What does "done" look like: will you re-run this worksheet, or check citations directly in Search Console / Bing Webmaster Tools? | ________ |
+
+**Score / Notes:** ________________________
+
+## Summary / Next Steps
+
+Based on your answers, here are your highest-priority actions.
+
+1. **Retire your riskiest asset first.** Whichever tactic scored highest in exposure, whether paid placement, doorway pages, or planted reviews, pick the single instance causing the most risk and remove or rebuild it this week.
+2. **Publish one earned replacement.** A named client testimonial, a firsthand case explainer, or a primary-source-cited practice page. One real swap beats a long list of good intentions.
+3. **Assign an owner to the rest.** The remaining items on your list do not need to move this week, but they need a name and a date attached or they will still be sitting here at the next spam update.
+
+Clientory helps immigration law firms become visible to the families and individuals who need them most, turning AI search into consultations and consultations into clients.
+
+Download more tools at [Clientory.org](https://clientory.org)`,
+    author: "Yanyan Li",
+    date: "2026-07-01",
+    tags: ["Worksheets", "AI Visibility", "Compliance"],
+  },
+  {
+    slug: "mention-audit-old-marketing-liability",
+    title: "The Mention Audit: Is Your Old Marketing Now a Liability?",
+    excerpt: "The June 2026 spam update makes old paid visibility tactics worth auditing. Here's how immigration firms can separate earned signals from planted ones.",
+    content: `On June 24, Google began rolling out its June 2026 spam update, and the rollout finished two days later. There were no new policy categories announced with the update. It was a tuning of Google's spam systems against rules that already existed. But one of those rules had changed quietly in May: Google's spam policy now states that attempting to manipulate generative AI responses in Search counts as spam.
+
+That matters because thin "best of" listicles, paid mention networks, and scaled comparison pages built to harvest AI citations can now carry the same kind of demotion risk as classic link spam, including removal from the pool of sources Google's AI answers draw on.
+
+Sources: [Google Search Status Dashboard: June 2026 spam update](https://status.search.google.com/incidents/YUX1peHev5a4fkxLDiUQ) and [Google Search spam policies](https://developers.google.com/search/docs/essentials/spam-policies).
+
+Here is the uncomfortable part for an immigration firm. Most of you never set out to "manipulate AI citations." You hired an SEO vendor in 2022, signed off on a directory package, or paid for a spot on a "Top Immigration Attorneys" roundup. That was ordinary marketing then. Under the expanded policy, some of it can now read as manipulation, and SpamBrain does not ask about your intent.
+
+This post is the second in a five-part series on AI visibility. It is not a list of new tactics. It is a diagnosis of what already exists in your name, so you can tell an earned signal from a planted one before the algorithm decides for you.
+
+## Why Old Tactics Read Differently Now
+
+The mechanics did not change; the interpretation did. For years, the GEO playbook quietly repackaged old affiliate SEO: buy a mention on a listicle, spin up a handful of comparison pages, seed your firm's name across a network of blogs. Industry coverage of the June update is direct that this is exactly the pattern now in the crosshairs: a ranked "Best Immigration Lawyers 2026" table with paid placement and affiliate links is the textbook example of what Google is demoting.
+
+The reason matters. Google's AI answers are trying to surface sources a real person would trust. A planted mention pollutes that signal, so the system is being trained to discount it. The same directory profile that once passed as a credibility marker can now be read as part of a manipulation pattern, not because you did anything in bad faith, but because the structure of the placement looks identical to the structures bad actors used at scale.
+
+## Earned Signal vs. Planted Signal
+
+The distinction you need to internalize is earned versus planted. An earned signal is a mention you did not pay for and did not control: a local bar association profile, a quote in a regional newspaper about a DACA renewal deadline, a client's unprompted review, a citation in a nonprofit's resource list for asylum seekers.
+
+A planted signal is one you bought or placed: a paid directory tier, a sponsored "top firm" badge, a comparison page a vendor built to point at you, or a guest post stuffed with your name and a backlink.
+
+Earned signals are exactly what AI answers are being tuned to reward. Planted signals are what they are being tuned to discount, and, in volume, to penalize. The trouble is that a managing partner rarely has a clean inventory of which is which. Old engagements lapse, vendors churn, and the placements outlive the contracts. You may be carrying planted signals you forgot you ever bought.
+
+There is also a gray zone worth naming, because most firms live in it. A reputable legal directory that you pay to appear in is not automatically spam. Google has been clear that this update targets manipulation patterns, not the existence of a paid listing. The risk turns on structure and scale.
+
+One profile on a long-standing directory that real clients use is a different thing from a tier you bought specifically to outrank peers, which is different again from your name appearing across a dozen near-identical comparison pages you have never visited. As you inventory, resist the urge to label everything paid as toxic. The question is whether the placement would survive a human asking, "is this here because the firm earned it, or because the firm paid to look earned?"
+
+## How to Inventory Your Footprint This Week
+
+You can map your own mention footprint in an afternoon. No vendor required.
+
+1. **Search your firm's name plainly.** Run your firm name, then your name plus "immigration attorney," in Google and in an AI assistant like ChatGPT or Claude. Write down every site that names you on the first three pages. This is your raw footprint.
+2. **Sort each mention into earned or planted.** For each one, ask a single question: did I pay for this or place it, or did someone choose to cite me? Bar profiles, genuine press, court records, and real client reviews are earned. Paid directories, sponsored roundups, comparison pages, and guest-post backlinks are planted.
+3. **Flag the high-risk planted mentions.** The ones that look most like the update's targets are ranked "best of" lists with affiliate or sponsor links, any directory where every "top" firm happens to be a paying member, and clusters of near-identical pages across different domains naming you.
+4. **Check what the AI answers actually cite.** Ask an assistant "who are the best immigration attorneys in [your city]" and note which of your mentions it leans on. If it is pulling from a planted source, that is a fragile citation: one update away from vanishing.
+5. **Document, do not panic-delete.** Build a simple list: mention, type, earned or planted, risk level. You are not unwinding anything yet. Part 3 covers what to keep, fix, or walk away from. This week's job is only to know what exists in your name.
+
+## The Bigger Picture
+
+The firms that will hold their AI visibility through updates like this one are not the firms with the most mentions. They are the firms whose mentions a model would trust if a human checked them.
+
+That is a healthier place for immigration law to land. Your real credibility, the published decisions you have won, the bar standing you maintain, the clients who found relief and said so, was never the kind of thing an algorithm needed to discount. The planted shortcuts were.
+
+Knowing the difference, in your own name, is the whole exercise.
+
+Clientory helps immigration law firms become visible to the families and individuals who need them most, turning AI search into consultations and consultations into clients.
+
+[See Your AI Visibility Score](https://clientory.org)`,
+    author: "Yanyan Li",
+    date: "2026-06-30",
+    tags: ["AI Visibility", "Immigration Marketing", "Compliance"],
+  },
+  {
     slug: "on-claude-one-citation-is-worth-ten",
     title: "On Claude, One Citation Is Worth Ten",
     excerpt: "Claude cites far fewer sources than ChatGPT — making each citation rarer and more valuable. Here's how small immigration firms can become the source Claude trusts enough to stand alone.",
