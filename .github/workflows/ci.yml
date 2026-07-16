@@ -40,17 +40,6 @@ jobs:
         with:
           version: '11'
 
-      - name: Get pnpm store path
-        id: pnpm-cache
-        run: echo "store=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - name: Cache pnpm store
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.pnpm-cache.outputs.store }}
-          key: pnpm-${{ runner.os }}-${{ hashFiles('Clientory App/pnpm-lock.yaml') }}
-          restore-keys: pnpm-${{ runner.os }}-
-
       - name: Install dependencies
         working-directory: 'Clientory App'
         run: pnpm install --frozen-lockfile
