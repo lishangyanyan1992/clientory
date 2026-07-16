@@ -15,6 +15,71 @@ export function getReadingTime(content: string): number {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: "chatgpt-could-not-read-your-numbers",
+    title: "ChatGPT Wanted Your Numbers. It Couldn't Read Them. So It Cited Someone Else's.",
+    excerpt: "If your highest-value facts are hidden behind JavaScript, AI crawlers may skip your page and cite a directory, aggregator, or competitor instead.",
+    content: `Two weeks ago we told you ChatGPT routes citations through at least four hidden retrieval pipelines, and 11.6% of repeat prompts flip their primary source between runs. That research has a second finding that matters more for what is actually on your website: even when ChatGPT wants to cite you first, it cannot always read what you have published. When it cannot, it moves on to whoever it can read.
+
+Source: [Search Engine Land: ChatGPT citations change when hidden search pipelines switch](https://searchengineland.com/chatgpt-citations-change-hidden-search-pipelines-481843)
+
+Researchers tracking ChatGPT's network traffic, not just its outputs, caught the model doing this in real time on pricing pages. Presented with a company's own site, ChatGPT reasoned in its retrieval logs that the pricing was not showing up directly, possibly because it was loaded with JavaScript, and cited a third-party aggregator instead.
+
+The company had the right answer sitting on its own page. The model simply could not parse it, so it borrowed someone else's version of the same fact.
+
+## Your Site, Unreadable by Design
+
+Here is the mechanism in plain terms. AI crawlers, including ChatGPT, Claude, and Perplexity, fetch raw HTML. They do not execute JavaScript the way a browser does. If your fee information, intake steps, or practice-area details load after the page renders, behind a script, a tab, an accordion, or a "click to expand" element, the crawler sees an empty shell where that content should be.
+
+It is not that your content is weak. It is that the content never arrives.
+
+For most consumer businesses, this costs them a G2 citation instead of their own pricing page. For an immigration firm, it costs you the answer to the exact questions that turn a search into a consultation:
+
+1. What does an H-1B petition run at your firm?
+2. What is your intake process for a family petition?
+3. Do you handle RFE responses, and how fast?
+
+If those answers sit behind a script, ChatGPT will still answer the question. It will just answer it using a directory listing, a legal-marketplace aggregator, or a competitor's page that happens to render in plain HTML. The searcher gets an answer. It is just not yours.
+
+The researchers documented this exact swap on two SaaS pricing pages, Profound and Peec. In both cases, ChatGPT's reasoning trace showed the same diagnosis: the pricing did not show up directly, possibly because it was hidden with JavaScript. The workaround was the same: cite G2 instead, a third-party review aggregator with none of the nuance of the company's actual pricing page.
+
+The company was not beaten on content. It was beaten on parseability. Its numbers were correct, current, and published. They just lived in a part of the page the crawler could not see.
+
+## The Pattern Favors Your Own Page, When It Can
+
+This is the part worth sitting with. The research does not show ChatGPT preferring third-party sources on principle. It shows the opposite: given a choice, the model reaches for the firm's own page first, because a direct answer from the source is the model's default preference.
+
+The fallback to an aggregator only happens when the firm's own content is technically unreachable. That means the fix is not a content strategy. You likely already have the fee ranges, the case types, and the intake steps written down somewhere on your site. The fix is making sure a script-free crawler can actually reach them.
+
+Most small-firm websites were not built with this in mind, because until recently nobody needed to think about what a non-human, non-JavaScript-executing visitor could see. WordPress themes, page builders, and templated legal-marketing sites frequently load exactly the content that matters most, including pricing tables, FAQ accordions, and tabbed practice-area breakdowns, via JavaScript after the initial page load.
+
+It looks identical to a client browsing on Chrome. It is invisible to the systems now deciding who gets cited.
+
+## Check This Before Friday
+
+You do not need a developer audit to find out where you stand. Do this instead.
+
+1. **View your own practice-area pages with JavaScript disabled.** In Chrome, open DevTools with Cmd+Option+I, go to the Command Menu with Cmd+Shift+P, and run "Disable JavaScript." Reload the page. Anything missing, including fee ranges, intake steps, and FAQ answers, is invisible to ChatGPT and Claude right now.
+2. **Check the raw HTML.** Ask a technical contact to run: \`curl -s yourfirm.com/practice-areas/h1b | grep -i "fee\\|cost\\|\\$"\`. If the number you quote clients does not show up in the raw HTML, an AI crawler is unlikely to see it.
+3. **Move your highest-value facts out of interactive elements.** If your fee ranges or intake timeline sit inside a tab, accordion, or "read more" toggle, duplicate that text as plain, visible HTML on the page, even if it is styled to be less prominent. Crawlers read the markup, not the click.
+4. **Prioritize the pages tied to your highest-intent searches first.** Start with H-1B sponsorship costs, asylum consultation process, naturalization timeline, and RFE response services. These are the pages most likely to get a citation-worthy question, and the ones costing you the most when they render as blank to a crawler.
+5. **Re-test after you fix it.** Ask ChatGPT the same question you would expect a prospective client to ask, and see whether it now names your firm and cites your page instead of a directory.
+
+None of this requires a redesign or a new content calendar. It requires finding out which of your existing pages are already answering the right question, just in a format only humans can see.
+
+## The Bigger Picture
+
+Combined with what we found two weeks ago, that ChatGPT's citation sources shift between hidden pipelines 11.6% of the time, the picture is consistent: visibility in AI search is not decided once. It is decided every time a pipeline runs your practice area against a page it can actually parse.
+
+A firm that fixes the JavaScript problem removes one entire failure mode from that equation, not because the content changed, but because the content became reachable. That is a smaller fix than most firms assume, and most competitors have not checked whether they need it.
+
+Clientory helps immigration law firms become visible to the families and individuals who need them most, turning AI search into consultations and consultations into clients.
+
+[Book a free AI visibility check](https://clientory.org)`,
+    author: "Yanyan Li",
+    date: "2026-07-16",
+    tags: ["AI Visibility", "Technical SEO", "Immigration Marketing"],
+  },
+  {
     slug: "used-vs-cited-ai-answers-immigration-firms",
     title: `"Used" vs. "Cited": Why Your Firm Could Be Shaping AI Answers Without Ever Getting Credit`,
     excerpt: "AI engines can silently use your firm's content without citing it. Here's why immigration firms need both consistent entity presence and structured, dated content worth linking to.",
