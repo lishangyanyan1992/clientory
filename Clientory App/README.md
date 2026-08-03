@@ -1,14 +1,14 @@
 # Clientory
 
-**AI visibility scanner for immigration law firms.**
+**Marketing site and blog for the Clientory AI visibility platform.**
 
-Clientory tells immigration attorneys whether ChatGPT, Claude, and Gemini recommend their firm when a prospective client asks about green cards, visas, naturalization, or removal defense. It generates a visibility score, surfaces which AI assistants mention the firm and on which queries, and gives concrete steps to improve.
+The public website at [clientory.org](https://clientory.org) contains Clientory's landing pages, educational content, comparisons, pricing information, and blog. Product CTAs send visitors to the active application at [app.clientory.org](https://app.clientory.org), where authentication, scans, account management, and payments are handled.
 
-Live at → **[clientory.org](https://clientory.org)**
+The previous product implementation remains in this repository as inactive reference code. See [LEGACY_APP_ARCHIVE.md](./LEGACY_APP_ARCHIVE.md) for the boundary between the marketing site and the archived application.
 
 ---
 
-## How it works
+## Archived product: how it worked
 
 1. **Firm profile** — an attorney enters their firm name, location, services, and competitors.
 2. **Prompt generation** — Claude Haiku generates a set of realistic prospect queries ("symptom queries") tailored to the firm's deliverables and geography.
@@ -53,7 +53,7 @@ evals/                PromptFoo eval suite for the symptom-query prompt
 | Database | PostgreSQL, Drizzle ORM |
 | AI providers | OpenAI (GPT), Anthropic (Claude), Google (Gemini) |
 | Auth | Email OTP + optional password; HMAC-signed tokens |
-| Billing | Stripe (checkout + customer portal) |
+| Billing | Handled by the separate application at `app.clientory.org` |
 | Email | Resend |
 | Observability | Langfuse (AI traces via OpenTelemetry), Sentry (errors) |
 | Bot protection | Cloudflare Turnstile |
@@ -135,10 +135,7 @@ npx promptfoo eval --config evals/promptfooconfig.yaml
 | `RESEND_API_KEY` | — | Resend key; falls back to console logging OTP codes when absent |
 | `EMAIL_FROM` | — | From address for OTP emails |
 | `TURNSTILE_SECRET_KEY` | — | Cloudflare Turnstile secret; CAPTCHA check is skipped when absent |
-| `STRIPE_SECRET_KEY` | — | Stripe secret key for billing |
-| `STRIPE_WEBHOOK_SECRET` | — | Stripe webhook signing secret |
-| `STRIPE_PRICE_ID` | — | Stripe price ID for the subscription plan |
-| `APP_BASE_URL` | auto-detected | Public frontend URL — used for Stripe redirect URLs and report email links |
+| `APP_BASE_URL` | auto-detected | Public frontend URL — used for legacy report email links |
 | `APP_BASE_PATH` | — | Optional path prefix when the app URL is inferred from Vercel (e.g. `/app`) |
 | `PUBLIC_APP_URL` | — | Legacy alias for `APP_BASE_URL` |
 | `LANGFUSE_PUBLIC_KEY` | — | Langfuse public key; AI tracing is disabled when absent |
@@ -167,9 +164,8 @@ npx promptfoo eval --config evals/promptfooconfig.yaml
 
 1. Set all required backend env vars in Railway.
 2. Set `APP_BASE_URL` to your production frontend URL (e.g. `https://clientory.org`).
-3. Configure Stripe webhook endpoint → `https://<railway-url>/api/webhooks/stripe`.
-4. Set `VITE_TURNSTILE_SITE_KEY` in Vercel env vars.
-5. Vercel auto-reads `vercel.json` from `artifacts/clientory` for routing and security headers.
+3. Set `VITE_TURNSTILE_SITE_KEY` in Vercel env vars.
+4. Vercel auto-reads `vercel.json` from `artifacts/clientory` for routing and security headers.
 
 ---
 

@@ -4,6 +4,7 @@ import { ArrowRight, Github } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AIDashboard from "@/components/AIDashboard";
 import StripeGradient from "@/components/StripeGradient";
+import { CLIENTORY_APP_URL } from "@/lib/app-url";
 
 export default function Hero() {
   return (
@@ -46,7 +47,7 @@ export default function Hero() {
           </p>
 
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Link to="/scan">
+            <a href={CLIENTORY_APP_URL}>
               <Button
                 size="lg"
                 className="h-14 rounded-full px-8 text-base font-semibold shadow-lg shadow-primary/20 transition-all duration-300 hover:shadow-xl hover:shadow-primary/30"
@@ -54,7 +55,7 @@ export default function Hero() {
                 Try It Now
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-            </Link>
+            </a>
             <Link to="/pricing">
               <Button size="lg" variant="outline" className="h-14 rounded-full px-8 text-base">
                 View Pricing

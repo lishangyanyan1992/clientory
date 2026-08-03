@@ -11,6 +11,7 @@
 - GEO Guide: https://clientory.org/geo-for-professional-services
 - Features: https://clientory.org/features
 - Pricing: https://clientory.org/pricing
+- Clientory App: https://app.clientory.org
 
 ## What We Do
 Clientory tracks how often and how accurately AI platforms (ChatGPT, Claude,

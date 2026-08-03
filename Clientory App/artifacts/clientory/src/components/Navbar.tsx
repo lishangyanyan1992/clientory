@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Github, Menu, X } from "lucide-react";
 import logoFull from "@/assets/logo-v4d.png";
+import { CLIENTORY_APP_URL } from "@/lib/app-url";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -41,9 +42,9 @@ const Navbar = () => {
               >
                 <Github className="h-4 w-4" aria-hidden="true" />
               </a>
-              <Link to="/scan">
+              <a href={CLIENTORY_APP_URL}>
                 <Button size="sm" className="rounded-full px-5 bg-primary text-primary-foreground hover:opacity-90">Try It Now</Button>
-              </Link>
+              </a>
             </div>
 
             <button className="md:hidden text-foreground" onClick={() => setOpen(!open)}>
@@ -69,9 +70,9 @@ const Navbar = () => {
             <Github className="h-4 w-4" aria-hidden="true" />
             Open-source Agent Skill
           </a>
-          <Link to="/scan" onClick={() => setOpen(false)}>
+          <a href={CLIENTORY_APP_URL} onClick={() => setOpen(false)}>
             <Button size="sm" className="w-full rounded-full mt-2 bg-primary text-primary-foreground hover:opacity-90">Try It Now</Button>
-          </Link>
+          </a>
         </div>
       )}
     </nav>

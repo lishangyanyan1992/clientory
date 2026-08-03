@@ -1,8 +1,8 @@
-import { Link } from "react-router-dom";
 import { MarketingLayout } from "@/components/marketing-layout";
 import { Check, Sparkles, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { BILLING_CONFIG, BILLING_SCANS_LABEL } from "@/lib/billing-config";
+import { CLIENTORY_APP_URL } from "@/lib/app-url";
 
 const SHARED_FEATURES = [
   "10 AI search prompts",
@@ -80,12 +80,15 @@ export default function Pricing() {
               ))}
             </ul>
 
-            <Link
-              to="/settings/billing"
+            <a
+              href={CLIENTORY_APP_URL}
               className="flex items-center justify-center gap-2 w-full text-center px-6 py-3 rounded-xl font-semibold transition-all duration-200 text-sm bg-gradient-to-r from-primary to-accent text-white shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5"
             >
-              Subscribe a Firm <ArrowRight className="w-4 h-4" />
-            </Link>
+              Continue to Clientory <ArrowRight className="w-4 h-4" />
+            </a>
+            <p className="mt-3 text-center text-xs text-muted-foreground">
+              Payments and account management are handled in the Clientory app.
+            </p>
           </motion.div>
         </div>
 

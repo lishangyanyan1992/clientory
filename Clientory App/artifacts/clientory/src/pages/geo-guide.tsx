@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { MarketingLayout } from "@/components/marketing-layout";
+import { CLIENTORY_APP_URL } from "@/lib/app-url";
 import {
   Table,
   TableHeader,
@@ -420,10 +420,10 @@ const GeoGuide = () => {
                 The platform calculates mention rate, Share of Voice, position, sentiment, and accuracy scores automatically, and benchmarks your firm against local competitors. Each report includes a prioritized action plan with specific recommendations for improving visibility across each AI platform.
               </p>
               <p className="text-base text-muted-foreground leading-relaxed">
-                Clientory is currently available as a free beta at{" "}
-                <Link to="/scan" className="text-primary underline">
-                  clientory.org/scan
-                </Link>
+                Clientory is available at{" "}
+                <a href={CLIENTORY_APP_URL} className="text-primary underline">
+                  app.clientory.org
+                </a>
                 .
               </p>
             </section>
