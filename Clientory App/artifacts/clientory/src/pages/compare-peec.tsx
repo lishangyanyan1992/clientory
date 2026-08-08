@@ -10,7 +10,7 @@ const data: ComparisonPageData = {
     { feature: "LLM platforms covered", clientory: "ChatGPT, Claude, Gemini (Perplexity, Copilot coming soon)", competitor: "ChatGPT, Gemini, Perplexity, Bing" },
     { feature: "Starting price", clientory: "Free beta", competitor: "€89/mo" },
     { feature: "Industry-specific prompt library", clientory: "yes", competitor: "no" },
-    { feature: "Share of Voice vs. local competitors", clientory: "yes", competitor: "partial" },
+    { feature: "Competitor gap vs. local rivals", clientory: "yes", competitor: "partial" },
     { feature: "Accuracy monitoring", clientory: "yes", competitor: "yes" },
     { feature: "Actionable fix-it recommendations", clientory: "yes", competitor: "partial" },
     { feature: "Free trial", clientory: "yes", competitor: "yes" },
@@ -28,7 +28,7 @@ const data: ComparisonPageData = {
     "You already use Peec and need general brand tracking",
   ],
   methodology: [
-    "Clientory focuses on the exact prompts prospective clients use when searching for professional services — running them across five AI platforms and scoring firms on mention rate, position, sentiment, accuracy, and local Share of Voice.",
+    "Clientory focuses on the exact prompts prospective clients use when searching for professional services — running them across ChatGPT, Claude, and Gemini, grading each as Positive, Passive, or No mention, and returning a 0-100 visibility score plus the competitors filling the gaps.",
     "Peec.ai provides broader brand intelligence with a focus on enterprise marketing teams. It tracks brand mentions and sentiment across AI platforms but is designed for large organizations monitoring brand perception rather than small firms competing for local client acquisition.",
     "For a 10-person law firm or a boutique consulting practice, Clientory's targeted approach delivers faster, more relevant insights than Peec's enterprise-oriented platform.",
   ],

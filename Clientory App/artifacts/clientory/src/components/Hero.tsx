@@ -33,17 +33,16 @@ export default function Hero() {
             </span>
           </motion.div>
 
+          {/* Solid navy over the gradient shader — Stripe never sets
+              gradient-on-gradient; keeps contrast high and legible. */}
           <h1 className="mb-8 text-5xl font-bold text-foreground md:text-6xl lg:text-7xl">
-            Be found by AI.
-            <br />
-            {/* Solid navy over the gradient shader — Stripe never sets
-                gradient-on-gradient; keeps contrast high and legible. */}
-            <span>Win more immigration clients.</span>
+            Be the firm AI recommends.
           </h1>
 
           <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-muted-foreground md:text-xl">
-            When clients ask ChatGPT, Gemini, or Claude for an immigration lawyer, does your firm
-            come up? Clientory shows where you stand — and what to fix.
+            When clients ask ChatGPT, Claude, or Gemini for an immigration lawyer, does your firm
+            come up? Clientory scores your AI visibility out of 100, shows which competitors appear
+            where you don't, and coaches you on what to fix.
           </p>
 
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">

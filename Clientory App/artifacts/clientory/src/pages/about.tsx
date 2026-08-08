@@ -86,11 +86,12 @@ const About = () => {
               How Clientory Works
             </h2>
             <ol className="list-decimal list-inside space-y-2 text-base text-muted-foreground leading-relaxed">
-              <li>The user enters their firm name, location, and service category.</li>
-              <li>Clientory runs a standardized battery of test prompts across ChatGPT and Claude, plus Gemini on subscribed scans. Perplexity and Copilot are coming soon.</li>
-              <li>Results are analyzed for mention rate, position, sentiment, and accuracy.</li>
-              <li>The platform generates a competitive Share of Voice score.</li>
-              <li>An action plan is delivered with prioritized recommendations.</li>
+              <li>The user enters their firm name, location, practice areas, and website.</li>
+              <li>Clientory generates 5 test prompts on a free report, or 25 on a subscription, and runs them across ChatGPT and Claude, plus Gemini on subscribed scans. Perplexity and Copilot are coming soon.</li>
+              <li>Each prompt is graded per model as Positive, Passive, or No mention.</li>
+              <li>The platform returns a 0–100 AI visibility score and a competitor gap showing which rival firms appear in prompts the firm is missing from.</li>
+              <li>Subscribed firms are re-scanned every 7 days, with weekly snapshots and alerts when a new competitor appears or the score changes.</li>
+              <li>The AI Presence Coach, included with a subscription, answers questions against the latest scan and recommends what to fix first.</li>
             </ol>
           </section>
 

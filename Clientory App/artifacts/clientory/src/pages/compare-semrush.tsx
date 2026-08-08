@@ -10,7 +10,7 @@ const data: ComparisonPageData = {
     { feature: "LLM platforms covered", clientory: "ChatGPT, Claude, Gemini (Perplexity, Copilot coming soon)", competitor: "ChatGPT, Gemini (via AI Overviews)" },
     { feature: "Starting price", clientory: "Free beta", competitor: "$99/mo (requires Semrush subscription)" },
     { feature: "Industry-specific prompt library", clientory: "yes", competitor: "no" },
-    { feature: "Share of Voice vs. local competitors", clientory: "yes", competitor: "partial" },
+    { feature: "Competitor gap vs. local rivals", clientory: "yes", competitor: "partial" },
     { feature: "Accuracy monitoring", clientory: "yes", competitor: "no" },
     { feature: "Actionable fix-it recommendations", clientory: "yes", competitor: "partial" },
     { feature: "Free trial", clientory: "yes", competitor: "yes" },
@@ -28,7 +28,7 @@ const data: ComparisonPageData = {
     "You're a marketing agency managing multiple client domains",
   ],
   methodology: [
-    "Clientory runs industry-specific prompts across five AI platforms and measures mention rate, position, sentiment, accuracy, and Share of Voice. Every prompt is crafted to mirror real prospective client queries for legal, accounting, consulting, and marketing services.",
+    "Clientory runs industry-specific prompts across ChatGPT, Claude, and Gemini, grading each one as Positive, Passive, or No mention and rolling the result into a 0-100 visibility score with a competitor gap. Every prompt is crafted to mirror real prospective client queries for legal, accounting, consulting, and marketing services.",
     "Semrush's AI Toolkit primarily tracks AI Overviews in Google search results and provides some visibility into how AI-generated content appears for your target keywords. It is tightly integrated with Semrush's existing keyword and ranking tools but does not query AI platforms directly with conversational prompts.",
     "The key difference: Clientory tests what happens when someone asks ChatGPT or Claude for a professional service recommendation. Semrush tracks what happens when Google's AI Overview appears on a traditional search results page. Both are valuable, but they measure different things.",
   ],

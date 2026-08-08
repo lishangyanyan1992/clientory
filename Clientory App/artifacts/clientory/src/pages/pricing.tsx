@@ -17,31 +17,34 @@ import {
 } from "@/lib/model-coverage";
 import { CLIENTORY_APP_URL } from "@/lib/app-url";
 
-// What the free report includes. Kept deliberately short — the point of this
-// column is to make the paid delta obvious, not to sell the free tier.
+// Every line below must map to something the product actually does. The point
+// of the free column is to make the paid delta obvious, not to sell the free
+// tier. Don't add a feature here that isn't shipped.
 const FREE_FEATURES = [
   `${FREE_PROMPTS_LABEL} (sampled across categories)`,
   `Tested on ${FREE_MODELS_LABEL}`,
-  "Your AI visibility score",
+  "AI visibility score out of 100",
+  "Per-prompt sentiment breakdown",
   "One report, one firm",
 ];
 
 const PAID_FEATURES = [
   PAID_PROMPTS_LABEL,
   `Tested on ${PAID_MODELS_LABEL}`,
+  "Weekly auto-scan, every 7 days",
+  "Competitor gap analysis",
+  "AI Presence Coach, personalized to your scan",
+  "Citation Monitor with weekly snapshots",
+  "Competitor emergence alerts",
+  "Email alerts when your score changes",
   BILLING_SCANS_LABEL,
-  "Full report history",
-  "PDF & CSV exports",
-  "Detailed AI recommendations",
-  "Saved firm profiles",
-  "Priority scan processing",
 ];
 
 const PLAN = {
   label: "Clientory subscription",
   sublabel: "One simple plan for every firm",
   price: BILLING_CONFIG.monthlyPriceUsd,
-  description: `Every scan runs ${PROMPTS_PER_PAID_SCAN} prompts across ${PAID_MODELS_LABEL}, with full report history, exports, and recommendations.`,
+  description: `Every scan runs ${PROMPTS_PER_PAID_SCAN} prompts across ${PAID_MODELS_LABEL}, re-runs itself weekly, and comes with the Presence Coach and Citation Monitor.`,
   badge: "Single plan",
   features: PAID_FEATURES,
 } as const;
@@ -64,7 +67,7 @@ export default function Pricing() {
             Know when AI recommends your immigration firm
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Every immigration law firm gets one free AI visibility report — {PROMPTS_PER_FREE_SCAN} prompts on {FREE_MODELS_LABEL}. Subscribe to unlock {PROMPTS_PER_PAID_SCAN} prompts per scan, add {PAID_ONLY_MODELS_LABEL}, and track changes over time.
+            Every immigration law firm gets one free AI visibility report — {PROMPTS_PER_FREE_SCAN} prompts on {FREE_MODELS_LABEL}. Subscribe to unlock {PROMPTS_PER_PAID_SCAN} prompts per scan, add {PAID_ONLY_MODELS_LABEL}, and get weekly auto-scans, the Presence Coach, and competitor alerts.
           </p>
         </motion.div>
 
@@ -176,6 +179,14 @@ export default function Pricing() {
               {
                 q: "How many prompts does a scan run?",
                 a: `A subscribed scan runs ${PROMPTS_PER_PAID_SCAN} prompts generated from your firm profile, covering brand, location, specialty, problem, and persona searches. The free report runs a ${PROMPTS_PER_FREE_SCAN}-prompt sample spread across those same categories.`,
+              },
+              {
+                q: "What is the AI Presence Coach?",
+                a: "A chat coach that knows your latest scan — your score, which competitors are filling your gaps, and what to change. It is included with a subscription; free users are prompted to run their scan first.",
+              },
+              {
+                q: "Do I have to remember to re-scan?",
+                a: "No. Subscribed firms are re-scanned automatically every 7 days. The Citation Monitor keeps weekly snapshots of your score, alerts you when a new competitor appears in your prompts, and can email you when your score changes.",
               },
               {
                 q: "What counts as a scan?",

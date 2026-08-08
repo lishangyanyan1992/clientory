@@ -1,48 +1,58 @@
 import { motion } from "framer-motion";
-import { Activity, BrainCircuit, Eye, Gauge, Lightbulb, Shield } from "lucide-react";
+import { Bell, BrainCircuit, Gauge, MessageSquare, RefreshCw, Users } from "lucide-react";
+import { PROMPTS_PER_FREE_SCAN, PROMPTS_PER_PAID_SCAN } from "@/lib/billing-config";
+import { FREE_MODELS_LABEL, PAID_MODELS_LABEL } from "@/lib/model-coverage";
 
+// Every card below maps to something the product actually ships today:
+// the Visibility Scanner, the Presence Coach, and the Citation Monitor.
+// Don't add a card for a capability that isn't live.
 const features = [
   {
-    icon: Activity, // live pulse → real-time tracking
-    title: "Real-Time LLM Tracking",
-    description:
-      "Monitor your firm's mentions across ChatGPT, Claude, and Gemini as AI recommendations shift — with Perplexity and Copilot coming soon.",
+    icon: Gauge,
+    title: "AI Visibility Score",
+    description: `Run ${PROMPTS_PER_FREE_SCAN} prompts free on ${FREE_MODELS_LABEL}, or ${PROMPTS_PER_PAID_SCAN} across ${PAID_MODELS_LABEL} on a subscription — scored 0–100.`,
     tint: "#6467f2", // indigo
+    badge: null,
   },
   {
-    icon: Gauge, // measure vs. the field → benchmarking
-    title: "Competitor Benchmarking",
+    icon: Users,
+    title: "Competitor Gap",
     description:
-      "See how your immigration firm stacks up against competing firms for the exact prompts clients ask.",
+      "See exactly which rival firms show up in the prompts you're missing from — the shortlist you're being left off.",
     tint: "#4f78ec", // blue-indigo
+    badge: null,
   },
   {
-    icon: Lightbulb, // ideas → recommendations
-    title: "GEO Recommendations",
+    icon: MessageSquare,
+    title: "Per-Prompt Sentiment",
     description:
-      "Get practical improvements for your Generative Engine Optimization strategy, tailored to immigration law.",
+      "Every prompt is graded per model as Positive, Passive, or No mention, so you can see where you're recommended versus merely listed.",
     tint: "#3b9fd9", // brand blue
+    badge: null,
   },
   {
-    icon: Eye, // visibility
-    title: "Visibility Score",
+    icon: RefreshCw,
+    title: "Weekly Auto-Scan",
     description:
-      "Track your firm's AI presence over time with a single score that makes progress easy to measure.",
+      "Subscribed firms are re-scanned automatically every 7 days. Your score stays current without you remembering to run anything.",
     tint: "#22b0a8", // teal
+    badge: "Paid",
   },
   {
-    icon: BrainCircuit, // intelligence
-    title: "Query Intelligence",
+    icon: BrainCircuit,
+    title: "AI Presence Coach",
     description:
-      "Learn what prospective clients ask about H-1Bs, green cards, citizenship, waivers, and removal defense.",
+      "A chat coach that knows your latest scan — your score, your competitor gaps — and walks you through what to fix first.",
     tint: "#16b394", // teal-green
+    badge: "Paid",
   },
   {
-    icon: Shield, // protection
-    title: "Brand Protection",
+    icon: Bell,
+    title: "Citation Monitor",
     description:
-      "Catch inaccurate or damaging AI answers about your firm before they cost you trust or consultations.",
+      "Weekly snapshots track your score over time, with alerts when a new competitor enters your prompts or your score moves.",
     tint: "#10b780", // emerald
+    badge: null,
   },
 ];
 
@@ -59,8 +69,12 @@ export default function Features() {
         >
           <p className="mb-4 text-sm font-medium uppercase tracking-widest text-label">Features</p>
           <h2 className="mx-auto max-w-3xl text-3xl font-bold leading-tight text-foreground md:text-5xl">
-            Everything you need to <span className="text-gradient">own the AI answer</span>
+            Scan, coach, and <span className="text-gradient">monitor</span>
           </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
+            The Visibility Scanner tells you where you stand, the Presence Coach tells you what to
+            fix, and the Citation Monitor tells you when it changes.
+          </p>
         </motion.div>
 
         <div className="mx-auto grid max-w-6xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -90,7 +104,14 @@ export default function Features() {
                 >
                   <feature.icon className="h-5 w-5" strokeWidth={2} style={{ color: feature.tint }} />
                 </div>
-                <h3 className="mb-2 text-xl font-semibold text-foreground">{feature.title}</h3>
+                <div className="mb-2 flex items-center gap-2">
+                  <h3 className="text-xl font-semibold text-foreground">{feature.title}</h3>
+                  {feature.badge && (
+                    <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+                      {feature.badge}
+                    </span>
+                  )}
+                </div>
                 <p className="text-sm leading-relaxed text-muted-foreground">{feature.description}</p>
               </div>
             </motion.div>

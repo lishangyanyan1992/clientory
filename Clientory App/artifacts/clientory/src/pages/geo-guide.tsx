@@ -417,7 +417,7 @@ const GeoGuide = () => {
                 Clientory automates the entire AI visibility monitoring process for professional service firms. Instead of manually testing prompts across multiple platforms, Clientory runs a standardized battery of industry-specific test prompts across ChatGPT, Claude, and Gemini — with Perplexity and Microsoft Copilot coming soon — and delivers results in a unified dashboard.
               </p>
               <p className="text-base text-muted-foreground leading-relaxed">
-                The platform calculates mention rate, Share of Voice, position, sentiment, and accuracy scores automatically, and benchmarks your firm against local competitors. Each report includes a prioritized action plan with specific recommendations for improving visibility across each AI platform.
+                The platform grades every prompt per model as Positive, Passive, or No mention, rolls that into a 0-100 visibility score, and shows which competitors appear in the prompts you are missing from. Subscribed firms are re-scanned weekly, and the AI Presence Coach answers questions against the latest scan.
               </p>
               <p className="text-base text-muted-foreground leading-relaxed">
                 Clientory is available at{" "}

@@ -15,16 +15,14 @@ import {
   FileText,
   Globe,
   MessageSquare,
-  Shield,
   Sparkles,
   Target,
   TrendingUp,
   Users,
-  Wrench,
   X,
 } from "lucide-react";
 import { AI_MODELS, LIVE_MODELS } from "@/lib/model-coverage";
-import { PROMPTS_PER_PAID_SCAN } from "@/lib/billing-config";
+import { PROMPTS_PER_FREE_SCAN, PROMPTS_PER_PAID_SCAN } from "@/lib/billing-config";
 
 const STEP_MS = 5000;
 
@@ -118,11 +116,12 @@ function FlowingDots() {
 }
 
 function FirmProfilePanel() {
+  // Mirrors the real intake form: firm name, location, practice areas, website.
   const items = [
-    { icon: Briefcase, label: "Practice focus and case types" },
-    { icon: Target, label: "Geography and office markets" },
-    { icon: Users, label: "Family and business client segments" },
-    { icon: Wrench, label: "Core services and attorney strengths" },
+    { icon: Building2, label: "Firm name" },
+    { icon: Target, label: "Location" },
+    { icon: Briefcase, label: "Practice areas" },
+    { icon: Globe, label: "Website" },
   ];
   return (
     <div className="space-y-2">
@@ -215,9 +214,9 @@ function ModelTestingPanel() {
 
 function AnalysisPanel() {
   const rows = [
-    { label: "Mentioned in response", found: true },
-    { label: "Ranking position: #3", found: true },
-    { label: "Frequency: 2 of 3 models", found: true },
+    { label: "Positive mention", found: true },
+    { label: "Passive mention", found: true },
+    { label: "No mention: 1 of 3 models", found: false },
     { label: "Competitor gap identified", found: false },
   ];
   return (
@@ -246,10 +245,11 @@ function AnalysisPanel() {
 }
 
 function RecommendationsPanel() {
+  // The coach answers against your last scan, so these read as coach replies.
   const rows = [
-    { icon: FileText, label: "Improve practice area descriptions" },
-    { icon: Globe, label: "Strengthen location and service pages" },
-    { icon: Shield, label: "Tighten directory and credibility signals" },
+    { icon: MessageSquare, label: "\u201cWhy am I missing from Gemini?\u201d" },
+    { icon: Users, label: "\u201cWhich competitor took my spot?\u201d" },
+    { icon: FileText, label: "\u201cWhat should I fix first?\u201d" },
   ];
   return (
     <>
@@ -266,7 +266,7 @@ function RecommendationsPanel() {
         ))}
       </div>
       <div className="px-2">
-        <p className="mb-1 text-[11px] text-muted-foreground">Score improvement</p>
+        <p className="mb-1 text-[11px] text-muted-foreground">Weekly score trend</p>
         <TrendLine />
       </div>
     </>
@@ -284,14 +284,14 @@ const steps: {
     title: "Firm Profile",
     icon: Building2,
     tint: "#6467f2",
-    blurb: "Enter the signals that shape how AI should understand your immigration practice.",
+    blurb: "Enter your firm name, location, practice areas, and website — the signals AI uses to understand your practice.",
     body: <FirmProfilePanel />,
   },
   {
     title: "Prompt Generation",
     icon: MessageSquare,
     tint: "#3f9fe0",
-    blurb: "Clientory generates realistic prompts that future immigration clients actually ask.",
+    blurb: `Clientory generates ${PROMPTS_PER_FREE_SCAN} prompts on a free report, or ${PROMPTS_PER_PAID_SCAN} on a subscription, from the questions real immigration clients ask.`,
     body: <PromptPanel />,
   },
   {
@@ -306,14 +306,14 @@ const steps: {
     title: "Visibility Analysis",
     icon: BarChart3,
     tint: "#16b394",
-    blurb: "Analyze whether your firm appears, how often, and where competitors outrank you.",
+    blurb: "Every prompt is graded per model — Positive, Passive, or No mention — and rolled into a 0–100 score, alongside the competitors filling the gaps.",
     body: <AnalysisPanel />,
   },
   {
-    title: "Recommendations",
+    title: "AI Presence Coach",
     icon: TrendingUp,
     tint: "#10b780",
-    blurb: "Get practical next steps to improve authority, visibility, and accuracy across AI.",
+    blurb: "A chat coach that knows your latest scan — score, competitor gaps, and the specific fixes to make first. Included with a subscription.",
     body: <RecommendationsPanel />,
   },
 ];
@@ -528,7 +528,8 @@ export default function HowItWorks() {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="mt-14 text-center text-sm text-muted-foreground"
         >
-          Track how AI recommendations change over time as your firm improves its visibility.
+          Subscribed firms are re-scanned automatically every 7 days, so you see your score move
+          — and get alerted when a new competitor enters your prompts.
         </motion.p>
       </div>
     </section>

@@ -9,24 +9,42 @@ const prompts = [
   "Best naturalization attorney near Houston",
 ];
 
+// The report grades each prompt per model as Positive / Passive / No mention —
+// not a numeric rank. Keep this mirroring the real per-prompt breakdown.
+type Sentiment = "positive" | "passive" | "none";
+
 // Only the models a scan actually queries today (see lib/model-coverage.ts).
-// Perplexity/Copilot are roadmap, so they must not appear here with ranks.
-const promptData: Record<string, { model: string; rank: number | null }[]> = {
+// Perplexity/Copilot are roadmap and must not appear here with results.
+const promptData: Record<string, { model: string; sentiment: Sentiment }[]> = {
   [prompts[0]]: [
-    { model: "ChatGPT", rank: 2 },
-    { model: "Claude", rank: 4 },
-    { model: "Gemini", rank: null },
+    { model: "ChatGPT", sentiment: "positive" },
+    { model: "Claude", sentiment: "passive" },
+    { model: "Gemini", sentiment: "none" },
   ],
   [prompts[1]]: [
-    { model: "ChatGPT", rank: 3 },
-    { model: "Claude", rank: null },
-    { model: "Gemini", rank: 5 },
+    { model: "ChatGPT", sentiment: "passive" },
+    { model: "Claude", sentiment: "none" },
+    { model: "Gemini", sentiment: "positive" },
   ],
   [prompts[2]]: [
-    { model: "ChatGPT", rank: 1 },
-    { model: "Claude", rank: 3 },
-    { model: "Gemini", rank: 4 },
+    { model: "ChatGPT", sentiment: "positive" },
+    { model: "Claude", sentiment: "positive" },
+    { model: "Gemini", sentiment: "passive" },
   ],
+};
+
+const SENTIMENT_ORDER: Record<Sentiment, number> = { positive: 0, passive: 1, none: 2 };
+
+const SENTIMENT_LABEL: Record<Sentiment, string> = {
+  positive: "Positive",
+  passive: "Passive",
+  none: "No mention",
+};
+
+const SENTIMENT_STYLE: Record<Sentiment, string> = {
+  positive: "text-accent",
+  passive: "text-amber-600",
+  none: "text-muted-foreground",
 };
 
 const modelColors: Record<string, string> = Object.fromEntries(
@@ -40,11 +58,9 @@ export default function AIDashboard() {
 
   const currentPrompt = prompts[promptIndex];
   const currentData = promptData[currentPrompt];
-  const sorted = [...currentData].sort((a, b) => {
-    if (a.rank === null) return 1;
-    if (b.rank === null) return -1;
-    return a.rank - b.rank;
-  });
+  const sorted = [...currentData].sort(
+    (a, b) => SENTIMENT_ORDER[a.sentiment] - SENTIMENT_ORDER[b.sentiment],
+  );
 
   useEffect(() => {
     setDisplayedText("");
@@ -104,14 +120,9 @@ export default function AIDashboard() {
             <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
               Model
             </span>
-            <div className="flex gap-8">
-              <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                Rank
-              </span>
-              <span className="w-20 text-right text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                Status
-              </span>
-            </div>
+            <span className="w-28 text-right text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+              Result
+            </span>
           </div>
 
           <AnimatePresence mode="popLayout">
@@ -129,33 +140,22 @@ export default function AIDashboard() {
                   <span className="text-sm font-medium text-foreground">{item.model}</span>
                 </div>
 
-                <div className="flex items-center gap-8">
-                  <motion.span
-                    key={`${item.model}-${item.rank}`}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="min-w-[48px] text-center text-sm font-semibold text-foreground"
-                  >
-                    {item.rank ? `#${item.rank}` : "—"}
-                  </motion.span>
-
+                <div className="flex items-center">
                   <motion.div
-                    key={`${item.model}-status-${item.rank}`}
+                    key={`${item.model}-${item.sentiment}`}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className={`flex w-20 items-center justify-end gap-1.5 text-xs font-medium ${
-                      item.rank ? "text-accent" : "text-muted-foreground"
-                    }`}
+                    className={`flex w-28 items-center justify-end gap-1.5 text-xs font-medium ${SENTIMENT_STYLE[item.sentiment]}`}
                   >
-                    {item.rank ? (
+                    {item.sentiment === "none" ? (
                       <>
-                        <Check className="h-3.5 w-3.5" />
-                        <span>Appears</span>
+                        <X className="h-3.5 w-3.5" />
+                        <span>{SENTIMENT_LABEL.none}</span>
                       </>
                     ) : (
                       <>
-                        <X className="h-3.5 w-3.5" />
-                        <span>Not Found</span>
+                        <Check className="h-3.5 w-3.5" />
+                        <span>{SENTIMENT_LABEL[item.sentiment]}</span>
                       </>
                     )}
                   </motion.div>
