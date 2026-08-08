@@ -1,6 +1,7 @@
 // Single source of truth for what the marketing site claims about AI model
-// coverage. Keep this in sync with the scan engine's ENABLED_PROVIDERS
-// (api-server/src/routes/scans/engine.ts) — never claim a model we don't query.
+// coverage. The scan engine lives in the product app (app.clientory.org), not
+// in this repo — keep this matched to the providers it actually queries, and
+// never claim a model we don't.
 //
 // Live today: OpenAI (ChatGPT) + Anthropic (Claude) on every scan, Gemini on
 // paid scans only. Everything else is genuinely not wired up yet and must be
