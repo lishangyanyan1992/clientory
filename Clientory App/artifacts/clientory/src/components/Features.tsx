@@ -32,9 +32,9 @@ const features = [
   },
   {
     icon: RefreshCw,
-    title: "Weekly Auto-Scan",
+    title: "One Scan a Week",
     description:
-      "Subscribed firms are re-scanned automatically every 7 days. Your score stays current without you remembering to run anything.",
+      "Run it yourself, or skip it and Clientory runs it for you every 7 days. Either way your score stays current — and weekly is as often as AI answers actually move.",
     tint: "#22b0a8", // teal
     badge: "Paid",
   },

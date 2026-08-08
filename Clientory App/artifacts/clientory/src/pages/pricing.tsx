@@ -31,13 +31,12 @@ const FREE_FEATURES = [
 const PAID_FEATURES = [
   PAID_PROMPTS_LABEL,
   `Tested on ${PAID_MODELS_LABEL}`,
-  "Weekly auto-scan, every 7 days",
+  BILLING_SCANS_LABEL,
   "Competitor gap analysis",
   "AI Presence Coach, personalized to your scan",
   "Citation Monitor with weekly snapshots",
   "Competitor emergence alerts",
   "Email alerts when your score changes",
-  BILLING_SCANS_LABEL,
 ];
 
 const PLAN = {
@@ -189,12 +188,12 @@ export default function Pricing() {
                 a: "No. Subscribed firms are re-scanned automatically every 7 days. The Citation Monitor keeps weekly snapshots of your score, alerts you when a new competitor appears in your prompts, and can email you when your score changes.",
               },
               {
-                q: "What counts as a scan?",
-                a: "Each time you run a new visibility scan for a specific immigration firm, that uses 1 scan from your allowance. Viewing an existing report again does not use a scan.",
+                q: "How often can I scan?",
+                a: "Once a week per firm. If you run a scan yourself that week, that is the week's scan; if you don't, Clientory runs it for you. Scanning more often than weekly doesn't tell you much — AI answers rarely move that fast.",
               },
               {
-                q: "When does my scan allowance reset?",
-                a: `Your ${BILLING_CONFIG.scansPerCycle}-scan allowance resets at the start of each monthly billing cycle.`,
+                q: "Do manual scans use up my automatic ones?",
+                a: "There is no separate allowance to spend. A subscription is one scan per week, whether you trigger it or we do. Viewing an existing report again is always free.",
               },
               {
                 q: "Can I subscribe multiple firms?",

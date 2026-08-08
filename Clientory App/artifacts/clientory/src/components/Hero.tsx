@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import AIDashboard from "@/components/AIDashboard";
 import StripeGradient from "@/components/StripeGradient";
 import { CLIENTORY_APP_URL } from "@/lib/app-url";
+import { PROMPTS_PER_FREE_SCAN } from "@/lib/billing-config";
+import { FREE_MODELS_LABEL } from "@/lib/model-coverage";
 
 export default function Hero() {
   return (
@@ -63,7 +65,10 @@ export default function Hero() {
           </div>
 
           <div className="mt-5 flex flex-col items-center justify-center gap-2 text-sm text-muted-foreground sm:flex-row">
-            <p>Free during beta · No credit card required</p>
+            <p>
+              Free report: {PROMPTS_PER_FREE_SCAN} prompts on {FREE_MODELS_LABEL} · No credit card
+              required
+            </p>
             <span className="hidden sm:inline" aria-hidden="true">·</span>
             <a
               href="https://github.com/lishangyanyan1992/clientory-ai-visibility-skill"
