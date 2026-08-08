@@ -48,11 +48,9 @@ jobs:
         working-directory: 'Clientory App'
         run: pnpm run typecheck
 
-      - name: Run tests
-        working-directory: 'Clientory App/artifacts/api-server'
-        run: pnpm test
-        env:
-          EMAIL_TOKEN_SECRET: ${{ secrets.EMAIL_TOKEN_SECRET || 'ci-test-secret' }}
+      - name: Build marketing site
+        working-directory: 'Clientory App/artifacts/clientory'
+        run: PORT=3000 BASE_PATH=/ pnpm run build
 
       - name: Audit dependencies
         working-directory: 'Clientory App'
