@@ -6,10 +6,6 @@
   "outputDirectory": "Clientory App/artifacts/clientory/dist/public",
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "https://clientory-production.up.railway.app/api/:path*"
-    },
-    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

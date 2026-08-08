@@ -1,5 +1,4 @@
 import { Helmet } from "react-helmet-async";
-import { Link } from "react-router-dom";
 import { MarketingLayout } from "@/components/marketing-layout";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,6 +8,7 @@ import {
   Accordion, AccordionItem, AccordionTrigger, AccordionContent,
 } from "@/components/ui/accordion";
 import { Check, X, AlertTriangle } from "lucide-react";
+import { CLIENTORY_APP_URL } from "@/lib/app-url";
 
 export interface ComparisonFeature {
   feature: string;
@@ -185,11 +185,11 @@ const ComparisonPage = ({ data }: { data: ComparisonPageData }) => {
             <h2 className="text-2xl font-bold text-primary-foreground">
               See how Clientory tracks your firm's AI visibility — free for 14 days
             </h2>
-            <Link to="/scan">
+            <a href={CLIENTORY_APP_URL}>
               <Button size="lg" variant="secondary" className="rounded-full px-8 mt-2">
                 Start Free Trial
               </Button>
-            </Link>
+            </a>
           </section>
           </article>
         </main>

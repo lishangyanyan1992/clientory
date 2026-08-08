@@ -1,6 +1,6 @@
 import { motion, useReducedMotion } from "framer-motion";
-import { Link } from "react-router-dom";
 import { ArrowRight, Bot, Globe, Search } from "lucide-react";
+import { CLIENTORY_APP_URL } from "@/lib/app-url";
 
 const timelineSteps = [
   {
@@ -149,13 +149,13 @@ export default function Problem() {
                 is not mentioned in answers about visas, green cards, or deportation defense,
                 prospective clients may never put you on the shortlist.
               </p>
-              <Link
-                to="/scan"
+              <a
+                href={CLIENTORY_APP_URL}
                 className="mt-5 inline-flex items-center gap-1.5 rounded-md text-sm font-semibold text-primary transition-all duration-300 hover:gap-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               >
                 See if AI recommends your firm
                 <ArrowRight className="h-4 w-4" />
-              </Link>
+              </a>
             </div>
           </div>
         </motion.div>
