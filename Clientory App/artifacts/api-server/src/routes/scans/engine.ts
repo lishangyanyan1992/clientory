@@ -22,6 +22,7 @@ import {
 } from "@workspace/db/schema";
 import { eq, desc, inArray } from "drizzle-orm";
 import { analyzeMention, serviceKeywordsFromPrompt, computeTotalScore } from "./scoring";
+import { analyzeCompetitorsForScan, MOCK_COMPETITOR_NAMES } from "./competitor-gaps";
 import type { Business, PromptItem, Scan, ScanPrompt, ScanResultSource } from "@workspace/db/schema";
 
 // ─── Model config (override via env vars) ────────────────────────────────────
@@ -64,8 +65,7 @@ type ProgressCallback = (event: {
 }) => void;
 
 // ─── Static symptom map (30 entries across law, accounting, consulting, marketing) ────────────────
-// v1: COMPARISON prompts are NOT generated even if competitors are present (reserved for v2)
-// v2 TODO: add COMPARISON category using directCompetitors field
+// Comparison prompts are intentionally excluded; competitors are discovered only from scan answers.
 // v2 TODO: add SERVICE_EXPLANATORY, VALIDATION, COST_PRICING categories
 const SYMPTOM_MAP: Record<string, string> = {
   "trademark registration": "Someone is using my brand name, what are my legal options?",
@@ -543,8 +543,7 @@ async function generatePromptBatch(
 
 // Main combinatorial engine — v2: up to 20 prompts (10 consumer + 10 business)
 // Uses separate individual/business service data when available; falls back to combined data (legacy).
-// Architecture supports: (a) COMPARISON category in v3 (uses directCompetitors),
-// (b) SERVICE_EXPLANATORY, VALIDATION, COST_PRICING in v4
+// Architecture supports SERVICE_EXPLANATORY, VALIDATION, and COST_PRICING in a later version.
 export async function generateFirmPrompts(
   firm: Business,
 ): Promise<{ prompts: PromptItem[]; substitutionNotes: string }> {
@@ -783,10 +782,10 @@ async function mockQuery(
   const text = mentioned
     ? `[MOCK ${provider} ${modeLabel}] For "${prompt}", a strong option is ${businessName}, ` +
       `which is well regarded for this kind of work and frequently recommended by peers.`
-    : `[MOCK ${provider} ${modeLabel}] For "${prompt}", there are several reputable providers to consider, ` +
-      `though no single firm stands out as the default choice.`;
+    : `[MOCK ${provider} ${modeLabel}] For "${prompt}", consider ${MOCK_COMPETITOR_NAMES[0]} first, ` +
+      `followed by ${MOCK_COMPETITOR_NAMES[1]}; both are established providers for this kind of work.`;
   const sources: ScanResultSource[] = grounded
-    ? [{ url: "https://example.com/mock-source", title: "Mock cited source" }]
+    ? [{ url: "https://www.avvo.com/mock-source", title: "Mock directory source" }]
     : [];
   return { text, sources, searched: grounded, promptTokens: 0, completionTokens: 0 };
 }
@@ -904,6 +903,8 @@ export interface ReportSynthesisInput {
   prompts: { text: string; mentionedBy: string[] }[];
   /** A few verbatim response excerpts to ground the narrative. */
   excerpts: { provider: string; prompt: string; text: string }[];
+  /** Highest-priority discovered competitor gap, or an explicit no-gap message. */
+  topGapSummary: string;
 }
 
 function formatMentionsByProvider(m: Record<string, number>): string {
@@ -951,6 +952,7 @@ export async function synthesizeReport(input: ReportSynthesisInput): Promise<str
     mentionsByProvider: formatMentionsByProvider(input.mentionsByProvider),
     promptResults: formatPromptResults(input.prompts),
     responseExcerpts: formatExcerpts(input.excerpts),
+    topGapSummary: input.topGapSummary,
   });
 
   const systemMsg = messages.find((m) => m.role === "system")?.content;
@@ -1387,6 +1389,16 @@ async function _runScan(
       hasWeb: answerChecks > 0,
       qualityAvg,
     });
+
+    try {
+      await analyzeCompetitorsForScan(scan);
+    } catch (error) {
+      logBusinessEvent("gap_analysis_failed", {
+        scanId,
+        businessId: scan.businessId ?? undefined,
+        reason: error instanceof Error ? error.message : "Unknown extraction error",
+      });
+    }
 
     await db
       .update(scansTable)

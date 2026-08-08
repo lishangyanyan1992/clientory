@@ -164,6 +164,7 @@ export const REPORT_PROMPT_FALLBACK: ReportChatMessage[] = [
       "Mentions by provider (memory mode): {{mentionsByProvider}}.\n\n" +
       "Prompts tested and which assistants named the firm:\n{{promptResults}}\n\n" +
       "Representative verbatim AI responses (excerpts):\n{{responseExcerpts}}\n\n" +
+      "Highest-priority discovered competitor gap:\n{{topGapSummary}}\n\n" +
       "Write the report.",
   },
 ];
@@ -171,6 +172,42 @@ export const REPORT_PROMPT_FALLBACK: ReportChatMessage[] = [
 export interface ResolvedReportPrompt {
   messages: ReportChatMessage[];
   promptClient: ChatPromptClient | null;
+}
+
+// ── Competitor extraction prompt ─────────────────────────────────────────────
+export const COMPETITOR_EXTRACTION_PROMPT_NAME = "competitor-extraction";
+
+export const COMPETITOR_EXTRACTION_PROMPT_FALLBACK =
+  "Extract professional-services firms that the AI response explicitly recommends, " +
+  "lists, or compares. Do not include government agencies, directories, publications, " +
+  "software products, or the target firm. Return ONLY a JSON array with one object per " +
+  "input result: {\"resultId\": number, \"firms\": [{\"name\": string, " +
+  "\"rank\": number|null, \"confidence\": number}]}. Confidence must be between 0 and 1. " +
+  "Use an empty firms array when none are explicitly present.\n\n" +
+  "Target firm aliases: {{targetAliases}}\n\nResults:\n{{results}}";
+
+export async function getCompetitorExtractionPrompt(vars: {
+  targetAliases: string;
+  results: string;
+}): Promise<ResolvedPrompt> {
+  const compileFallback = (): ResolvedPrompt => ({
+    text: COMPETITOR_EXTRACTION_PROMPT_FALLBACK
+      .replace("{{targetAliases}}", vars.targetAliases)
+      .replace("{{results}}", vars.results),
+    promptClient: null,
+  });
+
+  if (!isLangfuseEnabled()) return compileFallback();
+
+  try {
+    const prompt = await client().prompt.get(COMPETITOR_EXTRACTION_PROMPT_NAME, {
+      type: "text",
+      fallback: COMPETITOR_EXTRACTION_PROMPT_FALLBACK,
+    });
+    return { text: prompt.compile(vars), promptClient: prompt };
+  } catch {
+    return compileFallback();
+  }
 }
 
 /**

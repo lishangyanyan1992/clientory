@@ -10,7 +10,6 @@ import {
   sendOtp,
   verifyOtp,
   submitPassword,
-  suggestCompetitors,
   login,
 } from "@workspace/api-client-react";
 import type { CreateBusinessBody } from "@workspace/api-client-react";
@@ -30,7 +29,6 @@ import {
   Users,
   Trophy,
   Star,
-  Bot,
 } from "lucide-react";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -105,12 +103,14 @@ const US_STATES = [
 
 const STEP_LABELS = [
   "Sign in", "Identity", "Locations", "Families / Individuals", "Employers",
-  "Partners", "Competitors", "Authority", "Confirm",
+  "Partners", "Authority", "Confirm",
 ];
 
-const TOTAL_STEPS = 9;
+const TOTAL_STEPS = 8;
 const STORAGE_KEY = "firmIntakeData";
 const STORAGE_STEP_KEY = "firmIntakeStep";
+const STORAGE_VERSION_KEY = "firmIntakeVersion";
+const STORAGE_VERSION = "2";
 const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || "";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -125,11 +125,6 @@ interface PartnerRow {
   name: string;
   title: string;
   trackIndependently: boolean;
-}
-
-interface CompetitorRow {
-  name: string;
-  location: string;
 }
 
 interface RankingRow {
@@ -158,7 +153,6 @@ interface FirmIntakeData {
   clientStages: string[];
   decisionMakers: string[];
   partners: PartnerRow[];
-  directCompetitors: CompetitorRow[];
   rankings: RankingRow[];
   directoryListings: string[];
   publications: string[];
@@ -186,7 +180,6 @@ const DEFAULT_DATA: FirmIntakeData = {
   clientStages: [],
   decisionMakers: [],
   partners: [],
-  directCompetitors: [],
   rankings: [],
   directoryListings: [],
   publications: [],
@@ -221,11 +214,6 @@ const DEMO_FIRM: FirmIntakeData = {
     { name: "H. Ronald Klasko", title: "Chairman", trackIndependently: true },
     { name: "William Stock", title: "Managing Partner", trackIndependently: true },
     { name: "Elise Fialkowski", title: "Partner", trackIndependently: false },
-  ],
-  directCompetitors: [
-    { name: "Fragomen, Del Rey, Bernsen & Loewy", location: "New York, NY" },
-    { name: "Berry Appleman & Leiden", location: "San Francisco, CA" },
-    { name: "Ogletree Deakins", location: "Washington, DC" },
   ],
   rankings: [
     { source: "Chambers USA", category: "Immigration: Business", year: "2025" },
@@ -484,7 +472,10 @@ export default function ScanForm() {
   const [step, setStep] = useState<number>(() => {
     try {
       const s = localStorage.getItem(STORAGE_STEP_KEY);
-      const saved = s ? Math.min(parseInt(s, 10), TOTAL_STEPS) : 1;
+      const version = localStorage.getItem(STORAGE_VERSION_KEY);
+      const parsed = s ? parseInt(s, 10) : 1;
+      const migrated = version === STORAGE_VERSION ? parsed : parsed >= 8 ? parsed - 1 : parsed;
+      const saved = Math.max(1, Math.min(migrated, TOTAL_STEPS));
       return initialEmailToken ? saved : 1;
     } catch {
       return 1;
@@ -494,7 +485,11 @@ export default function ScanForm() {
   const [formData, setFormData] = useState<FirmIntakeData>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? { ...DEFAULT_DATA, ...JSON.parse(saved), firmType: "law" } : DEFAULT_DATA;
+      if (!saved) return DEFAULT_DATA;
+      const parsed = JSON.parse(saved) as Record<string, unknown>;
+      const { directCompetitors: _legacyCompetitors, ...currentFields } = parsed;
+      void _legacyCompetitors;
+      return { ...DEFAULT_DATA, ...currentFields, firmType: "law" } as FirmIntakeData;
     } catch {
       return DEFAULT_DATA;
     }
@@ -515,7 +510,6 @@ export default function ScanForm() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
-  const [suggestingCompetitors, setSuggestingCompetitors] = useState(false);
   const [freeReportUsed, setFreeReportUsed] = useState(false);
   // After sign-in: a recent viewable report, offered so the user can re-open it
   // instead of running a fresh scan (no AI calls). Null = none / go to intake.
@@ -532,6 +526,7 @@ export default function ScanForm() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
       localStorage.setItem(STORAGE_STEP_KEY, String(step));
+      localStorage.setItem(STORAGE_VERSION_KEY, STORAGE_VERSION);
     } catch {
       // Ignore storage errors
     }
@@ -688,34 +683,6 @@ export default function ScanForm() {
     }
   };
 
-  // ─── Suggest competitors ───────────────────────────────────────────────────
-  const handleSuggestCompetitors = async () => {
-    const hq = formData.locations.find((l) => l.isHQ) || formData.locations[0];
-    if (!hq?.city || !hq?.state) {
-      setError("Add your HQ location first (city + state).");
-      return;
-    }
-    setSuggestingCompetitors(true);
-    setError(null);
-    try {
-      const result = await suggestCompetitors({
-        firmType: formData.firmType,
-        city: hq.city,
-        state: hq.state,
-        primaryServices: [...formData.individualServices, ...formData.businessServices],
-      });
-      const existing = formData.directCompetitors.map((c) => c.name.toLowerCase());
-      const newOnes = result.suggestions
-        .filter((s) => !existing.includes(s.name.toLowerCase()))
-        .map((s) => ({ name: s.name, location: s.location || "" }));
-      update({ directCompetitors: [...formData.directCompetitors, ...newOnes] });
-    } catch {
-      setError("Could not suggest competitors — try again.");
-    } finally {
-      setSuggestingCompetitors(false);
-    }
-  };
-
   // ─── Final submission ──────────────────────────────────────────────────────
   const handleSubmit = async () => {
     const token = emailToken;
@@ -759,10 +726,6 @@ export default function ScanForm() {
         industriesServed: formData.industriesServed.length > 0 ? formData.industriesServed : null,
         clientStages: formData.clientStages.length > 0 ? formData.clientStages : null,
         decisionMakers: formData.decisionMakers.length > 0 ? formData.decisionMakers : null,
-        directCompetitors:
-          formData.directCompetitors.length > 0
-            ? formData.directCompetitors.map((c) => ({ name: c.name, location: c.location || undefined }))
-            : null,
         rankings:
           formData.rankings.length > 0
             ? formData.rankings
@@ -777,6 +740,7 @@ export default function ScanForm() {
 
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem(STORAGE_STEP_KEY);
+      localStorage.removeItem(STORAGE_VERSION_KEY);
 
       navigate(`/firm/${business.id}/prompts`, { state: { business, promptSet } });
     } catch (err) {
@@ -1346,89 +1310,6 @@ export default function ScanForm() {
     </div>
   );
 
-  const renderStep6 = () => (
-    <div className="space-y-6">
-      <div>
-        <div className="flex items-center gap-2 mb-1">
-          <h2 className="text-xl font-bold text-slate-900">Direct competitors</h2>
-          <span className="px-2 py-0.5 text-xs bg-slate-100 text-slate-500 rounded-full font-medium">
-            Optional
-          </span>
-        </div>
-        <p className="text-slate-500 text-sm">
-          Saved for future visibility comparison. We never share this data.
-        </p>
-      </div>
-      <div className="space-y-3">
-        {formData.directCompetitors.map((comp, idx) => (
-          <div key={idx} className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50">
-            <div className="flex-1 grid grid-cols-2 gap-3">
-              <input
-                value={comp.name}
-                onChange={(e) =>
-                  update({
-                    directCompetitors: formData.directCompetitors.map((c, i) =>
-                      i === idx ? { ...c, name: e.target.value } : c,
-                    ),
-                  })
-                }
-                placeholder="Firm name"
-                className="px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:border-blue-500 bg-white"
-              />
-              <input
-                value={comp.location}
-                onChange={(e) =>
-                  update({
-                    directCompetitors: formData.directCompetitors.map((c, i) =>
-                      i === idx ? { ...c, location: e.target.value } : c,
-                    ),
-                  })
-                }
-                placeholder="City, State (optional)"
-                className="px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:border-blue-500 bg-white"
-              />
-            </div>
-            <button
-              type="button"
-              onClick={() =>
-                update({ directCompetitors: formData.directCompetitors.filter((_, i) => i !== idx) })
-              }
-              className="text-slate-400 hover:text-red-500 shrink-0"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        ))}
-        <div className="flex gap-3">
-          <button
-            type="button"
-            onClick={() =>
-              update({
-                directCompetitors: [...formData.directCompetitors, { name: "", location: "" }],
-              })
-            }
-            className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-medium py-2"
-          >
-            <Plus className="w-4 h-4" /> Add manually
-          </button>
-          <button
-            type="button"
-            onClick={handleSuggestCompetitors}
-            disabled={suggestingCompetitors || !formData.firmType}
-            className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg border border-blue-200 text-blue-600 hover:bg-blue-50 font-medium disabled:opacity-50"
-          >
-            {suggestingCompetitors ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Bot className="w-4 h-4" />
-            )}
-            Suggest with AI
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
   const renderStep7 = () => (
     <div className="space-y-6">
       <div>
@@ -1903,14 +1784,13 @@ export default function ScanForm() {
     renderStep3,
     renderStep4,
     renderStep5,
-    renderStep6,
     renderStep7,
     renderStep9,
   ];
 
   const currentRenderer = stepRenderers[step - 1];
   const isLastStep = step === TOTAL_STEPS;
-  const isOptionalStep = step >= 6 && step <= 8;
+  const isOptionalStep = step >= 6 && step <= 7;
   const showNextButton = !isLastStep && step !== 1;
 
   // Returning user with a recent report: offer to re-open it (no AI call) or

@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { CreateBusinessBodyAuthoritySignals } from "./createBusinessBodyAuthoritySignals";
 import type { CreateBusinessBodyRankingsItem } from "./createBusinessBodyRankingsItem";
 import type { FirmCompetitor } from "./firmCompetitor";
 import type { FirmLocation } from "./firmLocation";
@@ -31,6 +32,7 @@ export interface CreateBusinessBody {
   decisionMakers?: string[] | null;
   directCompetitors?: FirmCompetitor[] | null;
   rankings?: CreateBusinessBodyRankingsItem[] | null;
+  authoritySignals?: CreateBusinessBodyAuthoritySignals;
   topGSCQueries?: string[] | null;
   clientType?: string | null;
   individualServices?: string[] | null;

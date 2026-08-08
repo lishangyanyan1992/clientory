@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, type ReactNode } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Layout } from "@/components/layout";
 import { useGetScan, getBillingStatus } from "@workspace/api-client-react";
+import type { CompetitorGapAnalysis } from "@workspace/api-client-react";
 import { BILLING_PRICE_LABEL } from "@/lib/billing-config";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,8 @@ import {
   Globe,
   Brain,
   TrendingDown,
+  ExternalLink,
+  Radar,
 } from "lucide-react";
 
 // ─── Static config ───────────────────────────────────────────────────────────
@@ -708,6 +711,121 @@ function LockedFeature({ title, description }: { title: string; description: str
   );
 }
 
+function CompetitorGapSection({ analysis }: { analysis: CompetitorGapAnalysis | undefined }) {
+  if (!analysis) return null;
+
+  const statusCopy: Partial<Record<CompetitorGapAnalysis["status"], string>> = {
+    unavailable: "Competitor discovery is available after your next fresh scan.",
+    not_started: "Competitor discovery has not run for this report.",
+    processing: "Discovering which firms appeared in these answers...",
+    failed: "The visibility scan completed, but competitor discovery could not be completed.",
+  };
+  const statusMessage = statusCopy[analysis.status];
+
+  return (
+    <section aria-labelledby="competitor-gap-heading">
+      <div className="flex items-start justify-between gap-4 mb-4">
+        <div>
+          <h2 id="competitor-gap-heading" className="text-2xl font-bold flex items-center gap-2">
+            <Radar className="w-5 h-5 text-primary" /> Who AI recommends instead
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Firms discovered directly in the same AI answers tested for your report.
+          </p>
+        </div>
+        {analysis.completeness === "partial" && <Badge variant="secondary">Partial analysis</Badge>}
+      </div>
+
+      {statusMessage ? (
+        <div className="rounded-lg border border-border bg-muted/20 p-5 text-sm text-muted-foreground">
+          {analysis.status === "processing" && <Loader2 className="inline-block w-4 h-4 mr-2 animate-spin" />}
+          {statusMessage}
+        </div>
+      ) : analysis.competitors.length === 0 ? (
+        <div className="rounded-lg border border-emerald-500/25 bg-emerald-500/[0.05] p-5">
+          <p className="font-semibold text-foreground">No competing firms were discovered.</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            None of the completed AI answers explicitly recommended another professional-services firm.
+          </p>
+        </div>
+      ) : (
+        <Card className="glass-panel overflow-hidden">
+          <CardHeader className="border-b border-border/60">
+            <div className="grid sm:grid-cols-3 gap-4">
+              <div>
+                <p className="text-xs uppercase text-muted-foreground">Leading competitor</p>
+                <p className="font-semibold mt-1">{analysis.leadingCompetitor}</p>
+              </div>
+              <div>
+                <p className="text-xs uppercase text-muted-foreground">Your share of voice</p>
+                <p className="font-semibold mt-1">
+                  {analysis.targetShareOfVoice == null ? "Not available" : `${analysis.targetShareOfVoice}%`}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs uppercase text-muted-foreground">Opportunity gaps</p>
+                <p className="font-semibold mt-1">{analysis.totalGaps}</p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="divide-y divide-border/60">
+              {analysis.gaps.map((gap, index) => (
+                <article key={`${gap.promptId}-${gap.provider}-${gap.competitor.name}-${index}`} className="p-5 space-y-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant="outline">{PROVIDER_DISPLAY[gap.provider] ?? gap.provider}</Badge>
+                    <Badge variant="secondary">{gap.grounded ? "Live web" : "AI memory"}</Badge>
+                    {gap.competitor.rank != null && <Badge variant="outline">Rank #{gap.competitor.rank}</Badge>}
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase text-muted-foreground mb-1">Prompt tested</p>
+                    <p className="font-medium">“{gap.prompt}”</p>
+                  </div>
+                  <div className="rounded-md border border-amber-500/25 bg-amber-500/[0.05] p-4">
+                    <p className="font-semibold text-sm">{gap.competitor.name} appeared; your firm did not.</p>
+                    <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{gap.competitor.snippet}</p>
+                  </div>
+                  {gap.sources.length > 0 && (
+                    <div>
+                      <p className="text-xs uppercase text-muted-foreground mb-2">Sources used in the same answer</p>
+                      <div className="flex flex-wrap gap-2">
+                        {gap.sources.map((source) => (
+                          <a key={source.url} href={source.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
+                            {source.title || source.url} <ExternalLink className="w-3 h-3" />
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-md bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                      <Lightbulb className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-sm">{gap.action.title}</p>
+                      <p className="text-sm text-muted-foreground mt-1">{gap.action.description}</p>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+            {analysis.isLocked && (
+              <div className="p-5 border-t border-primary/20 bg-primary/[0.04] text-center">
+                <p className="text-sm text-muted-foreground mb-3">
+                  {analysis.lockedCount} additional competitor {analysis.lockedCount === 1 ? "gap is" : "gaps are"} available.
+                </p>
+                <Button asChild size="sm">
+                  <Link to="/settings/billing"><Lock className="w-4 h-4 mr-2" /> Unlock the full analysis</Link>
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+    </section>
+  );
+}
+
 // Render **bold** spans within a single line of markdown text.
 function renderInline(text: string, keyPrefix: string): ReactNode[] {
   return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
@@ -1200,6 +1318,8 @@ export default function ScanResults() {
               </div>
             </div>
           )}
+
+          <CompetitorGapSection analysis={data.competitorGapAnalysis} />
 
           {!billingLoading && !showPaidFeatures && (
             <LockedFeature

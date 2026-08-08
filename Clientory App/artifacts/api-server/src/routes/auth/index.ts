@@ -103,7 +103,8 @@ router.post("/auth/send-otp", async (req, res) => {
   try {
     const bodyResult = SendOtpBody.safeParse(req.body);
     if (!bodyResult.success) {
-      res.status(400).json({ error: bodyResult.error.issues[0]?.message ?? "Email is required" });
+      const error = !req.body?.email ? "Email is required" : "Invalid email address";
+      res.status(400).json({ error });
       return;
     }
     const { email, turnstileToken } = bodyResult.data;
@@ -222,7 +223,10 @@ router.post("/auth/submit-password", async (req, res) => {
 
     const bodyResult = SubmitPasswordBody.safeParse(req.body);
     if (!bodyResult.success) {
-      res.status(400).json({ error: bodyResult.error.issues[0]?.message ?? "verifiedToken and password are required" });
+      const error = typeof req.body?.password === "string" && req.body.password.length < 8
+        ? "Password must be at least 8 characters"
+        : "verifiedToken and password are required";
+      res.status(400).json({ error });
       return;
     }
     const { verifiedToken, password } = bodyResult.data;

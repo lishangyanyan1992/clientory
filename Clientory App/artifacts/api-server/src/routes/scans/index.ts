@@ -5,13 +5,14 @@ import {
   scansTable,
   scanPromptsTable,
   scanResultsTable,
+  scanResultEntitiesTable,
   usersTable,
   businessesTable,
   businessSubscriptionsTable,
   businessUsageEventsTable,
   businessUsagePeriodsTable,
 } from "@workspace/db/schema";
-import { eq, and, lte, gte, isNull, sql, gt, desc } from "drizzle-orm";
+import { eq, and, lte, gte, isNull, sql, gt, desc, inArray } from "drizzle-orm";
 import { EventEmitter } from "events";
 import { verifyEmailToken } from "../../services/otp";
 import { validateScanInput } from "../../services/validation";
@@ -20,6 +21,7 @@ import { checkRateLimit, hashIp, getClientIp } from "../../services/rate-limit";
 import { checkScanEntitlement } from "../../services/entitlement";
 import { getAppBaseUrl } from "../../services/app-base-url";
 import { timedQuery } from "../../services/business-logger";
+import { buildCompetitorGapAnalysis, type CompetitorGapAnalysis } from "./competitor-gaps";
 
 const router: IRouter = Router();
 
@@ -559,6 +561,37 @@ router.get("/scans/:id", async (req, res) => {
     const reportEligible = canViewScanData && scan.status === "completed";
     const engine = await getScanEngine();
 
+    let competitorGapAnalysis: CompetitorGapAnalysis | undefined;
+    if (canViewScanData) {
+      const flatResults = promptsWithResults.flatMap((item) => item.results);
+      const resultIds = flatResults.map((result) => parseInt(result.id, 10)).filter(Number.isFinite);
+      const entities = resultIds.length
+        ? await db
+            .select()
+            .from(scanResultEntitiesTable)
+            .where(inArray(scanResultEntitiesTable.scanResultId, resultIds))
+        : [];
+      competitorGapAnalysis = buildCompetitorGapAnalysis({
+        status: scan.gapAnalysisVersion == null ? "unavailable" : scan.gapAnalysisStatus,
+        prompts: prompts.map((prompt) => ({
+          id: prompt.id,
+          prompt: prompt.prompt,
+          category: prompt.category,
+          audience: prompt.audience ?? null,
+        })),
+        results: flatResults.map((result) => ({
+          id: parseInt(result.id, 10),
+          scanPromptId: parseInt(result.scanPromptId, 10),
+          provider: result.provider,
+          mentioned: result.mentioned,
+          grounded: result.grounded ?? false,
+          sources: (result.sources ?? []) as Array<{ url: string; title?: string }>,
+        })),
+        entities,
+        fullAccess: hasPaidSubscription || isAdminViewer,
+      });
+    }
+
     // Canned recommendations are kept as the deterministic fallback (rendered if
     // LLM synthesis fails or Langfuse is unreachable).
     const recommendations = reportEligible
@@ -604,6 +637,9 @@ router.get("/scans/:id", async (req, res) => {
           mentionsByProvider,
           prompts: promptInputs,
           excerpts,
+          topGapSummary: competitorGapAnalysis?.gaps[0]
+            ? `${competitorGapAnalysis.gaps[0].competitor.name} appeared for "${competitorGapAnalysis.gaps[0].prompt}" while the target firm did not. Recommended action: ${competitorGapAnalysis.gaps[0].action.title}.`
+            : "No discovered competitor gap is available for this scan.",
         });
       } catch (err) {
         console.error("Report synthesis failed; falling back to recommendations:", err);
@@ -629,6 +665,7 @@ router.get("/scans/:id", async (req, res) => {
       prompts: promptsWithResults,
       recommendations,
       report,
+      competitorGapAnalysis,
       locked: !canViewScanData,
     });
   } catch (err) {

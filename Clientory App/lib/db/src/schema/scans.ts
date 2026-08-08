@@ -35,6 +35,11 @@ export const scansTable = pgTable("scans", {
   // (no OpenAI/Anthropic calls). Lets admins exercise the full front-end without
   // burning tokens. Always false for non-admin scans.
   mock: boolean("mock").notNull().default(false),
+  gapAnalysisStatus: text("gap_analysis_status")
+    .$type<"not_started" | "processing" | "completed" | "partial" | "failed">()
+    .notNull()
+    .default("not_started"),
+  gapAnalysisVersion: integer("gap_analysis_version"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

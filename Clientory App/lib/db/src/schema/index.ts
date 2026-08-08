@@ -1,6 +1,7 @@
 export * from "./scans";
 export * from "./scan-prompts";
 export * from "./scan-results";
+export * from "./scan-result-entities";
 export * from "./otp-codes";
 export * from "./rate-limits";
 export * from "./scan-cache";

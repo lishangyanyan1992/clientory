@@ -54,9 +54,18 @@ function resolveConnectionString(rawUrl: string): string {
 
 const connectionString = resolveConnectionString(process.env.DATABASE_URL);
 
+function requiresSsl(rawUrl: string): boolean {
+  try {
+    const host = new URL(rawUrl).hostname;
+    return !["localhost", "127.0.0.1", "::1"].includes(host);
+  } catch {
+    return true;
+  }
+}
+
 export const pool = new Pool({
   connectionString,
-  ssl: { rejectUnauthorized: false },
+  ssl: requiresSsl(connectionString) ? { rejectUnauthorized: false } : false,
 });
 export const db = drizzle(pool, { schema });
 

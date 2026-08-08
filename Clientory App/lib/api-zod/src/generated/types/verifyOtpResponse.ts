@@ -8,6 +8,6 @@
 
 export interface VerifyOtpResponse {
   success: boolean;
-  emailToken: string;
-  userId?: string | null;
+  verifiedToken: string;
+  hasPassword: boolean;
 }

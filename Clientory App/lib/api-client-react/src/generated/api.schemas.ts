@@ -5,6 +5,18 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export interface LoginBody {
+  email: string;
+  /** @minLength 1 */
+  password: string;
+}
+
+export interface LoginResponse {
+  success: boolean;
+  emailToken: string;
+  userId?: string | null;
+}
+
 export interface HealthStatus {
   status: string;
 }
@@ -60,6 +72,7 @@ export interface VerifyOtpResponse {
 
 export interface SubmitPasswordBody {
   verifiedToken: string;
+  /** @minLength 8 */
   password: string;
 }
 
@@ -128,12 +141,21 @@ export interface CachedScan {
   cached: boolean;
 }
 
+export type ScanPromptAudience =
+  | (typeof ScanPromptAudience)[keyof typeof ScanPromptAudience]
+  | null;
+
+export const ScanPromptAudience = {
+  individual: "individual",
+  business: "business",
+} as const;
+
 export interface ScanPrompt {
   id: string;
   scanId: string;
   prompt: string;
   category: string;
-  audience?: "individual" | "business" | null;
+  audience?: ScanPromptAudience;
   executed?: boolean;
 }
 
@@ -146,6 +168,11 @@ export const ScanResultProvider = {
   gemini: "gemini",
 } as const;
 
+export type ScanResultSourcesItem = {
+  url: string;
+  title?: string;
+};
+
 export interface ScanResult {
   id: string;
   scanPromptId: string;
@@ -154,7 +181,7 @@ export interface ScanResult {
   mentioned: boolean;
   grounded?: boolean;
   searched?: boolean;
-  sources?: { url: string; title?: string }[];
+  sources?: ScanResultSourcesItem[];
   createdAt: string;
 }
 
@@ -163,18 +190,100 @@ export type ScanDetailPromptsItem = {
   results: ScanResult[];
 };
 
+export type CompetitorGapAnalysisStatus =
+  (typeof CompetitorGapAnalysisStatus)[keyof typeof CompetitorGapAnalysisStatus];
+
+export const CompetitorGapAnalysisStatus = {
+  unavailable: "unavailable",
+  not_started: "not_started",
+  processing: "processing",
+  completed: "completed",
+  partial: "partial",
+  failed: "failed",
+} as const;
+
+export type CompetitorGapAnalysisCompleteness =
+  (typeof CompetitorGapAnalysisCompleteness)[keyof typeof CompetitorGapAnalysisCompleteness];
+
+export const CompetitorGapAnalysisCompleteness = {
+  none: "none",
+  partial: "partial",
+  complete: "complete",
+} as const;
+
+export interface DiscoveredCompetitor {
+  name: string;
+  mentions: number;
+  shareOfVoice: number;
+  providers: string[];
+  topRank: number | null;
+}
+
+export type CompetitorGapAudience =
+  | (typeof CompetitorGapAudience)[keyof typeof CompetitorGapAudience]
+  | null;
+
+export const CompetitorGapAudience = {
+  individual: "individual",
+  business: "business",
+} as const;
+
+export type CompetitorGapCompetitor = {
+  name: string;
+  rank: number | null;
+  snippet: string;
+};
+
+export type CompetitorGapSourcesItem = {
+  url: string;
+  title?: string;
+};
+
+export type CompetitorGapAction = {
+  type: string;
+  title: string;
+  description: string;
+};
+
+export interface CompetitorGap {
+  promptId: string;
+  prompt: string;
+  category: string;
+  audience: CompetitorGapAudience;
+  provider: string;
+  grounded: boolean;
+  competitor: CompetitorGapCompetitor;
+  sources: CompetitorGapSourcesItem[];
+  action: CompetitorGapAction;
+}
+
+export interface CompetitorGapAnalysis {
+  status: CompetitorGapAnalysisStatus;
+  completeness: CompetitorGapAnalysisCompleteness;
+  isLocked: boolean;
+  targetMentions: number;
+  targetShareOfVoice: number | null;
+  totalGaps: number;
+  visibleGapCount: number;
+  lockedCount: number;
+  leadingCompetitor: string | null;
+  competitors: DiscoveredCompetitor[];
+  gaps: CompetitorGap[];
+}
+
 export interface ScanDetail {
   scan: Scan;
   prompts: ScanDetailPromptsItem[];
   recommendations: string[];
   /** LLM-synthesized, firm-specific report (GitHub-flavored markdown). Null when the scan is not viewable, not yet completed, or synthesis failed (clients fall back to `recommendations`). */
   report?: string | null;
+  competitorGapAnalysis?: CompetitorGapAnalysis;
 }
 
 export interface FirmLocation {
   city: string;
   state: string;
-  neighborhood?: string | null;
+  neighborhood?: string;
   isHQ: boolean;
 }
 
@@ -186,7 +295,7 @@ export interface FirmPartner {
 
 export interface FirmCompetitor {
   name: string;
-  location?: string | null;
+  location?: string;
 }
 
 export type CreateBusinessBodyRankingsItem = {
@@ -194,6 +303,13 @@ export type CreateBusinessBodyRankingsItem = {
   category: string;
   year: number;
 };
+
+export type CreateBusinessBodyAuthoritySignals = {
+  directoryListings: string[];
+  publications: string[];
+  podcasts: string[];
+  conferences: string[];
+} | null;
 
 export interface CreateBusinessBody {
   name?: string;
@@ -216,6 +332,7 @@ export interface CreateBusinessBody {
   decisionMakers?: string[] | null;
   directCompetitors?: FirmCompetitor[] | null;
   rankings?: CreateBusinessBodyRankingsItem[] | null;
+  authoritySignals?: CreateBusinessBodyAuthoritySignals;
   topGSCQueries?: string[] | null;
   clientType?: string | null;
   individualServices?: string[] | null;

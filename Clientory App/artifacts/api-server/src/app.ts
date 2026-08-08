@@ -3,7 +3,6 @@ import express, { type Express, type Request, type Response, type NextFunction }
 import cors from "cors";
 import helmet from "helmet";
 import router from "./routes";
-import stripeWebhookRouter from "./routes/webhooks/stripe";
 import { runWithRequestContext, getRequestId } from "./services/request-context";
 
 const app: Express = express();
@@ -63,7 +62,7 @@ app.use(helmet({ contentSecurityPolicy: false })); // lgtm[js/insecure-helmet-co
 
 // Explicit allowlist — only our own domains can call this API from a browser.
 // Vercel preview URLs (clientory-*.vercel.app) are also permitted so PR previews work.
-// Server-to-server requests (Stripe webhooks, health checks) have no Origin header
+// Server-to-server requests and health checks have no Origin header
 // and are unaffected by CORS.
 const STATIC_ORIGINS = new Set([
   "https://clientory.org",
@@ -75,7 +74,7 @@ const VERCEL_PREVIEW = /^https:\/\/clientory(-[a-z0-9]+)*(-lishangyanyan1992s-pr
 app.use(
   cors({
     origin(origin, callback) {
-      // No origin = server-to-server (Stripe, health checks) or same-origin — allow.
+      // No origin = server-to-server, health checks, or same-origin — allow.
       if (!origin) return callback(null, true);
       if (STATIC_ORIGINS.has(origin) || VERCEL_PREVIEW.test(origin)) {
         return callback(null, true);
@@ -89,8 +88,6 @@ app.use(
     credentials: true,
   }),
 );
-
-app.use("/api/webhooks/stripe", express.raw({ type: "application/json" }), stripeWebhookRouter);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

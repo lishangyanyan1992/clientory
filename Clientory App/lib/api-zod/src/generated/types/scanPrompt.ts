@@ -5,12 +5,13 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { ScanPromptAudience } from "./scanPromptAudience";
 
 export interface ScanPrompt {
   id: string;
   scanId: string;
   prompt: string;
   category: string;
-  audience?: "individual" | "business" | null;
+  audience?: ScanPromptAudience;
   executed?: boolean;
 }

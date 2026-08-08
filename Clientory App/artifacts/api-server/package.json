@@ -31,7 +31,8 @@
     "helmet": "^8.2.0",
     "openai": "^6.39.0",
     "resend": "^6.9.3",
-    "stripe": "^22.0.1"
+    "stripe": "^22.0.1",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.10",

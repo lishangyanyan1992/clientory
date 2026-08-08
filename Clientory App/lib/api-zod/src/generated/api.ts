@@ -16,8 +16,9 @@ export const HealthCheckResponse = zod.object({
 });
 
 /**
- * @summary Login with email + password
+ * @summary Login with email and password
  */
+
 export const LoginBody = zod.object({
   email: zod.string().email(),
   password: zod.string().min(1),
@@ -26,21 +27,7 @@ export const LoginBody = zod.object({
 export const LoginResponse = zod.object({
   success: zod.boolean(),
   emailToken: zod.string(),
-  userId: zod.string(),
-});
-
-/**
- * @summary Set or confirm password after OTP verification
- */
-export const SubmitPasswordBody = zod.object({
-  verifiedToken: zod.string(),
-  password: zod.string().min(8, "Password must be at least 8 characters"),
-});
-
-export const SubmitPasswordResponse = zod.object({
-  success: zod.boolean(),
-  emailToken: zod.string(),
-  userId: zod.string(),
+  userId: zod.string().nullish(),
 });
 
 /**
@@ -48,7 +35,7 @@ export const SubmitPasswordResponse = zod.object({
  * @summary Send OTP verification code
  */
 export const SendOtpBody = zod.object({
-  email: zod.string({ required_error: "Email is required" }).email("Invalid email address"),
+  email: zod.string().email(),
   turnstileToken: zod.string().optional(),
 });
 
@@ -66,6 +53,22 @@ export const VerifyOtpBody = zod.object({
 });
 
 export const VerifyOtpResponse = zod.object({
+  success: zod.boolean(),
+  verifiedToken: zod.string(),
+  hasPassword: zod.boolean(),
+});
+
+/**
+ * @summary Set or verify a password after OTP verification
+ */
+export const submitPasswordBodyPasswordMin = 8;
+
+export const SubmitPasswordBody = zod.object({
+  verifiedToken: zod.string(),
+  password: zod.string().min(submitPasswordBodyPasswordMin),
+});
+
+export const SubmitPasswordResponse = zod.object({
   success: zod.boolean(),
   emailToken: zod.string(),
   userId: zod.string().nullish(),
@@ -129,6 +132,8 @@ export const GetScanResponse = zod.object({
       "failed",
     ]),
     score: zod.number().nullish(),
+    groundedScore: zod.number().nullish(),
+    totalScore: zod.number().nullish(),
     createdAt: zod.date(),
     businessId: zod.string().nullish(),
     isFreeReport: zod.boolean().optional(),
@@ -140,6 +145,8 @@ export const GetScanResponse = zod.object({
         scanId: zod.string(),
         prompt: zod.string(),
         category: zod.string(),
+        audience: zod.enum(["individual", "business"]).nullish(),
+        executed: zod.boolean().optional(),
       }),
       results: zod.array(
         zod.object({
@@ -148,12 +155,83 @@ export const GetScanResponse = zod.object({
           provider: zod.enum(["openai", "anthropic", "gemini"]),
           response: zod.string(),
           mentioned: zod.boolean(),
+          grounded: zod.boolean().optional(),
+          searched: zod.boolean().optional(),
+          sources: zod
+            .array(
+              zod.object({
+                url: zod.string(),
+                title: zod.string().optional(),
+              }),
+            )
+            .optional(),
           createdAt: zod.date(),
         }),
       ),
     }),
   ),
   recommendations: zod.array(zod.string()),
+  report: zod
+    .string()
+    .nullish()
+    .describe(
+      "LLM-synthesized, firm-specific report (GitHub-flavored markdown). Null when the scan is not viewable, not yet completed, or synthesis failed (clients fall back to `recommendations`).",
+    ),
+  competitorGapAnalysis: zod
+    .object({
+      status: zod.enum([
+        "unavailable",
+        "not_started",
+        "processing",
+        "completed",
+        "partial",
+        "failed",
+      ]),
+      completeness: zod.enum(["none", "partial", "complete"]),
+      isLocked: zod.boolean(),
+      targetMentions: zod.number(),
+      targetShareOfVoice: zod.number().nullable(),
+      totalGaps: zod.number(),
+      visibleGapCount: zod.number(),
+      lockedCount: zod.number(),
+      leadingCompetitor: zod.string().nullable(),
+      competitors: zod.array(
+        zod.object({
+          name: zod.string(),
+          mentions: zod.number(),
+          shareOfVoice: zod.number(),
+          providers: zod.array(zod.string()),
+          topRank: zod.number().nullable(),
+        }),
+      ),
+      gaps: zod.array(
+        zod.object({
+          promptId: zod.string(),
+          prompt: zod.string(),
+          category: zod.string(),
+          audience: zod.enum(["individual", "business"]).nullable(),
+          provider: zod.string(),
+          grounded: zod.boolean(),
+          competitor: zod.object({
+            name: zod.string(),
+            rank: zod.number().nullable(),
+            snippet: zod.string(),
+          }),
+          sources: zod.array(
+            zod.object({
+              url: zod.string(),
+              title: zod.string().optional(),
+            }),
+          ),
+          action: zod.object({
+            type: zod.string(),
+            title: zod.string(),
+            description: zod.string(),
+          }),
+        }),
+      ),
+    })
+    .optional(),
 });
 
 /**

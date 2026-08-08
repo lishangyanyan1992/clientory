@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { CompetitorGapAnalysis } from "./competitorGapAnalysis";
 import type { Scan } from "./scan";
 import type { ScanDetailPromptsItem } from "./scanDetailPromptsItem";
 
@@ -14,4 +15,5 @@ export interface ScanDetail {
   recommendations: string[];
   /** LLM-synthesized, firm-specific report (GitHub-flavored markdown). Null when the scan is not viewable, not yet completed, or synthesis failed (clients fall back to `recommendations`). */
   report?: string | null;
+  competitorGapAnalysis?: CompetitorGapAnalysis;
 }

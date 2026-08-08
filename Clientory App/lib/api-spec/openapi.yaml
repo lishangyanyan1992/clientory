@@ -32,6 +32,30 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        "200":
+          description: Login succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /auth/send-otp:
     post:
       operationId: sendOtp
@@ -87,6 +111,36 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /auth/submit-password:
+    post:
+      operationId: submitPassword
+      tags: [auth]
+      summary: Set or verify a password after OTP verification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitPasswordBody"
+      responses:
+        "200":
+          description: Password accepted and session token returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubmitPasswordResponse"
+        "400":
+          description: Invalid verification token or password
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateLimitResponse"
   /scans:
     post:
       operationId: createScan
@@ -501,6 +555,27 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
+    LoginBody:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 1
+      required: [email, password]
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        emailToken:
+          type: string
+        userId:
+          type: string
+          nullable: true
+      required: [success, emailToken]
     HealthStatus:
       type: object
       properties:
@@ -582,6 +657,30 @@ components:
         - email
         - code
     VerifyOtpResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        verifiedToken:
+          type: string
+        hasPassword:
+          type: boolean
+      required:
+        - success
+        - verifiedToken
+        - hasPassword
+    SubmitPasswordBody:
+      type: object
+      properties:
+        verifiedToken:
+          type: string
+        password:
+          type: string
+          minLength: 8
+      required:
+        - verifiedToken
+        - password
+    SubmitPasswordResponse:
       type: object
       properties:
         success:
@@ -785,10 +884,133 @@ components:
             LLM-synthesized, firm-specific report (GitHub-flavored markdown).
             Null when the scan is not viewable, not yet completed, or synthesis
             failed (clients fall back to `recommendations`).
+        competitorGapAnalysis:
+          $ref: "#/components/schemas/CompetitorGapAnalysis"
       required:
         - scan
         - prompts
         - recommendations
+    CompetitorGapAnalysis:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            [unavailable, not_started, processing, completed, partial, failed]
+        completeness:
+          type: string
+          enum: [none, partial, complete]
+        isLocked:
+          type: boolean
+        targetMentions:
+          type: integer
+        targetShareOfVoice:
+          type: number
+          nullable: true
+        totalGaps:
+          type: integer
+        visibleGapCount:
+          type: integer
+        lockedCount:
+          type: integer
+        leadingCompetitor:
+          type: string
+          nullable: true
+        competitors:
+          type: array
+          items:
+            $ref: "#/components/schemas/DiscoveredCompetitor"
+        gaps:
+          type: array
+          items:
+            $ref: "#/components/schemas/CompetitorGap"
+      required:
+        - status
+        - completeness
+        - isLocked
+        - targetMentions
+        - targetShareOfVoice
+        - totalGaps
+        - visibleGapCount
+        - lockedCount
+        - leadingCompetitor
+        - competitors
+        - gaps
+    DiscoveredCompetitor:
+      type: object
+      properties:
+        name:
+          type: string
+        mentions:
+          type: integer
+        shareOfVoice:
+          type: number
+        providers:
+          type: array
+          items:
+            type: string
+        topRank:
+          type: integer
+          nullable: true
+      required: [name, mentions, shareOfVoice, providers, topRank]
+    CompetitorGap:
+      type: object
+      properties:
+        promptId:
+          type: string
+        prompt:
+          type: string
+        category:
+          type: string
+        audience:
+          type: string
+          enum: [individual, business]
+          nullable: true
+        provider:
+          type: string
+        grounded:
+          type: boolean
+        competitor:
+          type: object
+          properties:
+            name:
+              type: string
+            rank:
+              type: integer
+              nullable: true
+            snippet:
+              type: string
+          required: [name, rank, snippet]
+        sources:
+          type: array
+          items:
+            type: object
+            properties:
+              url:
+                type: string
+              title:
+                type: string
+            required: [url]
+        action:
+          type: object
+          properties:
+            type:
+              type: string
+            title:
+              type: string
+            description:
+              type: string
+          required: [type, title, description]
+      required:
+        - promptId
+        - prompt
+        - category
+        - audience
+        - provider
+        - grounded
+        - competitor
+        - sources
+        - action
     FirmLocation:
       type: object
       properties:
@@ -798,7 +1020,6 @@ components:
           type: string
         neighborhood:
           type: string
-          nullable: true
         isHQ:
           type: boolean
       required:
@@ -825,7 +1046,6 @@ components:
           type: string
         location:
           type: string
-          nullable: true
       required:
         - name
     CreateBusinessBody:
@@ -915,6 +1135,27 @@ components:
               year:
                 type: number
             required: [source, category, year]
+          nullable: true
+        authoritySignals:
+          type: object
+          properties:
+            directoryListings:
+              type: array
+              items:
+                type: string
+            publications:
+              type: array
+              items:
+                type: string
+            podcasts:
+              type: array
+              items:
+                type: string
+            conferences:
+              type: array
+              items:
+                type: string
+          required: [directoryListings, publications, podcasts, conferences]
           nullable: true
         topGSCQueries:
           type: array

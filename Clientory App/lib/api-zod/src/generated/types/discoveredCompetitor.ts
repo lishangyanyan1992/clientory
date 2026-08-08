@@ -6,7 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface FirmCompetitor {
+export interface DiscoveredCompetitor {
   name: string;
-  location?: string;
+  mentions: number;
+  shareOfVoice: number;
+  providers: string[];
+  topRank: number | null;
 }

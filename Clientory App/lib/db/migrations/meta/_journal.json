@@ -15,6 +15,13 @@
       "when": 1748822400000,
       "tag": "0001_symptom_query_cache",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1782870555000,
+      "tag": "0006_competitor_gap_analysis",
+      "breakpoints": true
     }
   ]
 }

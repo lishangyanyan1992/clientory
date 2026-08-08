@@ -28,6 +28,8 @@ import type {
   EntitlementErrorResponse,
   ErrorResponse,
   HealthStatus,
+  LoginBody,
+  LoginResponse,
   PromptSet,
   RateLimitResponse,
   Scan,
@@ -127,6 +129,92 @@ export function useHealthCheck<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * @summary Login with email and password
+ */
+export const getLoginUrl = () => {
+  return `/api/auth/login`;
+};
+
+export const login = async (
+  loginBody: LoginBody,
+  options?: RequestInit,
+): Promise<LoginResponse> => {
+  return customFetch<LoginResponse>(getLoginUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(loginBody),
+  });
+};
+
+export const getLoginMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof login>>,
+    TError,
+    { data: BodyType<LoginBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof login>>,
+  TError,
+  { data: BodyType<LoginBody> },
+  TContext
+> => {
+  const mutationKey = ["login"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof login>>,
+    { data: BodyType<LoginBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return login(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type LoginMutationResult = NonNullable<
+  Awaited<ReturnType<typeof login>>
+>;
+export type LoginMutationBody = BodyType<LoginBody>;
+export type LoginMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Login with email and password
+ */
+export const useLogin = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof login>>,
+    TError,
+    { data: BodyType<LoginBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof login>>,
+  TError,
+  { data: BodyType<LoginBody> },
+  TContext
+> => {
+  return useMutation(getLoginMutationOptions(options));
+};
 
 /**
  * Sends a 6-digit verification code to the provided email.
@@ -301,6 +389,9 @@ export const useVerifyOtp = <
   return useMutation(getVerifyOtpMutationOptions(options));
 };
 
+/**
+ * @summary Set or verify a password after OTP verification
+ */
 export const getSubmitPasswordUrl = () => {
   return `/api/auth/submit-password`;
 };
@@ -317,9 +408,74 @@ export const submitPassword = async (
   });
 };
 
-export type SubmitPasswordMutationResult = NonNullable<Awaited<ReturnType<typeof submitPassword>>>;
+export const getSubmitPasswordMutationOptions = <
+  TError = ErrorType<ErrorResponse | RateLimitResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof submitPassword>>,
+    TError,
+    { data: BodyType<SubmitPasswordBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof submitPassword>>,
+  TError,
+  { data: BodyType<SubmitPasswordBody> },
+  TContext
+> => {
+  const mutationKey = ["submitPassword"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof submitPassword>>,
+    { data: BodyType<SubmitPasswordBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return submitPassword(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type SubmitPasswordMutationResult = NonNullable<
+  Awaited<ReturnType<typeof submitPassword>>
+>;
 export type SubmitPasswordMutationBody = BodyType<SubmitPasswordBody>;
-export type SubmitPasswordMutationError = ErrorType<ErrorResponse>;
+export type SubmitPasswordMutationError = ErrorType<
+  ErrorResponse | RateLimitResponse
+>;
+
+/**
+ * @summary Set or verify a password after OTP verification
+ */
+export const useSubmitPassword = <
+  TError = ErrorType<ErrorResponse | RateLimitResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof submitPassword>>,
+    TError,
+    { data: BodyType<SubmitPasswordBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof submitPassword>>,
+  TError,
+  { data: BodyType<SubmitPasswordBody> },
+  TContext
+> => {
+  return useMutation(getSubmitPasswordMutationOptions(options));
+};
 
 /**
  * @summary Create a new AI visibility scan

@@ -6,9 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface FirmLocation {
-  city: string;
-  state: string;
-  neighborhood?: string;
-  isHQ: boolean;
-}
+export type CompetitorGapAction = {
+  type: string;
+  title: string;
+  description: string;
+};

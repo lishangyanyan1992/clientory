@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { ScanResultProvider } from "./scanResultProvider";
+import type { ScanResultSourcesItem } from "./scanResultSourcesItem";
 
 export interface ScanResult {
   id: string;
@@ -15,6 +16,6 @@ export interface ScanResult {
   mentioned: boolean;
   grounded?: boolean;
   searched?: boolean;
-  sources?: { url: string; title?: string }[];
+  sources?: ScanResultSourcesItem[];
   createdAt: Date;
 }

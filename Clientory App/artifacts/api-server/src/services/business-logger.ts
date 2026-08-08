@@ -5,6 +5,8 @@ export type BusinessEvent =
   | "scan_started"
   | "scan_completed"
   | "scan_failed"
+  | "gap_analysis_completed"
+  | "gap_analysis_failed"
   | "subscription_created"
   | "subscription_updated"
   | "subscription_canceled"
@@ -17,6 +19,8 @@ const SEVERITY: Record<BusinessEvent, Severity> = {
   scan_started:         "info",
   scan_completed:       "info",
   scan_failed:          "error",
+  gap_analysis_completed: "info",
+  gap_analysis_failed:  "warn",
   subscription_created: "info",
   subscription_updated: "info",
   subscription_canceled:"warn",
@@ -27,6 +31,7 @@ const SEVERITY: Record<BusinessEvent, Severity> = {
 // Events that are also sent to Sentry so you get alerted, not just logged.
 const SENTRY_EVENTS = new Set<BusinessEvent>([
   "scan_failed",
+  "gap_analysis_failed",
   "payment_failed",
   "slow_query",
 ]);
