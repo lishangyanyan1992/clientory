@@ -74,7 +74,7 @@ A firm that fixes the JavaScript problem removes one entire failure mode from th
 
 Clientory helps immigration law firms become visible to the families and individuals who need them most, turning AI search into consultations and consultations into clients.
 
-[Book a free AI visibility check](https://clientory.org)`,
+[Book a free AI visibility check](https://app.clientory.org)`,
     author: "Yanyan Li",
     date: "2026-07-16",
     tags: ["AI Visibility", "Technical SEO", "Immigration Marketing"],
@@ -133,7 +133,7 @@ That is a more patient game than traditional SEO, but it is one small firms can 
 
 Clientory helps immigration firms see both sides of this: where you are being used, where you are being cited, and what is missing from each, so visibility turns into consultations, not just impressions you cannot measure.
 
-[See Where Your Firm Shows Up in AI Answers](https://clientory.org)`,
+[See Where Your Firm Shows Up in AI Answers](https://app.clientory.org)`,
     author: "Yanyan Li",
     date: "2026-07-09",
     tags: ["AI Visibility", "Immigration Marketing", "GEO"],
@@ -353,7 +353,7 @@ Knowing the difference, in your own name, is the whole exercise.
 
 Clientory helps immigration law firms become visible to the families and individuals who need them most, turning AI search into consultations and consultations into clients.
 
-[See Your AI Visibility Score](https://clientory.org)`,
+[See Your AI Visibility Score](https://app.clientory.org)`,
     author: "Yanyan Li",
     date: "2026-06-30",
     tags: ["AI Visibility", "Immigration Marketing", "Compliance"],
@@ -401,7 +401,7 @@ Small firms have spent a decade being told they can't win the visibility game ag
 
 Built by Clientory — helping immigration law firms become visible to the families and individuals who need them most.
 
-[See Your AI Visibility Score](https://clientory.org/scan)`,
+[See Your AI Visibility Score](https://app.clientory.org)`,
     author: "Yanyan Li",
     date: "2026-06-29",
     tags: ["AI Visibility", "Immigration Marketing", "GEO"],
@@ -490,7 +490,7 @@ Re-run this audit in 30 days using Bing's Compare view and Google's date range. 
 
 Built by Clientory — helping immigration law firms become visible to the families and individuals who need them most.
 
-[Request a GEO visibility audit](https://clientory.org/audit)`,
+[Request a GEO visibility audit](https://app.clientory.org)`,
     author: "Yanyan Li",
     date: "2026-06-29",
     tags: ["Worksheets", "Immigration Marketing", "AI Visibility", "Google AI Mode"],
@@ -587,7 +587,7 @@ The pattern that wins citations is consistent: answer the question in the first 
 
 Built by Clientory — helping immigration law firms become visible to the families and individuals who need them most.
 
-[Request a GEO visibility audit](https://clientory.org/audit)`,
+[Request a GEO visibility audit](https://app.clientory.org)`,
     author: "Yanyan Li",
     date: "2026-06-24",
     tags: ["Worksheets", "Immigration Marketing", "AI Visibility", "Google AI Mode"],
@@ -682,7 +682,7 @@ Most firms will not do this. They will publish once, move on, and let the page a
 
 Clientory helps immigration law firms become visible to the families and individuals who need them most — turning AI search into consultations, and consultations into clients.
 
-[See Your AI Visibility Score](https://clientory.org/scan)`,
+[See Your AI Visibility Score](https://app.clientory.org)`,
     author: "Yanyan Li",
     date: "2026-06-23",
     tags: ["Immigration Marketing", "AI Visibility", "SEO", "Google AI Mode"],
@@ -805,7 +805,7 @@ You are not going to out-directory the directories, and you do not need to. You 
 
 Clientory helps immigration law firms become visible to the families and individuals who need them most — turning AI search into consultations, and consultations into clients.
 
-[Book a Free Demo](https://clientory.org/scan)`,
+[Book a Free Demo](https://app.clientory.org)`,
     author: "Yanyan Li",
     date: "2026-06-16",
     tags: ["Immigration Marketing", "AI Visibility", "SEO", "Legal Directories"],
@@ -921,7 +921,7 @@ Immediate trigger: any USCIS announcement, BIA ruling, fee change, or State Depa
 
 Built by Clientory — helping immigration law firms become visible to the families who need them most.
 
-[clientory.org](https://clientory.org) | [Request a GEO visibility audit](https://clientory.org/audit)`,
+[clientory.org](https://clientory.org) | [Request a GEO visibility audit](https://app.clientory.org)`,
     author: "Yanyan Li",
     date: "2026-06-09",
     tags: ["Worksheets", "Immigration Marketing", "AI Visibility"],
@@ -978,7 +978,7 @@ You don't have to be the biggest firm in your market to show up in AI answers. Y
 
 Clientory helps immigration law firms become visible to the families and individuals who need them most — turning AI search into consultations, and consultations into clients.
 
-[See your AI visibility score](https://clientory.org/scan)`,
+[See your AI visibility score](https://app.clientory.org)`,
     author: "Yanyan Li",
     date: "2026-06-09",
     tags: ["Immigration Marketing", "AI Visibility", "SEO"],
@@ -1042,7 +1042,7 @@ The adjustment of status memo is this week's window. It will be followed by anot
 
 Clientory helps immigration law firms become visible to the families and individuals who need them most — turning AI search into consultations, and consultations into clients.
 
-[See your AI visibility score](https://clientory.org/scan)`,
+[See your AI visibility score](https://app.clientory.org)`,
     author: "Yanyan Li",
     date: "2026-06-05",
     tags: ["Immigration Marketing", "AI Visibility", "SEO"],
@@ -1163,7 +1163,7 @@ When one of those events happens, add the new client questions to Part 2 and rep
 
 Built by Clientory — helping immigration law firms become visible to the families who need them most.
 
-[Request a GEO visibility audit](https://clientory.org/audit)`,
+[Request a GEO visibility audit](https://app.clientory.org)`,
     author: "Yanyan Li",
     date: "2026-05-28",
     tags: ["Worksheets", "Immigration Marketing", "AI Visibility"],
@@ -1228,7 +1228,7 @@ The May Core Update is a proximate cause, but the underlying shift has been buil
 
 The good news: a small immigration firm with deep case experience has an inherent advantage over a content farm or a large generalist firm producing templated pages at scale. The depth of knowledge you apply every day in your practice is exactly what belongs on your pages. The work is making it visible.
 
-If you want to see how your firm appears in AI search today, [run a Clientory visibility scan](https://clientory.org/scan).`,
+If you want to see how your firm appears in AI search today, [run a Clientory visibility scan](https://app.clientory.org).`,
     author: "Yanyan Li",
     date: "2026-05-26",
     tags: ["Immigration Marketing", "SEO", "Guides"],
@@ -1830,7 +1830,7 @@ The firms building AI visibility right now are establishing **compounding advant
 
 The first step costs nothing: **open ChatGPT today and ask it to recommend a firm like yours in your city.** Whatever it says is already shaping real buying decisions.
 
-→ **Want an automated baseline?** [Check your firm's AI Visibility Score free at Clientory](https://clientory.org) →
+→ **Want an automated baseline?** [Check your firm's AI Visibility Score free at Clientory](https://app.clientory.org) →
 
 *Sources: SOCi 2026 Local Visibility Index; Capgemini AI in Customer Experience Report 2025; Princeton/IIT Delhi/Georgia Tech GEO Research (KDD 2024); BrightLocal AI Search & Local Listings Report 2025; OMNIUS GEO Industry Report 2025; Thinking Machines Lab LLM Nondeterminism Study.*`,
     date: "2026-03-26",
