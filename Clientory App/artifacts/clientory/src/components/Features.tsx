@@ -6,7 +6,7 @@ const features = [
     icon: Activity, // live pulse → real-time tracking
     title: "Real-Time LLM Tracking",
     description:
-      "Monitor your firm's mentions across ChatGPT, Perplexity, Gemini, Claude, and Copilot as AI recommendations shift.",
+      "Monitor your firm's mentions across ChatGPT, Claude, and Gemini as AI recommendations shift — with Perplexity and Copilot coming soon.",
     tint: "#6467f2", // indigo
   },
   {

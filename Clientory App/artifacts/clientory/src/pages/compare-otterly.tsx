@@ -7,7 +7,7 @@ const data: ComparisonPageData = {
     "Clientory is purpose-built for professional service firms and includes industry-specific prompt libraries, local competitor benchmarking, and compliance-aware recommendations for law and accounting firms. Otterly.ai is a strong general-purpose GEO tool but lacks professional services specialization and local market benchmarking.",
   features: [
     { feature: "Built for professional services", clientory: "yes", competitor: "no" },
-    { feature: "LLM platforms covered", clientory: "ChatGPT, Claude, Gemini, Perplexity, Copilot", competitor: "ChatGPT, Gemini, Perplexity" },
+    { feature: "LLM platforms covered", clientory: "ChatGPT, Claude, Gemini (Perplexity, Copilot coming soon)", competitor: "ChatGPT, Gemini, Perplexity" },
     { feature: "Starting price", clientory: "Free beta", competitor: "$29/mo" },
     { feature: "Industry-specific prompt library", clientory: "yes", competitor: "no" },
     { feature: "Share of Voice vs. local competitors", clientory: "yes", competitor: "no" },
@@ -40,7 +40,7 @@ const data: ComparisonPageData = {
   ],
   faqs: [
     { question: "Is Otterly.ai good for law firms?", answer: "Otterly.ai is a general-purpose GEO tool that can track brand mentions, but it does not include law-firm-specific prompt libraries, local competitor benchmarking, or compliance-aware recommendations. Clientory is designed specifically for professional service firms including law firms." },
-    { question: "Does Otterly cover Claude and Copilot?", answer: "As of 2025, Otterly.ai covers ChatGPT, Gemini, and Perplexity. Clientory covers those three plus Claude and Microsoft Copilot, providing broader visibility across all major AI platforms." },
+    { question: "Does Otterly cover Claude and Copilot?", answer: "As of 2025, Otterly.ai covers ChatGPT, Gemini, and Perplexity. Clientory queries ChatGPT, Claude, and Gemini today — including Claude, which Otterly does not cover — with Perplexity and Copilot coming soon." },
     { question: "Which tool is cheaper?", answer: "Clientory is currently free during its beta period. Otterly.ai starts at $29/month. Long-term pricing for Clientory will be announced when the product exits beta." },
     { question: "Can I use both tools together?", answer: "Yes, some firms use Otterly for general brand monitoring and Clientory for professional-services-specific insights. However, most professional service firms find that Clientory's focused approach provides more actionable data." },
   ],

@@ -7,7 +7,7 @@ const data: ComparisonPageData = {
     "Clientory is designed for small and mid-sized professional service firms with industry-specific prompts and local benchmarking. Peec.ai targets enterprise marketing teams with broader brand intelligence features but lacks the professional services focus and competitive local analysis that firms need.",
   features: [
     { feature: "Built for professional services", clientory: "yes", competitor: "no" },
-    { feature: "LLM platforms covered", clientory: "ChatGPT, Claude, Gemini, Perplexity, Copilot", competitor: "ChatGPT, Gemini, Perplexity, Bing" },
+    { feature: "LLM platforms covered", clientory: "ChatGPT, Claude, Gemini (Perplexity, Copilot coming soon)", competitor: "ChatGPT, Gemini, Perplexity, Bing" },
     { feature: "Starting price", clientory: "Free beta", competitor: "€89/mo" },
     { feature: "Industry-specific prompt library", clientory: "yes", competitor: "no" },
     { feature: "Share of Voice vs. local competitors", clientory: "yes", competitor: "partial" },
@@ -41,7 +41,7 @@ const data: ComparisonPageData = {
   faqs: [
     { question: "Is Peec.ai good for small law firms?", answer: "Peec.ai is designed for enterprise marketing teams and may be overly complex and expensive for small professional service firms. Clientory is purpose-built for firms like law practices, accounting firms, and consultancies." },
     { question: "Does Peec offer local competitor benchmarking?", answer: "Peec.ai offers some competitive analysis but is not focused on local market benchmarking for professional services. Clientory automatically benchmarks your firm against local competitors in your metro area." },
-    { question: "Which tool covers more AI platforms?", answer: "Both tools cover major AI platforms. Clientory covers ChatGPT, Claude, Gemini, Perplexity, and Copilot. Peec.ai covers ChatGPT, Gemini, Perplexity, and Bing Chat." },
+    { question: "Which tool covers more AI platforms?", answer: "Both tools cover major AI platforms. Clientory queries ChatGPT, Claude, and Gemini today, with Perplexity and Copilot coming soon. Peec.ai covers ChatGPT, Gemini, Perplexity, and Bing Chat." },
     { question: "Is Peec.ai available in English?", answer: "Yes, Peec.ai is available in English and multiple other languages. It is headquartered in Europe and prices in Euros." },
   ],
 };

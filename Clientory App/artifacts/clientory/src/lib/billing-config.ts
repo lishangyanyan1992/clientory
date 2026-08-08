@@ -7,3 +7,12 @@ export const BILLING_CONFIG = {
 } as const;
 export const BILLING_PRICE_LABEL = `$${BILLING_CONFIG.monthlyPriceUsd}/month`;
 export const BILLING_SCANS_LABEL = `${BILLING_CONFIG.scansPerCycle} scans per billing cycle`;
+
+// Prompts run per scan by tier. Free must match FREE_SCAN_PROMPT_LIMIT in
+// api-server/src/routes/scans/engine.ts; paid must match the generatePromptBatch
+// target total. Update both sides together — these numbers are customer-facing.
+export const PROMPTS_PER_FREE_SCAN = 5;
+export const PROMPTS_PER_PAID_SCAN = 25;
+
+export const FREE_PROMPTS_LABEL = `${PROMPTS_PER_FREE_SCAN} AI search prompts`;
+export const PAID_PROMPTS_LABEL = `${PROMPTS_PER_PAID_SCAN} AI search prompts per scan`;

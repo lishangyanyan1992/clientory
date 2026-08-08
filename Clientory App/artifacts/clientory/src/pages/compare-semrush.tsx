@@ -7,7 +7,7 @@ const data: ComparisonPageData = {
     "Clientory is a dedicated GEO monitoring tool for professional service firms with deep industry focus. Semrush's AI Toolkit is an add-on to its existing SEO platform — powerful for teams already using Semrush, but not purpose-built for professional services AI visibility.",
   features: [
     { feature: "Built for professional services", clientory: "yes", competitor: "no" },
-    { feature: "LLM platforms covered", clientory: "ChatGPT, Claude, Gemini, Perplexity, Copilot", competitor: "ChatGPT, Gemini (via AI Overviews)" },
+    { feature: "LLM platforms covered", clientory: "ChatGPT, Claude, Gemini (Perplexity, Copilot coming soon)", competitor: "ChatGPT, Gemini (via AI Overviews)" },
     { feature: "Starting price", clientory: "Free beta", competitor: "$99/mo (requires Semrush subscription)" },
     { feature: "Industry-specific prompt library", clientory: "yes", competitor: "no" },
     { feature: "Share of Voice vs. local competitors", clientory: "yes", competitor: "partial" },
@@ -40,7 +40,7 @@ const data: ComparisonPageData = {
   ],
   faqs: [
     { question: "Do I need a Semrush subscription to use their AI tools?", answer: "Yes, Semrush's AI Toolkit requires an active Semrush subscription starting at $99/month for the Pro plan. Clientory is a standalone tool currently free during beta." },
-    { question: "Does Semrush track ChatGPT mentions?", answer: "Semrush primarily tracks AI Overviews in Google Search, not direct mentions in ChatGPT, Claude, or Perplexity conversations. Clientory directly queries all five major AI platforms." },
+    { question: "Does Semrush track ChatGPT mentions?", answer: "Semrush primarily tracks AI Overviews in Google Search, not direct mentions in ChatGPT, Claude, or Perplexity conversations. Clientory directly queries ChatGPT, Claude, and Gemini, with Perplexity and Copilot coming soon." },
     { question: "Can I use Clientory alongside Semrush?", answer: "Absolutely. Many firms use Semrush for traditional SEO and Clientory for AI visibility monitoring. The two tools complement each other well." },
     { question: "Which tool is better for tracking local visibility?", answer: "For AI platform visibility in local professional services, Clientory provides more targeted insights. Semrush excels at traditional local SEO tracking." },
   ],

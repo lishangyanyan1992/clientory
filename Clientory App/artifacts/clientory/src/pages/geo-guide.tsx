@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { MarketingLayout } from "@/components/marketing-layout";
+import { CLIENTORY_APP_URL } from "@/lib/app-url";
 import {
   Table,
   TableHeader,
@@ -414,16 +414,16 @@ const GeoGuide = () => {
                 How Clientory Helps
               </h2>
               <p className="text-base text-muted-foreground leading-relaxed">
-                Clientory automates the entire AI visibility monitoring process for professional service firms. Instead of manually testing prompts across multiple platforms, Clientory runs a standardized battery of industry-specific test prompts across ChatGPT, Claude, Gemini, Perplexity, and Microsoft Copilot — and delivers results in a unified dashboard.
+                Clientory automates the entire AI visibility monitoring process for professional service firms. Instead of manually testing prompts across multiple platforms, Clientory runs a standardized battery of industry-specific test prompts across ChatGPT, Claude, and Gemini — with Perplexity and Microsoft Copilot coming soon — and delivers results in a unified dashboard.
               </p>
               <p className="text-base text-muted-foreground leading-relaxed">
                 The platform calculates mention rate, Share of Voice, position, sentiment, and accuracy scores automatically, and benchmarks your firm against local competitors. Each report includes a prioritized action plan with specific recommendations for improving visibility across each AI platform.
               </p>
               <p className="text-base text-muted-foreground leading-relaxed">
-                Clientory is currently available as a free beta at{" "}
-                <Link to="/scan" className="text-primary underline">
-                  clientory.org/scan
-                </Link>
+                Clientory is available at{" "}
+                <a href={CLIENTORY_APP_URL} className="text-primary underline">
+                  app.clientory.org
+                </a>
                 .
               </p>
             </section>

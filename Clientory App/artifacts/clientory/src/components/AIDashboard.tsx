@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Search, X } from "lucide-react";
+import { LIVE_MODELS } from "@/lib/model-coverage";
 
 const prompts = [
   "Best marriage green card lawyer in Chicago",
@@ -8,33 +9,29 @@ const prompts = [
   "Best naturalization attorney near Houston",
 ];
 
+// Only the models a scan actually queries today (see lib/model-coverage.ts).
+// Perplexity/Copilot are roadmap, so they must not appear here with ranks.
 const promptData: Record<string, { model: string; rank: number | null }[]> = {
   [prompts[0]]: [
     { model: "ChatGPT", rank: 2 },
     { model: "Claude", rank: 4 },
     { model: "Gemini", rank: null },
-    { model: "Perplexity", rank: 3 },
   ],
   [prompts[1]]: [
     { model: "ChatGPT", rank: 3 },
     { model: "Claude", rank: null },
     { model: "Gemini", rank: 5 },
-    { model: "Perplexity", rank: 2 },
   ],
   [prompts[2]]: [
     { model: "ChatGPT", rank: 1 },
     { model: "Claude", rank: 3 },
     { model: "Gemini", rank: 4 },
-    { model: "Perplexity", rank: null },
   ],
 };
 
-const modelColors: Record<string, string> = {
-  ChatGPT: "bg-emerald-500",
-  Claude: "bg-orange-400",
-  Gemini: "bg-blue-500",
-  Perplexity: "bg-violet-500",
-};
+const modelColors: Record<string, string> = Object.fromEntries(
+  LIVE_MODELS.map((m) => [m.name, m.color]),
+);
 
 export default function AIDashboard() {
   const [promptIndex, setPromptIndex] = useState(0);

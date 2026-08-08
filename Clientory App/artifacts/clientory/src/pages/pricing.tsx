@@ -1,11 +1,34 @@
-import { Link } from "react-router-dom";
 import { MarketingLayout } from "@/components/marketing-layout";
 import { Check, Sparkles, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
-import { BILLING_CONFIG, BILLING_SCANS_LABEL } from "@/lib/billing-config";
+import {
+  BILLING_CONFIG,
+  BILLING_SCANS_LABEL,
+  FREE_PROMPTS_LABEL,
+  PAID_PROMPTS_LABEL,
+  PROMPTS_PER_FREE_SCAN,
+  PROMPTS_PER_PAID_SCAN,
+} from "@/lib/billing-config";
+import {
+  FREE_MODELS_LABEL,
+  PAID_MODELS_LABEL,
+  PAID_ONLY_MODELS_LABEL,
+  UPCOMING_MODELS_LABEL,
+} from "@/lib/model-coverage";
+import { CLIENTORY_APP_URL } from "@/lib/app-url";
 
-const SHARED_FEATURES = [
-  "10 AI search prompts",
+// What the free report includes. Kept deliberately short — the point of this
+// column is to make the paid delta obvious, not to sell the free tier.
+const FREE_FEATURES = [
+  `${FREE_PROMPTS_LABEL} (sampled across categories)`,
+  `Tested on ${FREE_MODELS_LABEL}`,
+  "Your AI visibility score",
+  "One report, one firm",
+];
+
+const PAID_FEATURES = [
+  PAID_PROMPTS_LABEL,
+  `Tested on ${PAID_MODELS_LABEL}`,
   BILLING_SCANS_LABEL,
   "Full report history",
   "PDF & CSV exports",
@@ -18,9 +41,9 @@ const PLAN = {
   label: "Clientory subscription",
   sublabel: "One simple plan for every firm",
   price: BILLING_CONFIG.monthlyPriceUsd,
-  description: "Monitor your firm with one subscription that includes the full Clientory workflow, report history, exports, and recommendations.",
+  description: `Every scan runs ${PROMPTS_PER_PAID_SCAN} prompts across ${PAID_MODELS_LABEL}, with full report history, exports, and recommendations.`,
   badge: "Single plan",
-  features: SHARED_FEATURES,
+  features: PAID_FEATURES,
 } as const;
 
 export default function Pricing() {
@@ -41,15 +64,56 @@ export default function Pricing() {
             Know when AI recommends your immigration firm
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Every immigration law firm gets one free AI visibility report. Subscribe to run ongoing scans, track changes over time, and stay ahead of competing firms.
+            Every immigration law firm gets one free AI visibility report — {PROMPTS_PER_FREE_SCAN} prompts on {FREE_MODELS_LABEL}. Subscribe to unlock {PROMPTS_PER_PAID_SCAN} prompts per scan, add {PAID_ONLY_MODELS_LABEL}, and track changes over time.
           </p>
         </motion.div>
 
-        <div className="max-w-xl mx-auto">
+        <div className="grid gap-6 md:grid-cols-2 max-w-4xl mx-auto items-start">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
+            className="rounded-2xl border border-border bg-card p-8 relative"
+          >
+            <div className="mb-6">
+              <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-1">
+                Free report
+              </p>
+              <p className="text-xs text-muted-foreground mb-3">One per firm, no credit card</p>
+              <div className="flex items-end gap-2 mb-2">
+                <span className="text-4xl font-bold">$0</span>
+              </div>
+              <p className="text-muted-foreground text-sm">
+                See where your firm stands on {FREE_MODELS_LABEL} before you commit to anything.
+              </p>
+            </div>
+
+            <ul className="space-y-3 mb-8">
+              {FREE_FEATURES.map((feature) => (
+                <li key={feature} className="flex items-center gap-3 text-sm">
+                  <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 bg-muted">
+                    <Check className="w-3 h-3 text-muted-foreground" />
+                  </div>
+                  {feature}
+                </li>
+              ))}
+            </ul>
+
+            <a
+              href={CLIENTORY_APP_URL}
+              className="flex items-center justify-center gap-2 w-full text-center px-6 py-3 rounded-xl font-semibold transition-all duration-200 text-sm border border-border hover:bg-muted"
+            >
+              Run your free report <ArrowRight className="w-4 h-4" />
+            </a>
+            <p className="mt-3 text-center text-xs text-muted-foreground">
+              {UPCOMING_MODELS_LABEL} coming soon to every plan.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
             className="rounded-2xl border-2 border-primary shadow-primary/10 bg-card p-8 relative shadow-lg"
           >
             {PLAN.badge && (
@@ -80,12 +144,15 @@ export default function Pricing() {
               ))}
             </ul>
 
-            <Link
-              to="/settings/billing"
+            <a
+              href={CLIENTORY_APP_URL}
               className="flex items-center justify-center gap-2 w-full text-center px-6 py-3 rounded-xl font-semibold transition-all duration-200 text-sm bg-gradient-to-r from-primary to-accent text-white shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5"
             >
-              Subscribe a Firm <ArrowRight className="w-4 h-4" />
-            </Link>
+              Continue to Clientory <ArrowRight className="w-4 h-4" />
+            </a>
+            <p className="mt-3 text-center text-xs text-muted-foreground">
+              Payments and account management are handled in the Clientory app.
+            </p>
           </motion.div>
         </div>
 
@@ -100,7 +167,15 @@ export default function Pricing() {
             {[
               {
                 q: "Do I get a free report?",
-                a: "Yes — every account gets one free AI visibility report, no credit card required. After that, subscribe per firm to keep running scans.",
+                a: `Yes — every account gets one free AI visibility report, no credit card required. The free report runs ${PROMPTS_PER_FREE_SCAN} prompts on ${FREE_MODELS_LABEL}. After that, subscribe per firm to keep running scans.`,
+              },
+              {
+                q: "Which AI models do you test?",
+                a: `Today we query ${PAID_MODELS_LABEL}. ${FREE_MODELS_LABEL} run on every scan including the free report; ${PAID_ONLY_MODELS_LABEL} is included with a subscription. ${UPCOMING_MODELS_LABEL} are on the roadmap and will be added to existing plans.`,
+              },
+              {
+                q: "How many prompts does a scan run?",
+                a: `A subscribed scan runs ${PROMPTS_PER_PAID_SCAN} prompts generated from your firm profile, covering brand, location, specialty, problem, and persona searches. The free report runs a ${PROMPTS_PER_FREE_SCAN}-prompt sample spread across those same categories.`,
               },
               {
                 q: "What counts as a scan?",

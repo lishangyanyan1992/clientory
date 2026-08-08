@@ -23,6 +23,8 @@ import {
   Wrench,
   X,
 } from "lucide-react";
+import { AI_MODELS, LIVE_MODELS } from "@/lib/model-coverage";
+import { PROMPTS_PER_PAID_SCAN } from "@/lib/billing-config";
 
 const STEP_MS = 5000;
 
@@ -31,14 +33,6 @@ const intentColors = {
   medium: "bg-amber-500/10 text-amber-600 border-amber-500/20",
   high: "bg-accent/10 text-accent border-accent/20",
 };
-
-const aiModels = [
-  { name: "ChatGPT", color: "bg-emerald-500" },
-  { name: "Claude", color: "bg-orange-400" },
-  { name: "Gemini", color: "bg-blue-500" },
-  { name: "Perplexity", color: "bg-violet-500" },
-  { name: "Copilot", color: "bg-slate-500" },
-];
 
 function tileStyle(tint: string) {
   return {
@@ -168,7 +162,9 @@ function PromptPanel() {
           </div>
         ))}
       </div>
-      <p className="text-center text-[11px] text-muted-foreground/60">+47 more prompts generated</p>
+      <p className="text-center text-[11px] text-muted-foreground/60">
+        +{PROMPTS_PER_PAID_SCAN - rows.length} more prompts generated
+      </p>
     </>
   );
 }
@@ -177,24 +173,40 @@ function ModelTestingPanel() {
   return (
     <>
       <div className="mb-4 flex flex-wrap items-center justify-center gap-3">
-        {aiModels.map((model, i) => (
-          <motion.div
-            key={model.name}
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: i * 0.08, type: "spring", stiffness: 400 }}
-            className="flex flex-col items-center gap-1.5"
-          >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/50 bg-muted/50">
-              <div className={`h-3 w-3 rounded-full ${model.color}`} />
-            </div>
-            <span className="text-[10px] font-medium text-muted-foreground">{model.name}</span>
-          </motion.div>
-        ))}
+        {AI_MODELS.map((model, i) => {
+          const soon = model.tier === "soon";
+          return (
+            <motion.div
+              key={model.name}
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: i * 0.08, type: "spring", stiffness: 400 }}
+              className="flex flex-col items-center gap-1.5"
+            >
+              <div
+                className={`relative flex h-10 w-10 items-center justify-center rounded-xl border bg-muted/50 ${
+                  soon ? "border-dashed border-border/60 opacity-50" : "border-border/50"
+                }`}
+              >
+                <div className={`h-3 w-3 rounded-full ${model.color}`} />
+              </div>
+              <span
+                className={`text-[10px] font-medium ${soon ? "text-muted-foreground/60" : "text-muted-foreground"}`}
+              >
+                {model.name}
+              </span>
+              {soon && (
+                <span className="-mt-1 text-[9px] font-medium uppercase tracking-wide text-muted-foreground/50">
+                  Soon
+                </span>
+              )}
+            </motion.div>
+          );
+        })}
       </div>
       <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground/60">
         <FlowingDots />
-        <span>Testing prompts across models</span>
+        <span>Live across {LIVE_MODELS.length} models</span>
         <FlowingDots />
       </div>
     </>
@@ -205,7 +217,7 @@ function AnalysisPanel() {
   const rows = [
     { label: "Mentioned in response", found: true },
     { label: "Ranking position: #3", found: true },
-    { label: "Frequency: 4 of 5 models", found: true },
+    { label: "Frequency: 2 of 3 models", found: true },
     { label: "Competitor gap identified", found: false },
   ];
   return (
@@ -286,7 +298,8 @@ const steps: {
     title: "AI Model Testing",
     icon: Bot,
     tint: "#22b0a8",
-    blurb: "Clientory runs every prompt across the major AI assistants automatically.",
+    blurb:
+      "Clientory runs every prompt through ChatGPT and Claude, plus Gemini on paid scans. Perplexity and Copilot are coming soon.",
     body: <ModelTestingPanel />,
   },
   {

@@ -11,10 +11,13 @@
 - GEO Guide: https://clientory.org/geo-for-professional-services
 - Features: https://clientory.org/features
 - Pricing: https://clientory.org/pricing
+- Clientory App: https://app.clientory.org
 
 ## What We Do
-Clientory tracks how often and how accurately AI platforms (ChatGPT, Claude,
-Gemini, Perplexity, Copilot) mention and recommend professional service firms.
+Clientory tracks how often and how accurately AI platforms mention and recommend
+professional service firms. Scans run today against ChatGPT and Claude on the
+free report, plus Gemini on paid scans; Perplexity, Copilot, and other AI search
+engines are on the roadmap.
 We provide Share of Voice scores, accuracy monitoring, competitor benchmarking,
 and actionable optimization roadmaps.
 

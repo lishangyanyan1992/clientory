@@ -60,7 +60,7 @@ const About = () => {
               What Is Clientory
             </h2>
             <p className="text-base text-muted-foreground leading-relaxed">
-              Clientory is a Generative Engine Optimization (GEO) monitoring platform built for small professional service firms. It tracks and analyzes how often and how accurately major AI language models — including ChatGPT, Claude, Gemini, Perplexity, and Microsoft Copilot — mention and recommend a firm when answering user queries about professional services.
+              Clientory is a Generative Engine Optimization (GEO) monitoring platform built for small professional service firms. It tracks and analyzes how often and how accurately major AI language models — ChatGPT, Claude, and Gemini today, with Perplexity and Microsoft Copilot coming soon — mention and recommend a firm when answering user queries about professional services.
             </p>
             <p className="text-base text-muted-foreground leading-relaxed">
               Clientory is designed for law firms, accounting and finance firms, management consulting firms, and marketing agencies. Unlike general GEO tools built for large enterprises or e-commerce brands, Clientory focuses exclusively on the professional services market and the specific query types prospective clients use when seeking legal, financial, consulting, or marketing help.
@@ -76,7 +76,7 @@ const About = () => {
               The Problem Clientory Solves
             </h2>
             <p className="text-base text-muted-foreground leading-relaxed">
-              AI platforms such as ChatGPT, Claude, and Perplexity are increasingly the first place prospective clients look for professional service recommendations. When someone asks an AI model for "the best estate planning lawyer near me" or "top accountants for small businesses," the response shapes which firms get contacted. Most small professional service firms have no visibility into whether or how they are being represented in those AI-generated answers. Clientory closes this gap by providing systematic monitoring and analysis of AI mentions across all major language models.
+              AI platforms such as ChatGPT, Claude, and Perplexity are increasingly the first place prospective clients look for professional service recommendations. When someone asks an AI model for "the best estate planning lawyer near me" or "top accountants for small businesses," the response shapes which firms get contacted. Most small professional service firms have no visibility into whether or how they are being represented in those AI-generated answers. Clientory closes this gap by providing systematic monitoring and analysis of AI mentions across the major language models it supports.
             </p>
           </section>
 
@@ -87,7 +87,7 @@ const About = () => {
             </h2>
             <ol className="list-decimal list-inside space-y-2 text-base text-muted-foreground leading-relaxed">
               <li>The user enters their firm name, location, and service category.</li>
-              <li>Clientory runs a standardized battery of test prompts across ChatGPT, Claude, Gemini, Perplexity, and Copilot.</li>
+              <li>Clientory runs a standardized battery of test prompts across ChatGPT and Claude, plus Gemini on subscribed scans. Perplexity and Copilot are coming soon.</li>
               <li>Results are analyzed for mention rate, position, sentiment, and accuracy.</li>
               <li>The platform generates a competitive Share of Voice score.</li>
               <li>An action plan is delivered with prioritized recommendations.</li>

@@ -7,7 +7,7 @@ const data: ComparisonPageData = {
     "Manual testing gives you a quick snapshot but is time-consuming, inconsistent, and impossible to scale. Clientory automates the entire process with standardized prompts, multi-platform coverage, and historical tracking — so you get reliable data instead of anecdotal impressions.",
   features: [
     { feature: "Built for professional services", clientory: "yes", competitor: "partial" },
-    { feature: "LLM platforms covered", clientory: "ChatGPT, Claude, Gemini, Perplexity, Copilot", competitor: "Whichever you manually test" },
+    { feature: "LLM platforms covered", clientory: "ChatGPT, Claude, Gemini (Perplexity, Copilot coming soon)", competitor: "Whichever you manually test" },
     { feature: "Starting price", clientory: "Free beta", competitor: "Free (your time)" },
     { feature: "Industry-specific prompt library", clientory: "yes", competitor: "no" },
     { feature: "Share of Voice vs. local competitors", clientory: "yes", competitor: "no" },
