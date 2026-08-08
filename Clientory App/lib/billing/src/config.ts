@@ -19,10 +19,10 @@ export const PLAN_STATIC_CONFIG = {
   },
 } as const;
 
-export const PLAN_CONFIG = {
-  ...PLAN_STATIC_CONFIG,
-  stripePriceId: process.env.STRIPE_PRICE_ID ?? "",
-} as const;
+// No Stripe config here on purpose. Payments are handled entirely in the
+// product app at app.clientory.org; this package exists only so the marketing
+// pricing page can read plan numbers. Do not reintroduce STRIPE_* env vars —
+// the marketing site is a static Vercel build with no server to keep a secret.
 
 export type PlanFeatures =
   | typeof PLAN_STATIC_CONFIG.features.free
