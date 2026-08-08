@@ -12,3 +12,10 @@ Clientory App/.env.*
 
 # PromptFoo eval results (regenerated on every run)
 Clientory App/evals/results/*.json
+
+# Sunset product code lives outside this repo (see the ARCHIVE-DO-NOT-DEPLOY
+# folder on the Desktop). This repo is marketing-only — the product is built
+# elsewhere and served at app.clientory.org. Guard against an archive copy
+# ever being committed or deployed from here.
+ARCHIVE-DO-NOT-DEPLOY*/
+clientory-product-archive*/
