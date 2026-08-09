@@ -195,10 +195,31 @@ const BlogPost = () => {
     .map((r) => r.post);
 
   const shareUrl = typeof window !== "undefined" ? window.location.href : "";
+  const canonicalUrl = `https://clientory.org/blog/${post.slug}`;
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.excerpt,
+    datePublished: post.date,
+    dateModified: post.date,
+    mainEntityOfPage: canonicalUrl,
+    author: { "@type": "Person", name: post.author ?? "Clientory" },
+    publisher: { "@type": "Organization", name: "Clientory", url: "https://clientory.org" },
+  };
 
   return (
-    <MarketingLayout>
-      <main className="pt-40 pb-20">
+    <>
+      <title>{`${post.title} | Clientory`}</title>
+      <meta name="description" content={post.excerpt} />
+      <link rel="canonical" href={canonicalUrl} />
+      <meta property="og:type" content="article" />
+      <meta property="og:title" content={post.title} />
+      <meta property="og:description" content={post.excerpt} />
+      <meta property="og:url" content={canonicalUrl} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
+      <MarketingLayout>
+        <main className="pt-40 pb-20">
         <article className="container mx-auto max-w-3xl px-6">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <Link to="/blog" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors mb-8">
@@ -284,8 +305,9 @@ const BlogPost = () => {
             </div>
           </motion.div>
         </article>
-      </main>
-    </MarketingLayout>
+        </main>
+      </MarketingLayout>
+    </>
   );
 };
 

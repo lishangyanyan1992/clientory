@@ -1,135 +1,178 @@
-import { Helmet } from "react-helmet-async";
 import { useEffect, useState } from "react";
 import { MarketingLayout } from "@/components/marketing-layout";
 import { CLIENTORY_APP_URL } from "@/lib/app-url";
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableHead,
-  TableRow,
-  TableCell,
-} from "@/components/ui/table";
+
+const PAGE_URL = "https://clientory.org/geo-for-professional-services";
 
 const tocSections = [
-  { id: "what-is-geo", label: "What Is GEO?" },
-  { id: "why-at-risk", label: "Why Firms Are at Risk" },
-  { id: "how-ai-decides", label: "How AI Decides" },
-  { id: "key-metrics", label: "5 Key Metrics" },
-  { id: "technical-foundations", label: "Technical Foundations" },
-  { id: "industry-specific", label: "Industry Considerations" },
-  { id: "manual-test", label: "Manual AI Visibility Test" },
-  { id: "tools", label: "Tools for Tracking" },
-  { id: "how-clientory-helps", label: "How Clientory Helps" },
-  { id: "faq", label: "FAQ" },
+  { id: "what-geo-means", label: "What GEO Means" },
+  { id: "how-ai-finds-firms", label: "How AI Finds Firms" },
+  { id: "technical-foundation", label: "Technical Foundation" },
+  { id: "law-firm-content", label: "Law Firm Content" },
+  { id: "local-entity-signals", label: "Local & Entity Signals" },
+  { id: "manual-audit", label: "Manual Visibility Audit" },
+  { id: "metrics", label: "Metrics That Matter" },
+  { id: "ninety-day-plan", label: "90-Day Plan" },
+  { id: "professional-services", label: "Other Professional Services" },
+  { id: "faq", label: "Law Firm FAQ" },
+  { id: "sources", label: "Primary Sources" },
 ];
 
 const faqItems = [
   {
-    q: "What is GEO for professional services?",
-    a: "GEO (Generative Engine Optimization) for professional services is the practice of monitoring and improving how AI language models like ChatGPT, Claude, Gemini, and Perplexity mention, describe, and recommend law firms, accounting firms, consulting firms, and marketing agencies in response to user queries.",
+    q: "What is GEO for a law firm?",
+    a: "Generative engine optimization (GEO), also called AI search optimization, is the work of making a law firm easy to discover, understand, verify, and accurately cite in AI-assisted search. It combines established SEO, local search, clear firm information, useful legal content, third-party corroboration, crawler access, and repeatable measurement. It does not guarantee that an AI assistant will recommend a firm.",
   },
   {
-    q: "How do I check if ChatGPT recommends my law firm?",
-    a: "Open ChatGPT and enter prompts such as 'best estate planning lawyer in [your city]' or 'top family law attorneys near [your location].' Run at least 10 variations covering your practice areas and geography. Note whether your firm appears, its position in the list, and whether the information is accurate. For systematic tracking, use a GEO monitoring tool like Clientory.",
+    q: "How can a small law firm check whether ChatGPT recommends it?",
+    a: "Create a fixed set of realistic prospective-client questions covering the firm’s practice areas, locations, languages, and matter types. Run the same prompts in fresh sessions, record the date, platform, model or search mode, mentions, citations, competitors, and factual errors, then repeat on a consistent schedule. One answer is only a snapshot because results can change by prompt, location, platform, and time.",
   },
   {
-    q: "How do I get my accounting firm to appear in AI search results?",
-    a: "Ensure your firm is listed on major directories including the AICPA directory, Google Business Profile, Yelp, and industry-specific platforms. Publish authoritative content on topics like tax planning, audit services, and financial advisory. Maintain consistent NAP (Name, Address, Phone) information across all listings. Encourage client reviews on Google and industry directories.",
+    q: "Does traditional SEO help a law firm appear in AI search?",
+    a: "Yes. Google says the same SEO fundamentals apply to AI Overviews and AI Mode, with no special AI markup required. Crawlability, indexability, internal links, useful text, page experience, accurate structured data, and an up-to-date Business Profile remain foundational. Other AI search products also rely on crawlers or search indexes, so sound SEO improves eligibility and retrievability even though it cannot guarantee a mention.",
   },
   {
-    q: "What is Share of Voice in AI search?",
-    a: "Share of Voice in AI search measures the percentage of relevant AI-generated responses that mention your firm compared to your competitors. For example, if you run 50 test prompts related to your services and geography, and your firm appears in 10 of them while a competitor appears in 25, your Share of Voice is 20% and theirs is 50%.",
+    q: "Does schema markup make ChatGPT or Google recommend a law firm?",
+    a: "No. Accurate Organization, LegalService or LocalBusiness, Person, Article, and Breadcrumb structured data can help machines understand facts, but neither Google nor the major AI platforms promise a recommendation because schema is present. Markup must match visible page content and should never contain invented reviews, awards, locations, or credentials.",
   },
   {
-    q: "How long does it take to improve AI visibility?",
-    a: "Initial improvements can appear within 4 to 8 weeks for AI platforms that use real-time web search (such as Perplexity and ChatGPT with browsing). Changes to base training data take longer, typically 3 to 6 months, as models are retrained periodically. Directory listing updates and review accumulation are ongoing processes.",
+    q: "Which directories does ChatGPT use to recommend lawyers?",
+    a: "There is no published, permanent list of directories that ChatGPT always uses. Search-grounded answers can draw from different sources over time. Maintain accurate profiles on platforms that real clients and the legal profession use in your market—such as Google Business Profile, Bing Places, applicable bar directories, and reputable legal directories—and verify which sources are actually cited in your own test results.",
   },
   {
-    q: "Does traditional SEO help with LLM visibility?",
-    a: "Traditional SEO provides a foundation but is not sufficient on its own. AI models prioritize entity recognition, structured data, authoritative mentions across multiple sources, and consistent factual information. Many SEO best practices — such as quality content, authoritative backlinks, and structured data — do contribute to GEO, but AI visibility requires additional strategies like directory optimization and entity-topic association.",
+    q: "Should a law firm add an llms.txt file?",
+    a: "Treat llms.txt as optional. Google states that it does not use special AI text files or special markup for its generative search features. An llms.txt file is not a substitute for crawlable HTML, a sitemap, internal links, accurate metadata, or allowing the search-specific crawlers a firm wants to reach.",
   },
   {
-    q: "What directories does ChatGPT use for professional service recommendations?",
-    a: "ChatGPT draws from a combination of its training data and real-time web search results. Key directories include Google Business Profile, Yelp, Avvo and FindLaw (for law firms), the AICPA directory (for accountants), Clutch.co (for consulting and agencies), and industry-specific platforms. Review signals from these directories influence AI recommendations.",
+    q: "How long does it take to improve AI visibility for a law firm?",
+    a: "There is no defensible universal timeline. A technical fix can be discovered after a recrawl, while reputation, reviews, links, and third-party corroboration usually develop over a longer period. Measure from a dated baseline, submit important updates through the relevant webmaster tools, and compare results over several consistent testing cycles instead of promising a four-, eight-, or twelve-week outcome.",
   },
   {
-    q: "How is Clientory different from Otterly or Peec?",
-    a: "Clientory is built exclusively for immigration law firms. It generates test prompts from your firm profile, grades each answer as Positive, Passive, or No mention, and shows which competing firms fill the gaps. Otterly.ai and Peec.ai are general-purpose GEO tools designed for e-commerce brands and enterprise marketing teams respectively. Clientory gives every firm one free report, then costs $10/month per firm; Otterly starts at $29/month and Peec at €89/month.",
+    q: "What should a small law firm improve first?",
+    a: "Start with eligibility and accuracy: confirm important pages return a normal success status, contain meaningful HTML without requiring interaction, have unique titles and canonical URLs, appear in the sitemap, and are not blocked by robots.txt, the CDN, or a noindex directive. Then fix the firm’s core facts across its website, Business Profiles, attorney bios, and major directory listings before publishing more content.",
   },
 ];
-
-const faqJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  mainEntity: faqItems.map((item) => ({
-    "@type": "Question",
-    name: item.q,
-    acceptedAnswer: {
-      "@type": "Answer",
-      text: item.a,
-    },
-  })),
-};
 
 const articleJsonLd = {
   "@context": "https://schema.org",
   "@type": "Article",
-  headline: "GEO for Professional Services: The Complete Guide (2026)",
+  headline: "AI Search Optimization (GEO) for Law Firms: A Practical 2026 Guide",
   description:
-    "How law firms, accounting firms, consulting firms, and marketing agencies can measure and improve their visibility in ChatGPT, Gemini, Perplexity, and other AI platforms.",
+    "A verified, practical guide to AI search visibility for small and mid-sized law firms, based on current guidance from Google, Bing, OpenAI, Anthropic, and Perplexity.",
+  mainEntityOfPage: PAGE_URL,
   author: {
-    "@type": "Organization",
-    name: "Clientory",
-    url: "https://clientory.org",
+    "@type": "Person",
+    name: "Yanyan Li",
+    url: "https://clientory.org/about",
   },
   publisher: {
     "@type": "Organization",
     name: "Clientory",
     url: "https://clientory.org",
+    logo: {
+      "@type": "ImageObject",
+      url: "https://clientory.org/images/logo-full.png",
+    },
   },
   datePublished: "2026-03-15",
-  // Bump this whenever the guide's substance changes. Recency is a citation
-  // signal, and a stale dateModified on a page about AI visibility is a bad look.
   dateModified: "2026-08-09",
 };
 
-const tools = [
-  { tool: "Clientory", focus: "Immigration law GEO", price: "Free report, then $10/mo", specific: "Yes" },
-  { tool: "Otterly.ai", focus: "General GEO monitoring", price: "$29/mo", specific: "No" },
-  { tool: "Peec.ai", focus: "Enterprise marketing teams", price: "€89/mo", specific: "No" },
-  { tool: "Semrush AI Toolkit", focus: "Existing Semrush users", price: "$99/mo", specific: "No" },
-  { tool: "Manual testing", focus: "DIY, no automation", price: "API fees + your time", specific: "N/A" },
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: "https://clientory.org/" },
+    { "@type": "ListItem", position: 2, name: "AI Search Optimization for Law Firms", item: PAGE_URL },
+  ],
+};
+
+const sourceLinks = [
+  {
+    label: "Google: AI features and your website",
+    href: "https://developers.google.com/search/docs/appearance/ai-features",
+    note: "Normal SEO fundamentals apply; no special AI markup is required.",
+  },
+  {
+    label: "Google: Generative AI search optimization guide",
+    href: "https://developers.google.com/search/docs/fundamentals/ai-optimization-guide",
+    note: "Create original, useful content and keep a clear technical structure.",
+  },
+  {
+    label: "Google: Helpful, reliable, people-first content",
+    href: "https://developers.google.com/search/docs/fundamentals/creating-helpful-content",
+    note: "Clear authorship, expertise, trust, and first-hand value matter—especially for consequential topics.",
+  },
+  {
+    label: "Google: JavaScript SEO basics",
+    href: "https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics",
+    note: "Prerendering or server rendering helps users and crawlers, including bots that do not execute JavaScript.",
+  },
+  {
+    label: "Google: LocalBusiness structured data",
+    href: "https://developers.google.com/search/docs/appearance/structured-data/local-business",
+    note: "Use accurate, visible business facts and the most specific applicable business type.",
+  },
+  {
+    label: "Google Business Profile: Local ranking guidance",
+    href: "https://support.google.com/business/answer/7091",
+    note: "Google describes local results in terms of relevance, distance, and prominence.",
+  },
+  {
+    label: "Bing: AI Performance in Webmaster Tools",
+    href: "https://blogs.bing.com/webmaster/February-2026/Introducing-AI-Performance-in-Bing-Webmaster-Tools-Public-Preview",
+    note: "Measure citations and improve clarity, depth, evidence, freshness, and entity consistency.",
+  },
+  {
+    label: "OpenAI: Search and training crawlers",
+    href: "https://developers.openai.com/api/docs/bots",
+    note: "OAI-SearchBot controls eligibility for ChatGPT search; GPTBot is a separate training control.",
+  },
+  {
+    label: "Anthropic: Claude web crawlers",
+    href: "https://support.anthropic.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler",
+    note: "Claude-SearchBot, Claude-User, and ClaudeBot have different purposes.",
+  },
+  {
+    label: "Perplexity: Crawler documentation",
+    href: "https://docs.perplexity.ai/docs/resources/perplexity-crawlers",
+    note: "PerplexityBot is the crawler used to surface and link websites in Perplexity search.",
+  },
 ];
 
-function StatCallout({ stat, source }: { stat: string; source: string }) {
+function GuidanceCallout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="my-8 rounded-xl border border-primary/20 bg-primary/5 p-6 md:p-8">
-      <p className="text-lg md:text-xl font-semibold text-foreground leading-snug">
-        {stat}
-      </p>
-      <p className="mt-2 text-sm text-muted-foreground">{source}</p>
+    <div className="my-6 rounded-xl border border-primary/20 bg-primary/5 p-6">
+      <p className="font-medium leading-relaxed text-foreground">{children}</p>
     </div>
   );
 }
 
-const GeoGuide = () => {
+function CheckList({ items }: { items: string[] }) {
+  return (
+    <ul className="ml-5 list-disc space-y-2 text-base leading-relaxed text-muted-foreground">
+      {items.map((item) => <li key={item}>{item}</li>)}
+    </ul>
+  );
+}
+
+export default function GeoGuide() {
   const [activeId, setActiveId] = useState("");
 
   useEffect(() => {
+    if (!("IntersectionObserver" in window)) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
-        const visible = entries.filter((e) => e.isIntersecting);
-        if (visible.length > 0) {
-          setActiveId(visible[0].target.id);
-        }
+        const visible = entries.find((entry) => entry.isIntersecting);
+        if (visible) setActiveId(visible.target.id);
       },
-      { rootMargin: "-80px 0px -60% 0px", threshold: 0.1 }
+      { rootMargin: "-80px 0px -60% 0px", threshold: 0.1 },
     );
 
     tocSections.forEach(({ id }) => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
+      const element = document.getElementById(id);
+      if (element) observer.observe(element);
     });
 
     return () => observer.disconnect();
@@ -137,367 +180,319 @@ const GeoGuide = () => {
 
   return (
     <>
-      <Helmet>
-        <title>GEO for Professional Services: The Complete Guide (2026)</title>
-        <meta
-          name="description"
-          content="How law firms, accounting firms, consulting firms, and marketing agencies can measure and improve their visibility in ChatGPT, Gemini, Perplexity, and other AI platforms."
-        />
-        <link rel="canonical" href="https://clientory.org/geo-for-professional-services" />
-        <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>
-        <script type="application/ld+json">{JSON.stringify(articleJsonLd)}</script>
-      </Helmet>
+      <title>AI Search Optimization for Law Firms: 2026 GEO Guide</title>
+      <meta
+        name="description"
+        content="A verified GEO and AI search optimization guide for small and mid-sized law firms: technical SEO, local signals, content, measurement, and a 90-day plan."
+      />
+      <link rel="canonical" href={PAGE_URL} />
+      <meta property="og:type" content="article" />
+      <meta property="og:title" content="AI Search Optimization for Law Firms: 2026 GEO Guide" />
+      <meta
+        property="og:description"
+        content="A practical, source-backed guide to helping small and mid-sized law firms become easier to discover, verify, and cite in AI search."
+      />
+      <meta property="og:url" content={PAGE_URL} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
 
       <MarketingLayout>
-        <div className="pt-40 pb-20">
+        <main className="pb-20 pt-40">
           <div className="container mx-auto flex gap-12 px-6">
-          {/* Sticky TOC — desktop */}
-          <aside className="hidden lg:block w-56 shrink-0">
-            <nav className="sticky top-36 space-y-1">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-                Contents
-              </p>
-              {tocSections.map(({ id, label }) => (
-                <a
-                  key={id}
-                  href={`#${id}`}
-                  className={`block text-sm py-1 transition-colors ${
-                    activeId === id
-                      ? "text-primary font-medium"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {label}
-                </a>
-              ))}
-            </nav>
-          </aside>
+            <aside className="hidden w-56 shrink-0 lg:block">
+              <nav className="sticky top-36 space-y-1" aria-label="Guide contents">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Contents</p>
+                {tocSections.map(({ id, label }) => (
+                  <a
+                    key={id}
+                    href={`#${id}`}
+                    className={`block py-1 text-sm transition-colors ${
+                      activeId === id ? "font-medium text-primary" : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {label}
+                  </a>
+                ))}
+              </nav>
+            </aside>
 
-          {/* Main content */}
-          <article className="max-w-3xl flex-1 space-y-14">
-            <header>
-              <h1 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
-                GEO for Professional Services: The Complete Guide (2026)
-              </h1>
-              <p className="mt-4 text-lg text-muted-foreground leading-relaxed">
-                How law firms, accounting firms, consulting firms, and marketing agencies can measure and improve their visibility in ChatGPT, Gemini, Perplexity, and other AI platforms.
-              </p>
-            </header>
-
-            {/* ─── What Is GEO ─── */}
-            <section id="what-is-geo" className="space-y-4 scroll-mt-24">
-              <h2 className="text-2xl font-semibold text-foreground">
-                What Is GEO (Generative Engine Optimization)?
-              </h2>
-              <p className="text-base text-muted-foreground leading-relaxed">
-                Generative Engine Optimization (GEO) is the practice of improving how a brand, business, or individual is represented in responses generated by large language models (LLMs) such as ChatGPT, Claude, Gemini, Perplexity, and Microsoft Copilot. Unlike traditional search engine optimization (SEO), which focuses on ranking in a list of blue links, GEO focuses on whether and how an entity is mentioned within AI-generated prose answers.
-              </p>
-              <p className="text-base text-muted-foreground leading-relaxed">
-                For professional service firms — law firms, accounting practices, management consultancies, and marketing agencies — GEO represents a fundamental shift in how prospective clients discover and evaluate service providers. When a user asks an AI assistant "Who are the best tax accountants in Denver?" the model synthesizes information from its training data, real-time web search results, directory listings, and review signals to produce a curated recommendation. Firms that do not appear in these responses are effectively invisible to a growing segment of the market.
-              </p>
-              <StatCallout
-                stat="58% of consumers have replaced traditional search with AI tools for discovering services."
-                source="Capgemini, 2025"
-              />
-            </section>
-
-            {/* ─── Why at Risk ─── */}
-            <section id="why-at-risk" className="space-y-4 scroll-mt-24">
-              <h2 className="text-2xl font-semibold text-foreground">
-                Why Professional Service Firms Are at Risk
-              </h2>
-              <p className="text-base text-muted-foreground leading-relaxed">
-                The shift to AI-mediated discovery poses a disproportionate risk to small and mid-sized professional service firms. Research indicates that 84% of decision-makers act on an AI platform's first suggestion without seeking additional options. This means that if your firm is not mentioned in the initial AI response, you are unlikely to be considered at all.
-              </p>
-              <StatCallout
-                stat="Only 1.2% of local businesses are recommended by ChatGPT in response to service-related queries."
-                source="BrightLocal, 2025"
-              />
-              <p className="text-base text-muted-foreground leading-relaxed">
-                The concentration effect is even more pronounced in professional services. Legal, accounting, and consulting queries trigger AI Overviews at a 77%+ rate in Google Search, meaning that traditional organic listings are being pushed below the fold even before users switch to dedicated AI tools. Firms that relied on SEO alone are finding their visibility eroded from two directions simultaneously.
-              </p>
-              <StatCallout
-                stat="Legal, accounting, and consulting queries trigger AI Overviews at a 77%+ rate in Google Search."
-                source="Search Engine Land, 2025"
-              />
-            </section>
-
-            {/* ─── How AI Decides ─── */}
-            <section id="how-ai-decides" className="space-y-6 scroll-mt-24">
-              <h2 className="text-2xl font-semibold text-foreground">
-                How AI Platforms Decide Which Firms to Recommend
-              </h2>
-
-              <div className="space-y-4">
-                <h3 className="text-xl font-medium text-foreground">
-                  Training Data and Entity Recognition
-                </h3>
-                <p className="text-base text-muted-foreground leading-relaxed">
-                  Large language models are trained on vast corpora of web text, including Wikipedia, news articles, industry publications, and professional directories. Firms with a strong, consistent presence across authoritative sources are more likely to be recognized as entities — distinct, identifiable organizations that the model can reference by name. Entity recognition is a prerequisite for AI recommendation: if the model does not "know" a firm exists, it cannot recommend it.
+            <article className="max-w-3xl flex-1 space-y-14">
+              <header className="space-y-5">
+                <p className="text-sm font-medium uppercase tracking-widest text-primary">Practical guide for law firms</p>
+                <h1 className="text-3xl font-bold leading-tight text-foreground md:text-5xl">
+                  AI Search Optimization (GEO) for Small and Mid-Sized Law Firms
+                </h1>
+                <p className="text-lg leading-relaxed text-muted-foreground">
+                  A source-backed guide to making your firm easier to discover, understand, verify, and accurately cite in ChatGPT, Google AI features, Claude, Perplexity, and Copilot—without chasing unsupported GEO hacks.
                 </p>
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="text-xl font-medium text-foreground">
-                  Real-Time Web Search
-                </h3>
-                <p className="text-base text-muted-foreground leading-relaxed">
-                  Several AI platforms — including ChatGPT (with browsing), Gemini, and Perplexity — augment their base knowledge with real-time web search. When a user asks for a local professional service recommendation, these models query the web and synthesize results from multiple sources. This means that current SEO performance, recent press coverage, and up-to-date directory listings directly influence AI responses, even if the firm is absent from the model's training data.
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                  <span>By <a href="/about" className="text-foreground underline underline-offset-4">Yanyan Li</a>, Founder of Clientory</span>
+                  <span>Updated August 9, 2026</span>
+                </div>
+                <p className="rounded-lg border border-border bg-muted/30 p-4 text-sm leading-relaxed text-muted-foreground">
+                  Scope: this guide explains marketing and technical visibility practices, not legal advice. Law firms should review content, testimonials, comparisons, and claims under the advertising and professional-conduct rules that apply in every jurisdiction where they practice.
                 </p>
-                <p className="text-base text-muted-foreground leading-relaxed">
-                  Google now answers on two distinct surfaces, and they behave differently. AI Overviews appear above the traditional results on a normal search; AI Mode is a separate conversational experience that runs its own set of queries behind a single question and cites a wider spread of sources. A firm can appear in one and not the other, so treat them as two places to check rather than one.
+              </header>
+
+              <section id="what-geo-means" className="scroll-mt-24 space-y-5">
+                <h2 className="text-2xl font-semibold text-foreground">What GEO Means—and What It Cannot Promise</h2>
+                <p className="text-base leading-relaxed text-muted-foreground">
+                  Generative engine optimization (GEO) is a useful name for the work of improving how a firm appears in AI-assisted discovery. For a law firm, that means helping a search system answer four questions: Does this firm exist? What matters does it handle? Where and for whom does it practice? What reliable evidence supports those facts?
                 </p>
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="text-xl font-medium text-foreground">
-                  Directory Listings and Review Signals
-                </h3>
-                <p className="text-base text-muted-foreground leading-relaxed">
-                  AI models weigh directory presence and review signals heavily when recommending professional services. Google Business Profile, Yelp, and industry-specific directories (Avvo for lawyers, the AICPA directory for accountants, Clutch.co for consultants and agencies) serve as structured data sources that models can parse with high confidence. Review volume, average rating, and review recency all contribute to a firm's likelihood of being recommended.
+                <p className="text-base leading-relaxed text-muted-foreground">
+                  GEO is not a separate replacement for SEO. Google states that the same SEO fundamentals apply to AI Overviews and AI Mode, with no special markup required. ChatGPT, Claude, Perplexity, and Bing have their own retrieval systems and controls, but they still need accessible, understandable, trustworthy source material.
                 </p>
-              </div>
+                <GuidanceCallout>
+                  No ethical consultant can guarantee that an AI assistant will rank, cite, or recommend a firm. The practical goal is to improve eligibility, factual clarity, corroboration, and measurement.
+                </GuidanceCallout>
+              </section>
 
-              <div className="space-y-4">
-                <h3 className="text-xl font-medium text-foreground">
-                  Content Authority Signals
-                </h3>
-                <p className="text-base text-muted-foreground leading-relaxed">
-                  Firms that publish authoritative, topic-specific content — such as blog posts, whitepapers, case studies, and thought leadership articles — build stronger entity-topic associations in AI models. When a firm's website consistently addresses specific practice areas or service categories, models are more likely to associate that firm with those topics and recommend it in relevant queries. Backlinks from authoritative sources further reinforce these associations.
+              <section id="how-ai-finds-firms" className="scroll-mt-24 space-y-6">
+                <h2 className="text-2xl font-semibold text-foreground">How AI Search Finds and Describes a Law Firm</h2>
+                <div className="space-y-3">
+                  <h3 className="text-xl font-medium text-foreground">1. It retrieves sources</h3>
+                  <p className="text-base leading-relaxed text-muted-foreground">
+                    Search-grounded assistants can retrieve pages from search indexes or their own crawlers. The source mix can change by product, prompt, location, and date. This is why being indexed, crawlable, internally linked, and returned as meaningful HTML is the first requirement—not an advanced optimization.
+                  </p>
+                </div>
+                <div className="space-y-3">
+                  <h3 className="text-xl font-medium text-foreground">2. It tries to resolve the firm as an entity</h3>
+                  <p className="text-base leading-relaxed text-muted-foreground">
+                    Your website, attorney biographies, business profiles, bar records, reputable directories, news coverage, and other third-party pages may all describe the same organization. Consistent names, locations, practice areas, attorney identities, and contact information reduce ambiguity. Consistency helps machines reconcile facts; it does not create authority by itself.
+                  </p>
+                </div>
+                <div className="space-y-3">
+                  <h3 className="text-xl font-medium text-foreground">3. It selects passages that answer the question</h3>
+                  <p className="text-base leading-relaxed text-muted-foreground">
+                    Clear headings, direct answers, useful tables, evidence, and focused pages make it easier for both people and retrieval systems to identify the relevant passage. Bing’s current guidance specifically recommends depth, clear structure, evidence, freshness, and consistency across formats.
+                  </p>
+                </div>
+                <div className="space-y-3">
+                  <h3 className="text-xl font-medium text-foreground">4. It generates an answer that can vary</h3>
+                  <p className="text-base leading-relaxed text-muted-foreground">
+                    AI answers are not fixed rankings. The same underlying question can produce different firms, citations, or wording across runs. A law firm therefore needs a repeatable panel of prompts and longitudinal measurements, not a single screenshot.
+                  </p>
+                </div>
+              </section>
+
+              <section id="technical-foundation" className="scroll-mt-24 space-y-6">
+                <h2 className="text-2xl font-semibold text-foreground">Technical Foundation: Make the Firm Eligible to Be Found</h2>
+                <p className="text-base leading-relaxed text-muted-foreground">
+                  Ask a developer or SEO partner to verify these items before commissioning more articles.
                 </p>
-              </div>
-            </section>
+                <div className="space-y-3">
+                  <h3 className="text-xl font-medium text-foreground">Ship important information in HTML</h3>
+                  <p className="text-base leading-relaxed text-muted-foreground">
+                    Google can render JavaScript, but its own documentation says server-side rendering or prerendering remains a good idea because it is faster for users and crawlers and not every bot executes JavaScript. Practice areas, office locations, attorney names, credentials, FAQs, and contact details should be present in the initial response instead of appearing only after a click or client-side request.
+                  </p>
+                </div>
+                <div className="space-y-3">
+                  <h3 className="text-xl font-medium text-foreground">Use ordinary technical SEO correctly</h3>
+                  <CheckList items={[
+                    "Return a successful HTTP status for real pages and a real 404 for missing pages.",
+                    "Give every important page a unique, descriptive title, meta description, canonical URL, and one clear main heading.",
+                    "Link important practice-area, location, attorney, and contact pages with crawlable HTML links.",
+                    "Maintain an XML sitemap and verify the site in Google Search Console and Bing Webmaster Tools.",
+                    "Keep mobile usability, speed, security, and accessibility in working order.",
+                  ]} />
+                </div>
+                <div className="space-y-3">
+                  <h3 className="text-xl font-medium text-foreground">Allow the search crawlers you want</h3>
+                  <p className="text-base leading-relaxed text-muted-foreground">
+                    Search access and model training are separate choices. OpenAI identifies OAI-SearchBot for ChatGPT search and GPTBot for potential training. Anthropic distinguishes Claude-SearchBot, Claude-User, and ClaudeBot. Perplexity identifies PerplexityBot for search. Check both <code className="rounded bg-muted px-1 py-0.5 text-sm">robots.txt</code> and any CDN or firewall rules; allowing a user agent in robots.txt does not help if the server blocks its requests.
+                  </p>
+                </div>
+                <div className="space-y-3">
+                  <h3 className="text-xl font-medium text-foreground">Use structured data as a factual label, not a ranking trick</h3>
+                  <p className="text-base leading-relaxed text-muted-foreground">
+                    Mark up the organization or location with the most specific accurate type, such as <code className="rounded bg-muted px-1 py-0.5 text-sm">LegalService</code> where appropriate; use <code className="rounded bg-muted px-1 py-0.5 text-sm">Person</code> for attorney biographies and <code className="rounded bg-muted px-1 py-0.5 text-sm">Article</code> or <code className="rounded bg-muted px-1 py-0.5 text-sm">BlogPosting</code> for authored guidance. The markup must agree with visible content. Google says there is no special schema required for its AI features, and FAQ rich results are generally limited to authoritative government and health sites.
+                  </p>
+                </div>
+              </section>
 
-            {/* ─── 5 Key Metrics ─── */}
-            <section id="key-metrics" className="space-y-6 scroll-mt-24">
-              <h2 className="text-2xl font-semibold text-foreground">
-                The 5 Key Metrics for Measuring AI Visibility
-              </h2>
+              <section id="law-firm-content" className="scroll-mt-24 space-y-6">
+                <h2 className="text-2xl font-semibold text-foreground">Build Content Around Real Legal-Client Decisions</h2>
+                <p className="text-base leading-relaxed text-muted-foreground">
+                  Small and mid-sized firms rarely need more generic blog volume. They need a complete, credible core website and a smaller set of pages that answer the questions their best-fit clients actually ask.
+                </p>
+                <div className="space-y-3">
+                  <h3 className="text-xl font-medium text-foreground">Complete the core firm pages</h3>
+                  <CheckList items={[
+                    "A homepage that states the firm’s practice focus, real service area, and intended client types in visible text.",
+                    "One substantial page for each material practice area, written for the client’s problem rather than a keyword variation.",
+                    "Location pages only where the firm has a truthful, useful reason to describe that office or service area.",
+                    "Individual attorney biographies with current admissions, education, languages, relevant experience, publications, and contact routes.",
+                    "A clear contact and intake page with accurate office, phone, hours, consultation, and accessibility information.",
+                  ]} />
+                </div>
+                <div className="space-y-3">
+                  <h3 className="text-xl font-medium text-foreground">Publish answer-worthy guidance</h3>
+                  <p className="text-base leading-relaxed text-muted-foreground">
+                    Favor original explanations, decision frameworks, jurisdiction-specific caveats, process walkthroughs, comparison pages, and insights drawn from the firm’s real work. A family-law firm might compare mediation and litigation; an immigration firm might explain how consular processing differs from adjustment of status; an estate-planning firm might explain when a trust addresses a client’s actual goals. State the general answer early, then add conditions and exceptions.
+                  </p>
+                </div>
+                <div className="space-y-3">
+                  <h3 className="text-xl font-medium text-foreground">Make expertise and review visible</h3>
+                  <p className="text-base leading-relaxed text-muted-foreground">
+                    Legal information can affect major life and financial decisions. Identify the author or legal reviewer, link to a complete biography, show a genuine reviewed or updated date, cite primary legal authorities when relevant, and explain the jurisdictions and limits of the guidance. Do not change dates merely to look fresh; update the substance first.
+                  </p>
+                </div>
+                <div className="space-y-3">
+                  <h3 className="text-xl font-medium text-foreground">Avoid scaled, near-duplicate pages</h3>
+                  <p className="text-base leading-relaxed text-muted-foreground">
+                    Do not generate dozens of city or question variants that repeat the same answer. Google’s current AI-search guidance warns against scaled pages created mainly to manipulate search visibility. Consolidate overlapping pages and make each remaining page genuinely useful to a prospective client.
+                  </p>
+                </div>
+              </section>
 
-              {[
-                {
-                  num: 1,
-                  title: "Mention Rate",
-                  desc: "The percentage of test prompts where your firm appears in the AI-generated response. A firm that appears in 8 out of 50 test prompts has a mention rate of 16%. This is the most fundamental GEO metric and the starting point for any visibility assessment.",
-                },
-                {
-                  num: 2,
-                  title: "Share of Voice",
-                  desc: "Your firm's mentions as a proportion of total competitor mentions across the same set of test prompts. Share of Voice reveals your competitive position: a firm with 20 mentions out of 100 total competitor mentions has a 20% Share of Voice. This metric is most useful when tracked over time.",
-                },
-                {
-                  num: 3,
-                  title: "Position",
-                  desc: "Where in the AI response your firm appears. Firms mentioned first in a list or early in a prose response receive disproportionate attention. Position tracking helps identify whether optimization efforts are moving your firm up in AI recommendations.",
-                },
-                {
-                  num: 4,
-                  title: "Sentiment",
-                  desc: "How the AI describes your firm — positively, neutrally, or negatively. Sentiment analysis reveals whether the model's training data or web sources contain unfavorable information that could deter prospective clients. Negative sentiment requires immediate investigation and remediation.",
-                },
-                {
-                  num: 5,
-                  title: "Accuracy",
-                  desc: "Whether the factual information AI states about your firm is correct. AI models frequently hallucinate details such as office locations, practice areas, founding dates, and attorney names. Inaccurate information can mislead prospective clients and damage trust.",
-                },
-              ].map((m) => (
-                <div key={m.num} className="flex gap-4">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-bold">
-                    {m.num}
-                  </span>
-                  <div>
-                    <h3 className="text-lg font-medium text-foreground">{m.title}</h3>
-                    <p className="mt-1 text-base text-muted-foreground leading-relaxed">{m.desc}</p>
+              <section id="local-entity-signals" className="scroll-mt-24 space-y-6">
+                <h2 className="text-2xl font-semibold text-foreground">Strengthen Local and Entity Signals Without Overclaiming</h2>
+                <p className="text-base leading-relaxed text-muted-foreground">
+                  For local legal searches, keep the firm’s Google Business Profile and Bing Places listing complete and current. Google says local visibility is primarily based on relevance, distance, and prominence; no one can pay Google for better local ranking.
+                </p>
+                <CheckList items={[
+                  "Use the real business name, primary category, address or valid service-area setup, phone, hours, and website URL.",
+                  "Describe services and languages accurately and keep them aligned with the website.",
+                  "Create a sustainable process for requesting honest reviews without incentives or prohibited language.",
+                  "Respond professionally to reviews without exposing confidential client information.",
+                  "Correct duplicate, outdated, or inconsistent firm and attorney listings on reputable sources used in your market.",
+                  "Earn corroboration through real professional activity: bar and association profiles, speaking, publications, community work, news coverage, and authoritative citations.",
+                ]} />
+                <GuidanceCallout>
+                  No major AI platform publishes a fixed directory checklist that guarantees legal recommendations. Use citations from your own audits to learn which sources matter for your firm’s prompts.
+                </GuidanceCallout>
+              </section>
+
+              <section id="manual-audit" className="scroll-mt-24 space-y-6">
+                <h2 className="text-2xl font-semibold text-foreground">Run a Repeatable Law Firm AI Visibility Audit</h2>
+                <ol className="ml-5 list-decimal space-y-5 text-base leading-relaxed text-muted-foreground">
+                  <li>
+                    <strong className="text-foreground">Define the market.</strong> Record the firm’s practice areas, offices or truthful service areas, languages, client types, and high-value matter categories.
+                  </li>
+                  <li>
+                    <strong className="text-foreground">Build a fixed prompt set.</strong> Include discovery, comparison, and informational questions. Use the wording heard in consultations and intake calls—not just SEO keywords.
+                  </li>
+                  <li>
+                    <strong className="text-foreground">Test separate surfaces.</strong> Check ChatGPT search, Google AI Mode or AI Overviews when available, Claude web search, Perplexity, and Copilot separately. Record the exact product or mode because they are not interchangeable.
+                  </li>
+                  <li>
+                    <strong className="text-foreground">Control the test.</strong> Use fresh conversations, keep prompts unchanged, note the date and stated location, and run more than one repetition for important prompts.
+                  </li>
+                  <li>
+                    <strong className="text-foreground">Capture evidence.</strong> Save the answer, whether the firm was mentioned, its context, cited URLs, competitors, and every factual error. Do not reduce the audit to a single score.
+                  </li>
+                  <li>
+                    <strong className="text-foreground">Trace each gap to a source problem.</strong> Inspect the pages cited for competitors and determine whether your gap is crawlability, missing facts, thin content, weak local relevance, stale profiles, or insufficient third-party corroboration.
+                  </li>
+                </ol>
+                <div className="rounded-xl border border-border bg-card p-6">
+                  <h3 className="text-lg font-semibold text-foreground">Example prompts for a small or mid-sized law firm</h3>
+                  <ul className="mt-4 space-y-2 text-sm leading-relaxed text-muted-foreground">
+                    <li>“Which immigration law firms in Chicago handle marriage-based adjustment of status and offer service in Spanish?”</li>
+                    <li>“What should I look for when choosing an estate-planning attorney for a blended family in Madison?”</li>
+                    <li>“Compare small family-law firms in Austin that handle collaborative divorce.”</li>
+                    <li>“Who represents small employers with H-1B RFEs in the Dallas area?”</li>
+                    <li>“Which sources explain whether I need a lawyer for probate in Wisconsin?”</li>
+                  </ul>
+                </div>
+              </section>
+
+              <section id="metrics" className="scroll-mt-24 space-y-6">
+                <h2 className="text-2xl font-semibold text-foreground">Measure What a Managing Partner Can Act On</h2>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {[
+                    ["Mention rate", "The share of controlled test responses that mention the firm. Report the prompt count and platforms with the percentage."],
+                    ["Citation rate", "The share of responses that cite the firm’s own domain, plus the third-party domains used to support or replace it."],
+                    ["Competitive share", "The firm’s mentions compared with named competitors across the same prompt set—not across an undefined market."],
+                    ["Accuracy", "The percentage of statements about the firm that are correct, with material errors tracked to correction."],
+                    ["Coverage", "Which practice areas, client types, languages, and locations produce mentions and which remain absent."],
+                    ["Stability", "How often the result repeats across runs and testing cycles. Volatile prompts should not drive major decisions alone."],
+                  ].map(([title, description]) => (
+                    <div key={title} className="rounded-xl border border-border bg-card p-5">
+                      <h3 className="font-semibold text-foreground">{title}</h3>
+                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{description}</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-base leading-relaxed text-muted-foreground">
+                  Bing Webmaster Tools now reports citation activity for supported Microsoft AI experiences. Google includes traffic from its AI features within the normal Web performance report rather than a separate AI ranking report. For other surfaces, controlled prompt monitoring remains a directional measurement, not an impression count or a promise of leads.
+                </p>
+              </section>
+
+              <section id="ninety-day-plan" className="scroll-mt-24 space-y-6">
+                <h2 className="text-2xl font-semibold text-foreground">A Practical 90-Day Plan for a Lean Law Firm</h2>
+                <div className="space-y-5">
+                  <div className="rounded-xl border border-border p-6">
+                    <h3 className="text-lg font-semibold text-foreground">Days 1–30: Eligibility and accuracy</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">Create the baseline prompt set. Fix indexing, raw HTML, metadata, canonicals, sitemaps, crawler and CDN rules, broken links, and incorrect business facts. Reconcile the website, Business Profiles, attorney biographies, and major directory listings.</p>
+                  </div>
+                  <div className="rounded-xl border border-border p-6">
+                    <h3 className="text-lg font-semibold text-foreground">Days 31–60: Core content and proof</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">Improve the homepage and highest-value practice pages. Add clear authorship or review, primary-source citations, meaningful attorney credentials, client-centered comparisons, and honest local context. Consolidate thin or duplicative pages.</p>
+                  </div>
+                  <div className="rounded-xl border border-border p-6">
+                    <h3 className="text-lg font-semibold text-foreground">Days 61–90: Corroboration and measurement</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">Correct reputable third-party profiles, establish a compliant review process, pursue real publications or community authority, submit material updates through webmaster tools, rerun the unchanged prompt panel, and compare evidence against the baseline.</p>
                   </div>
                 </div>
-              ))}
-            </section>
-
-            {/* ─── Technical Foundations ─── */}
-            <section id="technical-foundations" className="space-y-6 scroll-mt-24">
-              <h2 className="text-2xl font-semibold text-foreground">
-                Technical Foundations: Make Your Site Readable to AI
-              </h2>
-              <p className="text-base text-muted-foreground leading-relaxed">
-                Measurement tells you where you stand. These four checks are what most firms actually need to fix, and they are ordered deliberately — there is no point writing for AI on a site AI cannot read.
-              </p>
-
-              <div className="space-y-4">
-                <h3 className="text-xl font-medium text-foreground">
-                  1. Confirm AI crawlers are allowed
-                </h3>
-                <p className="text-base text-muted-foreground leading-relaxed">
-                  This is the most common own-goal in GEO. AI assistants use their own crawlers — GPTBot and OAI-SearchBot for OpenAI, ClaudeBot for Anthropic, PerplexityBot, and Google-Extended — and a great many sites block them without anyone deciding to. The block usually arrives by default in a <code className="rounded bg-muted px-1 py-0.5 text-sm">robots.txt</code> template, a security plugin, or a CDN bot-protection setting switched on to stop scrapers. Open <code className="rounded bg-muted px-1 py-0.5 text-sm">yourfirm.com/robots.txt</code> and read it. If those agents are disallowed, no amount of content work will get you cited, because the model was never able to open the page.
+                <p className="text-base leading-relaxed text-muted-foreground">
+                  Keep the cadence sustainable. A five-attorney firm that fixes its core facts and publishes one genuinely useful, attorney-reviewed page will build a stronger foundation than a firm producing weekly generic AI-written posts.
                 </p>
-              </div>
+              </section>
 
-              <div className="space-y-4">
-                <h3 className="text-xl font-medium text-foreground">
-                  2. Answer the question in the first paragraph
-                </h3>
-                <p className="text-base text-muted-foreground leading-relaxed">
-                  Generative engines extract short, self-contained passages. A page that opens with a direct answer — a plain definition, the eligibility rule, the actual timeline — gives the model something liftable. A page that opens with "For over 20 years, our firm has proudly served…" gives it nothing, and the citation goes to whoever answered plainly. Lead each page and each section with the answer, then add the nuance underneath. This single habit does more for citation rate than any file you can add to your server.
+              <section id="professional-services" className="scroll-mt-24 space-y-5">
+                <h2 className="text-2xl font-semibold text-foreground">What Carries Over to Other Professional Services</h2>
+                <p className="text-base leading-relaxed text-muted-foreground">
+                  The same framework applies to accounting, consulting, architecture, and other expertise-led firms: technical access, unambiguous service and location facts, named experts, people-first content, accurate business profiles, reputable corroboration, and repeatable measurement.
                 </p>
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="text-xl font-medium text-foreground">
-                  3. Mark up the facts with structured data
-                </h3>
-                <p className="text-base text-muted-foreground leading-relaxed">
-                  Schema.org markup states plainly what a page would otherwise only imply. For a professional services firm, the useful types are <code className="rounded bg-muted px-1 py-0.5 text-sm">Organization</code> (or <code className="rounded bg-muted px-1 py-0.5 text-sm">LegalService</code> / <code className="rounded bg-muted px-1 py-0.5 text-sm">AccountingService</code>), <code className="rounded bg-muted px-1 py-0.5 text-sm">Person</code> for each professional, and <code className="rounded bg-muted px-1 py-0.5 text-sm">FAQPage</code> on pages that answer real client questions. Keep the name, address, and phone identical to every directory listing you hold — contradictory contact details are a fast way to be dropped from an answer, because the model cannot tell which version is true.
+                <p className="text-base leading-relaxed text-muted-foreground">
+                  The difference is the evidence. Accountants should foreground applicable credentials and regulatory context; consultants should publish concrete original analysis and case evidence they are permitted to share; architects and engineers should connect named professionals to projects and licenses. The tactic should follow the buyer’s decision and the profession’s rules, not a generic GEO checklist.
                 </p>
-              </div>
+              </section>
 
-              <div className="space-y-4">
-                <h3 className="text-xl font-medium text-foreground">
-                  4. Treat llms.txt as optional, not a fix
-                </h3>
-                <p className="text-base text-muted-foreground leading-relaxed">
-                  You will be told to add an <code className="rounded bg-muted px-1 py-0.5 text-sm">llms.txt</code> file. Be clear-eyed about what it is: a community proposal, not an adopted standard, and Google has said it ignores the file for Search, AI Overviews, and AI Mode. Large-scale analyses have not found a reliable link between simply having one and being cited more. It costs an hour and does no harm, so add it if you like — but it is not a substitute for the three checks above, which is where the actual movement comes from.
+              <section id="faq" className="scroll-mt-24 space-y-6">
+                <h2 className="text-2xl font-semibold text-foreground">Frequently Asked Questions from Law Firms</h2>
+                {faqItems.map((item) => (
+                  <div key={item.q} className="space-y-2 border-b border-border pb-6 last:border-0">
+                    <h3 className="text-lg font-medium text-foreground">{item.q}</h3>
+                    <p className="text-base leading-relaxed text-muted-foreground">{item.a}</p>
+                  </div>
+                ))}
+              </section>
+
+              <section id="sources" className="scroll-mt-24 space-y-6">
+                <h2 className="text-2xl font-semibold text-foreground">Primary Guidance Used for This Guide</h2>
+                <p className="text-base leading-relaxed text-muted-foreground">
+                  These are first-party search and crawler sources, reviewed August 9, 2026. Platform behavior can change, so recheck the linked documentation before making a major technical decision.
                 </p>
-              </div>
-            </section>
+                <ul className="space-y-4">
+                  {sourceLinks.map((source) => (
+                    <li key={source.href}>
+                      <a href={source.href} className="font-medium text-primary underline underline-offset-4">
+                        {source.label}
+                      </a>
+                      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{source.note}</p>
+                    </li>
+                  ))}
+                </ul>
+              </section>
 
-            {/* ─── Industry-Specific ─── */}
-            <section id="industry-specific" className="space-y-8 scroll-mt-24">
-              <h2 className="text-2xl font-semibold text-foreground">
-                Industry-Specific Considerations
-              </h2>
-
-              <div className="space-y-4">
-                <h3 className="text-xl font-medium text-foreground">Law Firms</h3>
-                <p className="text-base text-muted-foreground leading-relaxed">
-                  Law firms should prioritize listings on Avvo, FindLaw, Martindale-Hubbell, and Justia in addition to Google Business Profile. These legal directories carry significant weight in AI recommendations for legal services. Firms must also be aware of ethical compliance requirements: the American Bar Association's Formal Opinion 512 (2024) addresses AI-related marketing considerations, and state bar rules on advertising apply to AI visibility strategies just as they apply to traditional marketing channels.
+              <section className="rounded-2xl border border-primary/20 bg-primary/5 p-7 md:p-9">
+                <h2 className="text-2xl font-semibold text-foreground">Measure Your Firm Before You Guess</h2>
+                <p className="mt-3 text-base leading-relaxed text-muted-foreground">
+                  Clientory builds a prompt set from an immigration firm’s real practice profile, checks supported AI assistants, records mention quality and competitor gaps, and gives the firm a repeatable baseline. The first report is free; ongoing weekly monitoring is available for firms that want to track change.
                 </p>
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="text-xl font-medium text-foreground">Accounting Firms</h3>
-                <p className="text-base text-muted-foreground leading-relaxed">
-                  Accounting and CPA firms benefit from AICPA directory listings, state CPA society memberships, and credential signals (CPA, CMA, EA designations) that AI models use to validate expertise. Seasonal content strategy is particularly important: publishing tax planning content in Q4 and tax preparation guides in Q1 aligns with when prospective clients are most actively searching. AI models with real-time search capabilities will surface this timely content in their recommendations.
-                </p>
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="text-xl font-medium text-foreground">Consulting Firms</h3>
-                <p className="text-base text-muted-foreground leading-relaxed">
-                  Management consulting firms depend heavily on thought leadership for AI visibility. Publishing original research, case studies, and industry analyses builds entity-topic associations that cause AI models to recommend the firm for specific consulting needs. Listings on Clutch.co, which aggregates verified client reviews, provide structured data that AI models parse when generating consulting recommendations. The goal is to create a strong association between the firm's name and specific areas of expertise.
-                </p>
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="text-xl font-medium text-foreground">Marketing Agencies</h3>
-                <p className="text-base text-muted-foreground leading-relaxed">
-                  Marketing agencies face what might be called the GEO paradox: your own AI visibility is your most compelling case study. If your agency claims to help clients with digital visibility but does not appear in AI recommendations for marketing services, prospective clients will question your capabilities. Key directories include DesignRush, Agency Spotter, and Clutch.co. Agencies should also publish GEO-specific content to establish authority in this emerging field.
-                </p>
-              </div>
-            </section>
-
-            {/* ─── Manual Test ─── */}
-            <section id="manual-test" className="space-y-6 scroll-mt-24">
-              <h2 className="text-2xl font-semibold text-foreground">
-                How to Run a Manual AI Visibility Test (Step by Step)
-              </h2>
-
-              <ol className="list-decimal list-inside space-y-4 text-base text-muted-foreground leading-relaxed">
-                <li>
-                  <strong className="text-foreground">Choose 3–5 AI surfaces to test.</strong> At minimum, use ChatGPT, Gemini, and Perplexity. Add Claude and Microsoft Copilot for a fuller picture, and check Google's AI Overviews and AI Mode separately — a firm can appear in one and not the other.
-                </li>
-                <li>
-                  <strong className="text-foreground">Write 10–15 test prompts</strong> that reflect how a prospective client would search for your services. Examples:
-                  <ul className="mt-2 ml-6 list-disc space-y-1 text-sm">
-                    <li><em>Law:</em> "Who are the best estate planning lawyers in [city]?"</li>
-                    <li><em>Accounting:</em> "Recommend a CPA firm for small business taxes in [city]."</li>
-                    <li><em>Consulting:</em> "Top management consulting firms for healthcare in [region]."</li>
-                    <li><em>Marketing:</em> "Best digital marketing agencies for B2B companies in [city]."</li>
-                  </ul>
-                </li>
-                <li>
-                  <strong className="text-foreground">Run each prompt on each platform</strong> and record: (a) whether your firm is mentioned, (b) its position in the response, (c) how it is described, and (d) whether the information is accurate.
-                </li>
-                <li>
-                  <strong className="text-foreground">Run the same prompts for 2–3 competitors</strong> to establish a baseline Share of Voice comparison.
-                </li>
-                <li>
-                  <strong className="text-foreground">Document the results in a spreadsheet</strong> with columns for platform, prompt, mentioned (yes/no), position, sentiment, and accuracy notes.
-                </li>
-                <li>
-                  <strong className="text-foreground">Repeat monthly</strong> to track changes over time, and revisit your prompt list quarterly — the assistants, the sources they favour, and the way clients phrase questions all shift. AI responses are non-deterministic, so run each prompt at least twice per session and average the results.
-                </li>
-              </ol>
-            </section>
-
-            {/* ─── Tools ─── */}
-            <section id="tools" className="space-y-4 scroll-mt-24">
-              <h2 className="text-2xl font-semibold text-foreground">
-                Tools for Tracking AI Visibility
-              </h2>
-              <p className="text-base text-muted-foreground leading-relaxed">
-                Several platforms offer automated GEO monitoring. The table below compares the primary options available as of August 2026.
-              </p>
-              <div className="rounded-xl border border-border overflow-hidden">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-muted/50">
-                      <TableHead className="font-semibold text-foreground">Tool</TableHead>
-                      <TableHead className="font-semibold text-foreground">Focus</TableHead>
-                      <TableHead className="font-semibold text-foreground">Starting Price</TableHead>
-                      <TableHead className="font-semibold text-foreground">Professional Services Specific?</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {tools.map((row) => (
-                      <TableRow key={row.tool}>
-                        <TableCell className="font-medium text-foreground">{row.tool}</TableCell>
-                        <TableCell className="text-muted-foreground">{row.focus}</TableCell>
-                        <TableCell className="text-muted-foreground">{row.price}</TableCell>
-                        <TableCell className="text-muted-foreground">{row.specific}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </section>
-
-            {/* ─── How Clientory Helps ─── */}
-            <section id="how-clientory-helps" className="space-y-4 scroll-mt-24">
-              <h2 className="text-2xl font-semibold text-foreground">
-                How Clientory Helps
-              </h2>
-              <p className="text-base text-muted-foreground leading-relaxed">
-                Clientory automates this entire process for immigration law firms. Instead of testing prompts by hand across multiple assistants, Clientory generates prompts from your firm profile — 5 on a free report, 25 on a subscription — and runs them across ChatGPT, Claude, and Gemini, with Perplexity and Microsoft Copilot coming soon.
-              </p>
-              <p className="text-base text-muted-foreground leading-relaxed">
-                The platform grades every prompt per model as Positive, Passive, or No mention, rolls that into a 0-100 visibility score, and shows which competitors appear in the prompts you are missing from. Subscribed firms are re-scanned weekly, and the AI Presence Coach answers questions against the latest scan.
-              </p>
-              <p className="text-base text-muted-foreground leading-relaxed">
-                Clientory is available at{" "}
-                <a href={CLIENTORY_APP_URL} className="text-primary underline">
-                  app.clientory.org
+                <a
+                  href={CLIENTORY_APP_URL}
+                  className="mt-5 inline-flex rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+                >
+                  Run a free visibility report
                 </a>
-                .
-              </p>
-            </section>
-
-            {/* ─── FAQ ─── */}
-            <section id="faq" className="space-y-6 scroll-mt-24">
-              <h2 className="text-2xl font-semibold text-foreground">
-                Frequently Asked Questions
-              </h2>
-              {faqItems.map((item, i) => (
-                <div key={i} className="space-y-2 border-b border-border pb-6 last:border-0">
-                  <h3 className="text-lg font-medium text-foreground">{item.q}</h3>
-                  <p className="text-base text-muted-foreground leading-relaxed">{item.a}</p>
-                </div>
-              ))}
-            </section>
-          </article>
-        </div>
-        </div>
+              </section>
+            </article>
+          </div>
+        </main>
       </MarketingLayout>
     </>
   );
-};
-
-export default GeoGuide;
+}

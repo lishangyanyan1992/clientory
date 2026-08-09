@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet-async";
 import { MarketingLayout } from "@/components/marketing-layout";
 import { Button } from "@/components/ui/button";
 import {
@@ -60,13 +59,11 @@ const ComparisonPage = ({ data }: { data: ComparisonPageData }) => {
 
   return (
     <>
-      <Helmet>
-        <title>{title}</title>
-        <meta name="description" content={metaDesc} />
-        <link rel="canonical" href={`https://clientory.org/${data.slug}`} />
-        <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
-        <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
-      </Helmet>
+      <title>{title}</title>
+      <meta name="description" content={metaDesc} />
+      <link rel="canonical" href={`https://clientory.org/${data.slug}`} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
 
       <MarketingLayout>
         <main className="pt-40 pb-20">

@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet-async";
 import { CLIENTORY_APP_URL } from "@/lib/app-url";
 import { BY_PROVIDER, NAMED_COUNT, QUERIES, TOTAL_ANSWERS } from "./_data";
 import { CompBar } from "./_comp-bar";
@@ -213,15 +212,13 @@ const ACTIONS = [
 export default function Notice() {
   return (
     <>
-      <Helmet>
-        <title>Direction C · Notice — Clientory</title>
-        <meta name="robots" content="noindex" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Libre+Franklin:wght@400;500;600;700&display=swap"
-        />
-      </Helmet>
+      <title>Direction C · Notice — Clientory</title>
+      <meta name="robots" content="noindex" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Libre+Franklin:wght@400;500;600;700&display=swap"
+      />
       <style>{css}</style>
 
       <div className="lane-c">

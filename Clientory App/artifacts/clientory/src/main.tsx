@@ -2,7 +2,7 @@ import * as Sentry from "@sentry/react";
 import { Analytics } from "@vercel/analytics/react";
 import posthog from "posthog-js";
 import { PostHogProvider } from "posthog-js/react";
-import { createRoot } from "react-dom/client";
+import { createRoot, hydrateRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 
@@ -23,7 +23,8 @@ Sentry.init({
   integrations: [Sentry.browserTracingIntegration()],
 });
 
-createRoot(document.getElementById("root")!).render(
+const rootElement = document.getElementById("root")!;
+const app = (
   <PostHogProvider client={posthog}>
     <Sentry.ErrorBoundary fallback={<p>Something went wrong. Our team has been notified.</p>}>
       <App />
@@ -31,3 +32,9 @@ createRoot(document.getElementById("root")!).render(
     </Sentry.ErrorBoundary>
   </PostHogProvider>
 );
+
+if (rootElement.hasChildNodes()) {
+  hydrateRoot(rootElement, app);
+} else {
+  createRoot(rootElement).render(app);
+}

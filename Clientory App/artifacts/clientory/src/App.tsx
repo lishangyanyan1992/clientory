@@ -1,8 +1,7 @@
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { HelmetProvider } from "react-helmet-async";
 import { usePostHog } from "posthog-js/react";
-import { useEffect } from "react";
+import { useEffect, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
@@ -47,39 +46,51 @@ const queryClient = new QueryClient({
   },
 });
 
+export function SiteRoutes() {
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/blog" element={<Blog />} />
+      <Route path="/blog/:slug" element={<BlogPost />} />
+      <Route path="/geo-for-professional-services" element={<GeoGuide />} />
+      <Route path="/clientory-vs-otterly" element={<CompareOtterly />} />
+      <Route path="/clientory-vs-peec" element={<ComparePeec />} />
+      <Route path="/clientory-vs-semrush-ai" element={<CompareSemrush />} />
+      <Route path="/clientory-vs-manual-testing" element={<CompareManualTesting />} />
+      <Route path="/pricing" element={<Pricing />} />
+      <Route path="/scan/*" element={<ExternalAppRedirect />} />
+      <Route path="/firm/*" element={<ExternalAppRedirect />} />
+      <Route path="/settings/billing" element={<ExternalAppRedirect />} />
+      <Route path="/_design" element={<DesignIndex />} />
+      <Route path="/_design/instrument" element={<DesignInstrument />} />
+      <Route path="/_design/rollcall" element={<DesignRollCall />} />
+      <Route path="/_design/notice" element={<DesignNotice />} />
+      <Route path="/_design/territory" element={<DesignTerritory />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+}
+
+export function AppProviders({ children }: { children: ReactNode }) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        {children}
+        <Toaster />
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+}
+
 function App() {
   return (
-    <HelmetProvider>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <PostHogPageView />
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/blog/:slug" element={<BlogPost />} />
-              <Route path="/geo-for-professional-services" element={<GeoGuide />} />
-              <Route path="/clientory-vs-otterly" element={<CompareOtterly />} />
-              <Route path="/clientory-vs-peec" element={<ComparePeec />} />
-              <Route path="/clientory-vs-semrush-ai" element={<CompareSemrush />} />
-              <Route path="/clientory-vs-manual-testing" element={<CompareManualTesting />} />
-              <Route path="/pricing" element={<Pricing />} />
-              <Route path="/scan/*" element={<ExternalAppRedirect />} />
-              <Route path="/firm/*" element={<ExternalAppRedirect />} />
-              <Route path="/settings/billing" element={<ExternalAppRedirect />} />
-              <Route path="/_design" element={<DesignIndex />} />
-              <Route path="/_design/instrument" element={<DesignInstrument />} />
-              <Route path="/_design/rollcall" element={<DesignRollCall />} />
-              <Route path="/_design/notice" element={<DesignNotice />} />
-              <Route path="/_design/territory" element={<DesignTerritory />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-          <Toaster />
-        </TooltipProvider>
-      </QueryClientProvider>
-    </HelmetProvider>
+    <AppProviders>
+      <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+        <PostHogPageView />
+        <SiteRoutes />
+      </BrowserRouter>
+    </AppProviders>
   );
 }
 

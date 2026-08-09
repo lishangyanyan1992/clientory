@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet-async";
 import { CLIENTORY_APP_URL } from "@/lib/app-url";
 import {
   BY_PROVIDER,
@@ -222,15 +221,13 @@ const SHIFT = [
 export default function Instrument() {
   return (
     <>
-      <Helmet>
-        <title>Direction A · Instrument — Clientory</title>
-        <meta name="robots" content="noindex" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap"
-        />
-      </Helmet>
+      <title>Direction A · Instrument — Clientory</title>
+      <meta name="robots" content="noindex" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap"
+      />
       <style>{css}</style>
 
       <div className="lane-a">

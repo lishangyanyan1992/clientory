@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet-async";
 import { MarketingLayout } from "@/components/marketing-layout";
 import Founders from "@/components/Founders";
 import {
@@ -43,15 +42,13 @@ const competitors = [
 const About = () => {
   return (
     <>
-      <Helmet>
-        <title>About Clientory — AI Visibility for Immigration Law Firms</title>
-        <meta
-          name="description"
-          content="Clientory is a Generative Engine Optimization (GEO) monitoring platform that tracks how AI assistants mention and recommend independent immigration law firms."
-        />
-        <link rel="canonical" href="https://clientory.org/about" />
-        <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
-      </Helmet>
+      <title>About Clientory — AI Visibility for Immigration Law Firms</title>
+      <meta
+        name="description"
+        content="Clientory is a Generative Engine Optimization (GEO) monitoring platform that tracks how AI assistants mention and recommend independent immigration law firms."
+      />
+      <link rel="canonical" href="https://clientory.org/about" />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <MarketingLayout>
         <main className="pt-40 pb-20">

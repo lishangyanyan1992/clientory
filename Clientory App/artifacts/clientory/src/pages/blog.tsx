@@ -121,8 +121,12 @@ const Blog = () => {
   const visible = sorted.slice(0, visibleCount);
 
   return (
-    <MarketingLayout>
-      <main className="pt-40 pb-20">
+    <>
+      <title>Clientory Blog | AI Visibility for Immigration Law Firms</title>
+      <meta name="description" content="Practical articles on AI search visibility, GEO, local discovery, content, and measurement for small and mid-sized immigration law firms." />
+      <link rel="canonical" href="https://clientory.org/blog" />
+      <MarketingLayout>
+        <main className="pt-40 pb-20">
         <div className="container mx-auto px-6">
           {/* Header */}
           <motion.div
@@ -270,8 +274,9 @@ const Blog = () => {
             </div>
           )}
         </div>
-      </main>
-    </MarketingLayout>
+        </main>
+      </MarketingLayout>
+    </>
   );
 };
 

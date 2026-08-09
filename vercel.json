@@ -1,6 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
+  "trailingSlash": false,
   "installCommand": "sh ./install-vercel.sh",
   "buildCommand": "sh ./build-vercel.sh",
   "outputDirectory": "Clientory App/artifacts/clientory/dist/public",

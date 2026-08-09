@@ -50,8 +50,12 @@ const PLAN = {
 
 export default function Pricing() {
   return (
-    <MarketingLayout>
-      <div className="container max-w-5xl mx-auto px-4 pt-40 pb-20">
+    <>
+      <title>Clientory Pricing | AI Visibility for Immigration Law Firms</title>
+      <meta name="description" content="Start with one free AI visibility report, then monitor your immigration law firm weekly with Clientory's $10 per month plan." />
+      <link rel="canonical" href="https://clientory.org/pricing" />
+      <MarketingLayout>
+        <div className="container max-w-5xl mx-auto px-4 pt-40 pb-20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -211,7 +215,8 @@ export default function Pricing() {
             ))}
           </div>
         </motion.div>
-      </div>
-    </MarketingLayout>
+        </div>
+      </MarketingLayout>
+    </>
   );
 }

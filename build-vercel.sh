@@ -8,3 +8,5 @@ APP_DIR="$ROOT_DIR/Clientory App/artifacts/clientory"
 
 cd "$APP_DIR"
 PORT="${PORT:-3000}" BASE_PATH=/ "$NODE_BIN" node_modules/vite/bin/vite.js build --config vite.config.ts
+PORT="${PORT:-3000}" BASE_PATH=/ "$NODE_BIN" node_modules/vite/bin/vite.js build --config vite.config.ts --ssr src/entry-server.tsx --outDir dist/server --emptyOutDir false
+"$NODE_BIN" scripts/prerender.mjs

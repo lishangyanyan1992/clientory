@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet-async";
 import { CLIENTORY_APP_URL } from "@/lib/app-url";
 import { MARKETS } from "./_data";
 import { CompBar } from "./_comp-bar";
@@ -149,15 +148,13 @@ const NAMED_IN = MARKETS.filter((m) => m.named).length;
 export default function Territory() {
   return (
     <>
-      <Helmet>
-        <title>Direction D · Territory — Clientory</title>
-        <meta name="robots" content="noindex" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=Barlow:wght@400;500;600;700&display=swap"
-        />
-      </Helmet>
+      <title>Direction D · Territory — Clientory</title>
+      <meta name="robots" content="noindex" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=Barlow:wght@400;500;600;700&display=swap"
+      />
       <style>{css}</style>
 
       <div className="lane-d">

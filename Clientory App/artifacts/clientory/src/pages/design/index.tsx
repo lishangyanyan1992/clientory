@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 
 /**
@@ -40,10 +39,8 @@ const LANES = [
 export default function DesignIndex() {
   return (
     <>
-      <Helmet>
-        <title>Landing page directions — Clientory</title>
-        <meta name="robots" content="noindex" />
-      </Helmet>
+      <title>Landing page directions — Clientory</title>
+      <meta name="robots" content="noindex" />
       <div className="min-h-screen bg-background px-6 py-16 text-foreground">
         <div className="mx-auto max-w-3xl">
           <h1 className="text-3xl font-bold tracking-tight">Landing page directions</h1>

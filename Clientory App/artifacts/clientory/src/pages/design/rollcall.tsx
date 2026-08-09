@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet-async";
 import { motion, useReducedMotion } from "framer-motion";
 import { CLIENTORY_APP_URL } from "@/lib/app-url";
 import { ANSWER_FIRMS, HERO_QUERY, VISIBILITY_PCT } from "./_data";
@@ -200,15 +199,13 @@ export default function RollCall() {
 
   return (
     <>
-      <Helmet>
-        <title>Direction B · Roll call — Clientory</title>
-        <meta name="robots" content="noindex" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,800&family=Public+Sans:wght@400;500;600&display=swap"
-        />
-      </Helmet>
+      <title>Direction B · Roll call — Clientory</title>
+      <meta name="robots" content="noindex" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,800&family=Public+Sans:wght@400;500;600&display=swap"
+      />
       <style>{css}</style>
 
       <div className="lane-b">
