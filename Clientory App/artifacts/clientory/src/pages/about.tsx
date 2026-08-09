@@ -72,7 +72,7 @@ const About = () => {
               Clientory is built for the owners and operators of independent immigration practices — solo attorneys through mid-sized firms. Unlike general GEO tools built for large enterprises or e-commerce brands, Clientory focuses exclusively on immigration law and the questions prospective clients actually ask about green cards, visas, naturalization, and removal defense.
             </p>
             <p className="text-base text-muted-foreground leading-relaxed">
-              The platform was founded in 2026 and is headquartered in Madison, Wisconsin.
+              Clientory was founded in 2026 and is headquartered in Madison, Wisconsin.
             </p>
           </section>
 

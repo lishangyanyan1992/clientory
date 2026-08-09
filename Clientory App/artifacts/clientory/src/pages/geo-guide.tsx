@@ -16,6 +16,7 @@ const tocSections = [
   { id: "why-at-risk", label: "Why Firms Are at Risk" },
   { id: "how-ai-decides", label: "How AI Decides" },
   { id: "key-metrics", label: "5 Key Metrics" },
+  { id: "technical-foundations", label: "Technical Foundations" },
   { id: "industry-specific", label: "Industry Considerations" },
   { id: "manual-test", label: "Manual AI Visibility Test" },
   { id: "tools", label: "Tools for Tracking" },
@@ -88,7 +89,9 @@ const articleJsonLd = {
     url: "https://clientory.org",
   },
   datePublished: "2026-03-15",
-  dateModified: "2026-03-15",
+  // Bump this whenever the guide's substance changes. Recency is a citation
+  // signal, and a stale dateModified on a page about AI visibility is a bad look.
+  dateModified: "2026-08-09",
 };
 
 const tools = [
@@ -241,6 +244,9 @@ const GeoGuide = () => {
                 <p className="text-base text-muted-foreground leading-relaxed">
                   Several AI platforms — including ChatGPT (with browsing), Gemini, and Perplexity — augment their base knowledge with real-time web search. When a user asks for a local professional service recommendation, these models query the web and synthesize results from multiple sources. This means that current SEO performance, recent press coverage, and up-to-date directory listings directly influence AI responses, even if the firm is absent from the model's training data.
                 </p>
+                <p className="text-base text-muted-foreground leading-relaxed">
+                  Google now answers on two distinct surfaces, and they behave differently. AI Overviews appear above the traditional results on a normal search; AI Mode is a separate conversational experience that runs its own set of queries behind a single question and cites a wider spread of sources. A firm can appear in one and not the other, so treat them as two places to check rather than one.
+                </p>
               </div>
 
               <div className="space-y-4">
@@ -307,6 +313,52 @@ const GeoGuide = () => {
               ))}
             </section>
 
+            {/* ─── Technical Foundations ─── */}
+            <section id="technical-foundations" className="space-y-6 scroll-mt-24">
+              <h2 className="text-2xl font-semibold text-foreground">
+                Technical Foundations: Make Your Site Readable to AI
+              </h2>
+              <p className="text-base text-muted-foreground leading-relaxed">
+                Measurement tells you where you stand. These four checks are what most firms actually need to fix, and they are ordered deliberately — there is no point writing for AI on a site AI cannot read.
+              </p>
+
+              <div className="space-y-4">
+                <h3 className="text-xl font-medium text-foreground">
+                  1. Confirm AI crawlers are allowed
+                </h3>
+                <p className="text-base text-muted-foreground leading-relaxed">
+                  This is the most common own-goal in GEO. AI assistants use their own crawlers — GPTBot and OAI-SearchBot for OpenAI, ClaudeBot for Anthropic, PerplexityBot, and Google-Extended — and a great many sites block them without anyone deciding to. The block usually arrives by default in a <code className="rounded bg-muted px-1 py-0.5 text-sm">robots.txt</code> template, a security plugin, or a CDN bot-protection setting switched on to stop scrapers. Open <code className="rounded bg-muted px-1 py-0.5 text-sm">yourfirm.com/robots.txt</code> and read it. If those agents are disallowed, no amount of content work will get you cited, because the model was never able to open the page.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-xl font-medium text-foreground">
+                  2. Answer the question in the first paragraph
+                </h3>
+                <p className="text-base text-muted-foreground leading-relaxed">
+                  Generative engines extract short, self-contained passages. A page that opens with a direct answer — a plain definition, the eligibility rule, the actual timeline — gives the model something liftable. A page that opens with "For over 20 years, our firm has proudly served…" gives it nothing, and the citation goes to whoever answered plainly. Lead each page and each section with the answer, then add the nuance underneath. This single habit does more for citation rate than any file you can add to your server.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-xl font-medium text-foreground">
+                  3. Mark up the facts with structured data
+                </h3>
+                <p className="text-base text-muted-foreground leading-relaxed">
+                  Schema.org markup states plainly what a page would otherwise only imply. For a professional services firm, the useful types are <code className="rounded bg-muted px-1 py-0.5 text-sm">Organization</code> (or <code className="rounded bg-muted px-1 py-0.5 text-sm">LegalService</code> / <code className="rounded bg-muted px-1 py-0.5 text-sm">AccountingService</code>), <code className="rounded bg-muted px-1 py-0.5 text-sm">Person</code> for each professional, and <code className="rounded bg-muted px-1 py-0.5 text-sm">FAQPage</code> on pages that answer real client questions. Keep the name, address, and phone identical to every directory listing you hold — contradictory contact details are a fast way to be dropped from an answer, because the model cannot tell which version is true.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-xl font-medium text-foreground">
+                  4. Treat llms.txt as optional, not a fix
+                </h3>
+                <p className="text-base text-muted-foreground leading-relaxed">
+                  You will be told to add an <code className="rounded bg-muted px-1 py-0.5 text-sm">llms.txt</code> file. Be clear-eyed about what it is: a community proposal, not an adopted standard, and Google has said it ignores the file for Search, AI Overviews, and AI Mode. Large-scale analyses have not found a reliable link between simply having one and being cited more. It costs an hour and does no harm, so add it if you like — but it is not a substitute for the three checks above, which is where the actual movement comes from.
+                </p>
+              </div>
+            </section>
+
             {/* ─── Industry-Specific ─── */}
             <section id="industry-specific" className="space-y-8 scroll-mt-24">
               <h2 className="text-2xl font-semibold text-foreground">
@@ -350,7 +402,7 @@ const GeoGuide = () => {
 
               <ol className="list-decimal list-inside space-y-4 text-base text-muted-foreground leading-relaxed">
                 <li>
-                  <strong className="text-foreground">Choose 3–5 AI platforms to test.</strong> At minimum, use ChatGPT, Gemini, and Perplexity. Add Claude and Microsoft Copilot for a more complete picture.
+                  <strong className="text-foreground">Choose 3–5 AI surfaces to test.</strong> At minimum, use ChatGPT, Gemini, and Perplexity. Add Claude and Microsoft Copilot for a fuller picture, and check Google's AI Overviews and AI Mode separately — a firm can appear in one and not the other.
                 </li>
                 <li>
                   <strong className="text-foreground">Write 10–15 test prompts</strong> that reflect how a prospective client would search for your services. Examples:
@@ -371,7 +423,7 @@ const GeoGuide = () => {
                   <strong className="text-foreground">Document the results in a spreadsheet</strong> with columns for platform, prompt, mentioned (yes/no), position, sentiment, and accuracy notes.
                 </li>
                 <li>
-                  <strong className="text-foreground">Repeat monthly</strong> to track changes over time. AI responses are non-deterministic, so run each prompt at least twice per session and average the results.
+                  <strong className="text-foreground">Repeat monthly</strong> to track changes over time, and revisit your prompt list quarterly — the assistants, the sources they favour, and the way clients phrase questions all shift. AI responses are non-deterministic, so run each prompt at least twice per session and average the results.
                 </li>
               </ol>
             </section>
@@ -382,7 +434,7 @@ const GeoGuide = () => {
                 Tools for Tracking AI Visibility
               </h2>
               <p className="text-base text-muted-foreground leading-relaxed">
-                Several platforms offer automated GEO monitoring. The table below compares the primary options available as of early 2026.
+                Several platforms offer automated GEO monitoring. The table below compares the primary options available as of August 2026.
               </p>
               <div className="rounded-xl border border-border overflow-hidden">
                 <Table>
@@ -414,7 +466,7 @@ const GeoGuide = () => {
                 How Clientory Helps
               </h2>
               <p className="text-base text-muted-foreground leading-relaxed">
-                Clientory automates the entire AI visibility monitoring process for professional service firms. Instead of manually testing prompts across multiple platforms, Clientory runs a standardized battery of industry-specific test prompts across ChatGPT, Claude, and Gemini — with Perplexity and Microsoft Copilot coming soon — and delivers results in a unified dashboard.
+                Clientory automates this entire process for immigration law firms. Instead of testing prompts by hand across multiple assistants, Clientory generates prompts from your firm profile — 5 on a free report, 25 on a subscription — and runs them across ChatGPT, Claude, and Gemini, with Perplexity and Microsoft Copilot coming soon.
               </p>
               <p className="text-base text-muted-foreground leading-relaxed">
                 The platform grades every prompt per model as Positive, Passive, or No mention, rolls that into a 0-100 visibility score, and shows which competitors appear in the prompts you are missing from. Subscribed firms are re-scanned weekly, and the AI Presence Coach answers questions against the latest scan.
