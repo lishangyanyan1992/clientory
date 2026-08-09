@@ -52,7 +52,7 @@ const features = [
     description:
       "Weekly snapshots track your score over time, with alerts when a new competitor enters your prompts or your score moves.",
     tint: "#10b780", // emerald
-    badge: null,
+    badge: "Paid",
   },
 ];
 
@@ -72,8 +72,8 @@ export default function Features() {
             Scan, coach, and <span className="text-gradient">monitor</span>
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
-            The Visibility Scanner tells you where you stand, the Presence Coach tells you what to
-            fix, and the Citation Monitor tells you when it changes.
+            The Visibility Scanner tells you where you stand. With a subscription, the Presence
+            Coach tells you what to fix and the Citation Monitor tells you when it changes.
           </p>
         </motion.div>
 
