@@ -7,7 +7,26 @@ import { MarketingLayout } from "@/components/marketing-layout";
 import { blogPosts, getReadingTime } from "@/data/blogPosts";
 
 const POSTS_PER_PAGE = 6;
-const ALL_TAGS = Array.from(new Set(blogPosts.flatMap((p) => p.tags)));
+
+// Deliberate filter order: the five topics, then the two formats. Deriving it
+// from the posts would order by whichever post happens to be newest. Every post
+// carries exactly two tags — a topic first, then a format or a second topic —
+// so anything not listed here is a typo rather than a new category.
+const TAG_ORDER = [
+  "AI Visibility",
+  "AI Search Engines",
+  "Content & SEO",
+  "Local & Directories",
+  "Law Firm Marketing",
+  "Guides",
+  "Worksheets",
+];
+
+const USED_TAGS = new Set(blogPosts.flatMap((p) => p.tags));
+const ALL_TAGS = [
+  ...TAG_ORDER.filter((t) => USED_TAGS.has(t)),
+  ...[...USED_TAGS].filter((t) => !TAG_ORDER.includes(t)).sort(),
+];
 
 const Blog = () => {
   const [activeTag, setActiveTag] = useState<string | null>(null);

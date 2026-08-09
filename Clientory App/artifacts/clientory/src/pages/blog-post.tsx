@@ -179,9 +179,20 @@ const BlogPost = () => {
 
   if (!post) return <Navigate to="/blog" replace />;
 
+  // Tags are broad (seven across the whole blog), so "shares any tag" matches
+  // most of the archive. Rank by how many tags overlap first — a post sharing
+  // both is genuinely on-topic — then by recency, so every article doesn't
+  // surface the same two newest posts.
   const related = blogPosts
     .filter((p) => p.slug !== post.slug && p.tags.some((t) => post.tags.includes(t)))
-    .slice(0, 2);
+    .map((p) => ({ post: p, overlap: p.tags.filter((t) => post.tags.includes(t)).length }))
+    .sort(
+      (a, b) =>
+        b.overlap - a.overlap ||
+        new Date(b.post.date).getTime() - new Date(a.post.date).getTime(),
+    )
+    .slice(0, 2)
+    .map((r) => r.post);
 
   const shareUrl = typeof window !== "undefined" ? window.location.href : "";
 
