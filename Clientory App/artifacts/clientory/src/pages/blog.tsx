@@ -8,25 +8,45 @@ import { blogPosts, getReadingTime } from "@/data/blogPosts";
 
 const POSTS_PER_PAGE = 6;
 
-// Deliberate filter order: the five topics, then the two formats. Deriving it
-// from the posts would order by whichever post happens to be newest. Every post
-// carries exactly two tags — a topic first, then a format or a second topic —
-// so anything not listed here is a typo rather than a new category.
-const TAG_ORDER = [
-  "AI Visibility",
-  "AI Search Engines",
-  "Content & SEO",
-  "Local & Directories",
-  "Law Firm Marketing",
-  "Guides",
-  "Worksheets",
+// The controlled vocabulary, grouped for the filter row. Deriving order from
+// the posts would sort by whichever post happens to be newest. Every post
+// carries exactly one topic plus one format-or-second-topic, then any AI tools
+// it substantively covers. A tag that isn't listed here is a typo, not a new
+// category — it still renders (see UNGROUPED below) so it's visible and fixable
+// rather than silently dropped.
+const TAG_GROUPS: { label: string; tags: string[] }[] = [
+  {
+    label: "Topic",
+    tags: [
+      "AI Visibility",
+      "AI Search Engines",
+      "Content & SEO",
+      "Local & Directories",
+      "Law Firm Marketing",
+    ],
+  },
+  { label: "Format", tags: ["Guides", "Worksheets"] },
+  {
+    label: "Tool",
+    tags: ["ChatGPT", "Claude", "Gemini", "Google AI Mode", "Perplexity", "Copilot", "Bing"],
+  },
 ];
 
-const USED_TAGS = new Set(blogPosts.flatMap((p) => p.tags));
-const ALL_TAGS = [
-  ...TAG_ORDER.filter((t) => USED_TAGS.has(t)),
-  ...[...USED_TAGS].filter((t) => !TAG_ORDER.includes(t)).sort(),
-];
+const TAG_COUNTS = blogPosts.reduce<Record<string, number>>((acc, post) => {
+  for (const tag of post.tags) acc[tag] = (acc[tag] ?? 0) + 1;
+  return acc;
+}, {});
+
+const KNOWN = new Set(TAG_GROUPS.flatMap((g) => g.tags));
+const UNGROUPED = Object.keys(TAG_COUNTS)
+  .filter((t) => !KNOWN.has(t))
+  .sort();
+
+// Only show groups that actually have posts behind them.
+const VISIBLE_GROUPS = [
+  ...TAG_GROUPS.map((g) => ({ ...g, tags: g.tags.filter((t) => TAG_COUNTS[t]) })),
+  ...(UNGROUPED.length ? [{ label: "Other", tags: UNGROUPED }] : []),
+].filter((g) => g.tags.length > 0);
 
 const Blog = () => {
   const [activeTag, setActiveTag] = useState<string | null>(null);
@@ -64,30 +84,44 @@ const Blog = () => {
             </p>
           </motion.div>
 
-          {/* Tags */}
-          <div className="flex flex-wrap justify-center gap-2 mb-12">
-            <button
-              onClick={() => { setActiveTag(null); setVisibleCount(POSTS_PER_PAGE); }}
-              className={`px-3 py-1 rounded-full text-sm border transition-colors ${
-                !activeTag
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "border-border text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              All
-            </button>
-            {ALL_TAGS.map((tag) => (
+          {/* Tags, grouped by kind with a post count on each */}
+          <div className="mb-12 space-y-3">
+            <div className="flex justify-center">
               <button
-                key={tag}
-                onClick={() => { setActiveTag(tag); setVisibleCount(POSTS_PER_PAGE); }}
+                onClick={() => { setActiveTag(null); setVisibleCount(POSTS_PER_PAGE); }}
                 className={`px-3 py-1 rounded-full text-sm border transition-colors ${
-                  activeTag === tag
+                  !activeTag
                     ? "bg-primary text-primary-foreground border-primary"
                     : "border-border text-muted-foreground hover:text-foreground"
                 }`}
               >
-                {tag}
+                All <span className="tabular-nums opacity-60">{blogPosts.length}</span>
               </button>
+            </div>
+
+            {VISIBLE_GROUPS.map((group) => (
+              <div
+                key={group.label}
+                className="flex flex-wrap items-center justify-center gap-2"
+              >
+                <span className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/60">
+                  {group.label}
+                </span>
+                {group.tags.map((tag) => (
+                  <button
+                    key={tag}
+                    onClick={() => { setActiveTag(tag); setVisibleCount(POSTS_PER_PAGE); }}
+                    aria-pressed={activeTag === tag}
+                    className={`px-3 py-1 rounded-full text-sm border transition-colors ${
+                      activeTag === tag
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "border-border text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {tag} <span className="tabular-nums opacity-60">{TAG_COUNTS[tag]}</span>
+                  </button>
+                ))}
+              </div>
             ))}
           </div>
 
