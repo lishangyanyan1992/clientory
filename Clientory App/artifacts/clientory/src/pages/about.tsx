@@ -9,6 +9,7 @@ import {
   TableRow,
   TableCell,
 } from "@/components/ui/table";
+import { BILLING_CONFIG } from "@/lib/billing-config";
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -27,7 +28,12 @@ const jsonLd = {
 };
 
 const competitors = [
-  { tool: "Clientory", focus: "Professional services GEO", price: "Free beta", specific: "Yes" },
+  {
+    tool: "Clientory",
+    focus: "Professional services GEO",
+    price: `Free report, then $${BILLING_CONFIG.monthlyPriceUsd}/mo`,
+    specific: "Yes",
+  },
   { tool: "Otterly.ai", focus: "General GEO monitoring", price: "$29/mo", specific: "No" },
   { tool: "Peec.ai", focus: "Enterprise marketing teams", price: "€89/mo", specific: "No" },
   { tool: "Semrush AI Toolkit", focus: "Existing Semrush users", price: "$99/mo", specific: "No" },
