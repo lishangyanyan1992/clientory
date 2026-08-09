@@ -48,13 +48,71 @@ const VISIBLE_GROUPS = [
   ...(UNGROUPED.length ? [{ label: "Other", tags: UNGROUPED }] : []),
 ].filter((g) => g.tags.length > 0);
 
+const GROUP_OF: Record<string, string> = Object.fromEntries(
+  VISIBLE_GROUPS.flatMap((g) => g.tags.map((t) => [t, g.label])),
+);
+
+/**
+ * Faceted matching: OR within a group, AND across groups.
+ *
+ * Picking ChatGPT and Claude means "either model", because a post can only
+ * really be about so many at once — requiring both would return almost nothing.
+ * Picking Worksheets and Claude means "worksheets, about Claude", because those
+ * answer different questions and narrowing is the point. `skipGroup` lets the
+ * facet counts below ask "how many would this tag add?" without a group
+ * filtering itself.
+ */
+function matchesSelection(
+  postTags: string[],
+  selected: Set<string>,
+  skipGroup?: string,
+): boolean {
+  const byGroup = new Map<string, string[]>();
+  for (const tag of selected) {
+    const group = GROUP_OF[tag] ?? "Other";
+    if (group === skipGroup) continue;
+    byGroup.set(group, [...(byGroup.get(group) ?? []), tag]);
+  }
+  for (const tags of byGroup.values()) {
+    if (!tags.some((t) => postTags.includes(t))) return false;
+  }
+  return true;
+}
+
 const Blog = () => {
-  const [activeTag, setActiveTag] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
   const [visibleCount, setVisibleCount] = useState(POSTS_PER_PAGE);
 
-  const filtered = activeTag
-    ? blogPosts.filter((p) => p.tags.includes(activeTag))
+  const toggleTag = (tag: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(tag)) next.delete(tag);
+      else next.add(tag);
+      return next;
+    });
+    setVisibleCount(POSTS_PER_PAGE);
+  };
+
+  const clearTags = () => {
+    setSelected(new Set());
+    setVisibleCount(POSTS_PER_PAGE);
+  };
+
+  const filtered = selected.size
+    ? blogPosts.filter((p) => matchesSelection(p.tags, selected))
     : blogPosts;
+
+  // How many posts each tag would yield alongside the current selection, so a
+  // button never advertises a count it can't deliver. A tag is skipped against
+  // its own group because adding it there only ever widens the result.
+  const facetCounts: Record<string, number> = {};
+  for (const group of VISIBLE_GROUPS) {
+    for (const tag of group.tags) {
+      facetCounts[tag] = blogPosts.filter(
+        (p) => p.tags.includes(tag) && matchesSelection(p.tags, selected, group.label),
+      ).length;
+    }
+  }
 
   const sorted = [...filtered].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -84,13 +142,14 @@ const Blog = () => {
             </p>
           </motion.div>
 
-          {/* Tags, grouped by kind with a post count on each */}
-          <div className="mb-12 space-y-3">
+          {/* Tags: multi-select, grouped, each showing how many posts it yields */}
+          <div className="mb-4 space-y-3">
             <div className="flex justify-center">
               <button
-                onClick={() => { setActiveTag(null); setVisibleCount(POSTS_PER_PAGE); }}
+                onClick={clearTags}
+                aria-pressed={selected.size === 0}
                 className={`px-3 py-1 rounded-full text-sm border transition-colors ${
-                  !activeTag
+                  selected.size === 0
                     ? "bg-primary text-primary-foreground border-primary"
                     : "border-border text-muted-foreground hover:text-foreground"
                 }`}
@@ -107,22 +166,50 @@ const Blog = () => {
                 <span className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/60">
                   {group.label}
                 </span>
-                {group.tags.map((tag) => (
-                  <button
-                    key={tag}
-                    onClick={() => { setActiveTag(tag); setVisibleCount(POSTS_PER_PAGE); }}
-                    aria-pressed={activeTag === tag}
-                    className={`px-3 py-1 rounded-full text-sm border transition-colors ${
-                      activeTag === tag
-                        ? "bg-primary text-primary-foreground border-primary"
-                        : "border-border text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    {tag} <span className="tabular-nums opacity-60">{TAG_COUNTS[tag]}</span>
-                  </button>
-                ))}
+                {group.tags.map((tag) => {
+                  const isOn = selected.has(tag);
+                  const count = facetCounts[tag] ?? 0;
+                  // A tag that would return nothing stays clickable only if it's
+                  // already on, so a selection is never impossible to undo.
+                  const isDead = count === 0 && !isOn;
+                  return (
+                    <button
+                      key={tag}
+                      onClick={() => toggleTag(tag)}
+                      disabled={isDead}
+                      aria-pressed={isOn}
+                      className={`px-3 py-1 rounded-full text-sm border transition-colors ${
+                        isOn
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : isDead
+                            ? "border-border/50 text-muted-foreground/40 cursor-not-allowed"
+                            : "border-border text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {tag} <span className="tabular-nums opacity-60">{count}</span>
+                    </button>
+                  );
+                })}
               </div>
             ))}
+          </div>
+
+          {/* Result count + a way back out, shown only once filtering is on */}
+          <div className="mb-12 flex min-h-[1.75rem] items-center justify-center gap-3 text-sm text-muted-foreground">
+            {selected.size > 0 && (
+              <>
+                <span>
+                  {sorted.length} {sorted.length === 1 ? "article" : "articles"}
+                  {selected.size > 1 ? ` matching ${selected.size} filters` : ""}
+                </span>
+                <button
+                  onClick={clearTags}
+                  className="underline underline-offset-4 transition-colors hover:text-foreground"
+                >
+                  Clear
+                </button>
+              </>
+            )}
           </div>
 
           {/* Post Grid */}
