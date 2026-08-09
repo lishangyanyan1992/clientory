@@ -4,31 +4,16 @@ import { motion } from "framer-motion";
 import {
   BILLING_CONFIG,
   BILLING_SCANS_LABEL,
-  FREE_PROMPTS_LABEL,
   PAID_PROMPTS_LABEL,
-  PROMPTS_PER_FREE_SCAN,
   PROMPTS_PER_PAID_SCAN,
 } from "@/lib/billing-config";
 import {
-  FREE_MODELS_LABEL,
   PAID_MODELS_LABEL,
-  PAID_ONLY_MODELS_LABEL,
   UPCOMING_MODELS_LABEL,
 } from "@/lib/model-coverage";
 import { CLIENTORY_APP_URL } from "@/lib/app-url";
 
-// Every line below must map to something the product actually does. The point
-// of the free column is to make the paid delta obvious, not to sell the free
-// tier. Don't add a feature here that isn't shipped.
-const FREE_FEATURES = [
-  `${FREE_PROMPTS_LABEL} (sampled across categories)`,
-  `Tested on ${FREE_MODELS_LABEL}`,
-  "AI visibility score out of 100",
-  "Per-prompt sentiment breakdown",
-  "One report, one firm",
-];
-
-const PAID_FEATURES = [
+const PLAN_FEATURES = [
   PAID_PROMPTS_LABEL,
   `Tested on ${PAID_MODELS_LABEL}`,
   BILLING_SCANS_LABEL,
@@ -41,18 +26,18 @@ const PAID_FEATURES = [
 
 const PLAN = {
   label: "Clientory subscription",
-  sublabel: "One simple plan for every firm",
+  sublabel: "Full access free for your first month",
   price: BILLING_CONFIG.monthlyPriceUsd,
   description: `Every scan runs ${PROMPTS_PER_PAID_SCAN} prompts across ${PAID_MODELS_LABEL}, re-runs itself weekly, and comes with the Presence Coach and Citation Monitor.`,
-  badge: "Single plan",
-  features: PAID_FEATURES,
+  badge: "Beta offer",
+  features: PLAN_FEATURES,
 } as const;
 
 export default function Pricing() {
   return (
     <>
-      <title>Clientory Pricing | AI Visibility for Immigration Law Firms</title>
-      <meta name="description" content="Start with one free AI visibility report, then monitor your immigration law firm weekly with Clientory's $10 per month plan." />
+      <title>Clientory Pricing | Your First Month Free</title>
+      <meta name="description" content="Get one month of full Clientory access free during beta, including weekly AI visibility scans, competitor tracking, and personalized recommendations." />
       <link rel="canonical" href="https://clientory.org/pricing" />
       <MarketingLayout>
         <div className="container max-w-5xl mx-auto px-4 pt-40 pb-20">
@@ -64,62 +49,21 @@ export default function Pricing() {
         >
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary font-medium text-sm border border-primary/20 mb-6">
             <Sparkles className="w-3.5 h-3.5" />
-            Simple, transparent pricing
+            Beta offer: your first month is free
           </div>
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-            Know when AI recommends your immigration firm
+            See when AI recommends your company
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Every immigration law firm gets one free AI visibility report — {PROMPTS_PER_FREE_SCAN} prompts on {FREE_MODELS_LABEL}. Subscribe to unlock {PROMPTS_PER_PAID_SCAN} prompts per scan, add {PAID_ONLY_MODELS_LABEL}, and get weekly auto-scans, the Presence Coach, and competitor alerts.
+            Get the complete Clientory subscription free for your first month during beta. Run {PROMPTS_PER_PAID_SCAN}-prompt scans, track competitors, use the AI Presence Coach, and receive weekly monitoring from day one.
           </p>
         </motion.div>
 
-        <div className="grid gap-6 md:grid-cols-2 max-w-4xl mx-auto items-start">
+        <div className="max-w-2xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="rounded-2xl border border-border bg-card p-8 relative"
-          >
-            <div className="mb-6">
-              <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-1">
-                Free report
-              </p>
-              <p className="text-xs text-muted-foreground mb-3">One per firm, no credit card</p>
-              <div className="flex items-end gap-2 mb-2">
-                <span className="text-4xl font-bold">$0</span>
-              </div>
-              <p className="text-muted-foreground text-sm">
-                See where your firm stands on {FREE_MODELS_LABEL} before you commit to anything.
-              </p>
-            </div>
-
-            <ul className="space-y-3 mb-8">
-              {FREE_FEATURES.map((feature) => (
-                <li key={feature} className="flex items-center gap-3 text-sm">
-                  <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 bg-muted">
-                    <Check className="w-3 h-3 text-muted-foreground" />
-                  </div>
-                  {feature}
-                </li>
-              ))}
-            </ul>
-
-            <a
-              href={CLIENTORY_APP_URL}
-              className="flex items-center justify-center gap-2 w-full text-center px-6 py-3 rounded-xl font-semibold transition-all duration-200 text-sm border border-border hover:bg-muted"
-            >
-              Run your free report <ArrowRight className="w-4 h-4" />
-            </a>
-            <p className="mt-3 text-center text-xs text-muted-foreground">
-              {UPCOMING_MODELS_LABEL} coming soon to every plan.
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
             className="rounded-2xl border-2 border-primary shadow-primary/10 bg-card p-8 relative shadow-lg"
           >
             {PLAN.badge && (
@@ -132,10 +76,11 @@ export default function Pricing() {
             <div className="mb-6">
               <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-1">{PLAN.label}</p>
               <p className="text-xs text-muted-foreground mb-3">{PLAN.sublabel}</p>
-              <div className="flex items-end gap-2 mb-2">
-                <span className="text-4xl font-bold">${PLAN.price}</span>
-                <span className="text-muted-foreground mb-1">/month</span>
+              <div className="flex flex-wrap items-end gap-x-3 gap-y-1 mb-2">
+                <span className="text-4xl font-bold">$0</span>
+                <span className="text-muted-foreground mb-1">for your first month</span>
               </div>
+              <p className="mb-3 text-sm font-medium text-foreground">Then ${PLAN.price}/month</p>
               <p className="text-muted-foreground text-sm">{PLAN.description}</p>
             </div>
 
@@ -154,10 +99,10 @@ export default function Pricing() {
               href={CLIENTORY_APP_URL}
               className="flex items-center justify-center gap-2 w-full text-center px-6 py-3 rounded-xl font-semibold transition-all duration-200 text-sm bg-gradient-to-r from-primary to-accent text-white shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5"
             >
-              Continue to Clientory <ArrowRight className="w-4 h-4" />
+              Start your free month <ArrowRight className="w-4 h-4" />
             </a>
             <p className="mt-3 text-center text-xs text-muted-foreground">
-              Payments and account management are handled in the Clientory app.
+              Full subscription access during your free month. {UPCOMING_MODELS_LABEL} are coming soon.
             </p>
           </motion.div>
         </div>
@@ -172,40 +117,28 @@ export default function Pricing() {
           <div className="max-w-2xl mx-auto space-y-6 text-left">
             {[
               {
-                q: "Do I get a free report?",
-                a: `Yes — every account gets one free AI visibility report, no credit card required. The free report runs ${PROMPTS_PER_FREE_SCAN} prompts on ${FREE_MODELS_LABEL}. After that, subscribe per firm to keep running scans.`,
+                q: "How does the beta offer work?",
+                a: `Your first month includes full Clientory subscription access at no cost. You get ${PROMPTS_PER_PAID_SCAN}-prompt scans, weekly monitoring, competitor tracking, the AI Presence Coach, and alerts from the beginning. After your free month, the subscription is $${BILLING_CONFIG.monthlyPriceUsd}/month.`,
               },
               {
                 q: "Which AI models do you test?",
-                a: `Today we query ${PAID_MODELS_LABEL}. ${FREE_MODELS_LABEL} run on every scan including the free report; ${PAID_ONLY_MODELS_LABEL} is included with a subscription. ${UPCOMING_MODELS_LABEL} are on the roadmap and will be added to existing plans.`,
+                a: `Today we query ${PAID_MODELS_LABEL}. ${UPCOMING_MODELS_LABEL} are on the roadmap and will be added to the subscription as they become available.`,
               },
               {
                 q: "How many prompts does a scan run?",
-                a: `A subscribed scan runs ${PROMPTS_PER_PAID_SCAN} prompts generated from your firm profile, covering brand, location, specialty, problem, and persona searches. The free report runs a ${PROMPTS_PER_FREE_SCAN}-prompt sample spread across those same categories.`,
+                a: `Each scan runs ${PROMPTS_PER_PAID_SCAN} prompts generated from your company profile, covering brand, location, specialty, problem, and audience searches.`,
               },
               {
                 q: "What is the AI Presence Coach?",
-                a: "A chat coach that knows your latest scan — your score, which competitors are filling your gaps, and what to change. It is included with a subscription; free users are prompted to run their scan first.",
+                a: "A chat coach that knows your latest scan—your score, which competitors are filling your gaps, and what to change. It is included throughout your free beta month and with the paid subscription afterward.",
               },
               {
-                q: "Do I have to remember to re-scan?",
-                a: "No. Subscribed firms are re-scanned automatically every 7 days. The Citation Monitor keeps weekly snapshots of your score, alerts you when a new competitor appears in your prompts, and can email you when your score changes.",
-              },
-              {
-                q: "How often can I scan?",
-                a: "Once a week per firm. If you run a scan yourself that week, that is the week's scan; if you don't, Clientory runs it for you. Scanning more often than weekly doesn't tell you much — AI answers rarely move that fast.",
-              },
-              {
-                q: "Do manual scans use up my automatic ones?",
-                a: "There is no separate allowance to spend. A subscription is one scan per week, whether you trigger it or we do. Viewing an existing report again is always free.",
-              },
-              {
-                q: "Can I subscribe multiple firms?",
-                a: `Yes — subscriptions are per firm. Each immigration firm you want to monitor monthly needs its own subscription for $${BILLING_CONFIG.monthlyPriceUsd}/month.`,
+                q: "How do weekly re-scans work?",
+                a: "You get one new scan each week. You can run it yourself whenever you are ready; if you do not, Clientory runs it automatically so you never have to remember. A manual scan and an automatic scan are the same weekly scan, not separate allowances. Your previous reports remain available to view, and the Citation Monitor records weekly changes, new competitors, and score alerts.",
               },
               {
                 q: "What happens if I cancel?",
-                a: "Your access continues through the end of your current billing period. After that, you'll need to resubscribe to run new scans on that firm.",
+                a: "Your access continues through the end of your current billing period. After that, you will need to resubscribe to run new scans.",
               },
             ].map((faq) => (
               <div key={faq.q} className="border border-border rounded-xl p-5">
