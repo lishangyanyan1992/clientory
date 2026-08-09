@@ -4,14 +4,26 @@ import { motion } from "framer-motion";
 import {
   BILLING_CONFIG,
   BILLING_SCANS_LABEL,
+  FREE_PROMPTS_LABEL,
   PAID_PROMPTS_LABEL,
+  PROMPTS_PER_FREE_SCAN,
   PROMPTS_PER_PAID_SCAN,
 } from "@/lib/billing-config";
 import {
+  FREE_MODELS_LABEL,
   PAID_MODELS_LABEL,
+  PAID_ONLY_MODELS_LABEL,
   UPCOMING_MODELS_LABEL,
 } from "@/lib/model-coverage";
 import { CLIENTORY_APP_URL } from "@/lib/app-url";
+
+const FREE_REPORT_FEATURES = [
+  FREE_PROMPTS_LABEL,
+  `Tested on ${FREE_MODELS_LABEL}`,
+  "AI visibility score out of 100",
+  "Per-prompt sentiment breakdown",
+  "One report for your company",
+];
 
 const PLAN_FEATURES = [
   PAID_PROMPTS_LABEL,
@@ -26,18 +38,18 @@ const PLAN_FEATURES = [
 
 const PLAN = {
   label: "Clientory subscription",
-  sublabel: "Full access free for your first month",
+  sublabel: "One-month free trial with full access",
   price: BILLING_CONFIG.monthlyPriceUsd,
   description: `Every scan runs ${PROMPTS_PER_PAID_SCAN} prompts across ${PAID_MODELS_LABEL}, re-runs itself weekly, and comes with the Presence Coach and Citation Monitor.`,
-  badge: "Beta offer",
+  badge: "First month free",
   features: PLAN_FEATURES,
 } as const;
 
 export default function Pricing() {
   return (
     <>
-      <title>Clientory Pricing | Your First Month Free</title>
-      <meta name="description" content="Get one month of full Clientory access free during beta, including weekly AI visibility scans, competitor tracking, and personalized recommendations." />
+      <title>Clientory Pricing | Free Report and One-Month Trial</title>
+      <meta name="description" content="Run a free AI visibility report with no credit card or commitment. If Clientory is useful, start a one-month free trial of the full subscription." />
       <link rel="canonical" href="https://clientory.org/pricing" />
       <MarketingLayout>
         <div className="container max-w-5xl mx-auto px-4 pt-40 pb-20">
@@ -49,21 +61,62 @@ export default function Pricing() {
         >
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary font-medium text-sm border border-primary/20 mb-6">
             <Sparkles className="w-3.5 h-3.5" />
-            Beta offer: your first month is free
+            Free report first. Full subscription free for one month when you are ready.
           </div>
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
             See when AI recommends your company
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Get the complete Clientory subscription free for your first month during beta. Run {PROMPTS_PER_PAID_SCAN}-prompt scans, track competitors, use the AI Presence Coach, and receive weekly monitoring from day one.
+            Start with one free report—no credit card, no commitment. See how Clientory works, then choose whether to start a one-month free trial with full subscription access.
           </p>
         </motion.div>
 
-        <div className="max-w-2xl mx-auto">
+        <div className="grid gap-6 md:grid-cols-2 max-w-4xl mx-auto items-start">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
+            className="rounded-2xl border border-border bg-card p-8 relative"
+          >
+            <div className="mb-6">
+              <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-1">
+                Free visibility report
+              </p>
+              <p className="text-xs text-muted-foreground mb-3">No credit card. No commitment.</p>
+              <div className="flex items-end gap-2 mb-2">
+                <span className="text-4xl font-bold">$0</span>
+              </div>
+              <p className="text-muted-foreground text-sm">
+                See your current AI visibility and experience Clientory before deciding whether to start a trial.
+              </p>
+            </div>
+
+            <ul className="space-y-3 mb-8">
+              {FREE_REPORT_FEATURES.map((feature) => (
+                <li key={feature} className="flex items-center gap-3 text-sm">
+                  <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 bg-muted">
+                    <Check className="w-3 h-3 text-muted-foreground" />
+                  </div>
+                  {feature}
+                </li>
+              ))}
+            </ul>
+
+            <a
+              href={CLIENTORY_APP_URL}
+              className="flex items-center justify-center gap-2 w-full text-center px-6 py-3 rounded-xl font-semibold transition-all duration-200 text-sm border border-border hover:bg-muted"
+            >
+              Run your free report <ArrowRight className="w-4 h-4" />
+            </a>
+            <p className="mt-3 text-center text-xs text-muted-foreground">
+              Your free report does not start a subscription or trial.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
             className="rounded-2xl border-2 border-primary shadow-primary/10 bg-card p-8 relative shadow-lg"
           >
             {PLAN.badge && (
@@ -78,7 +131,7 @@ export default function Pricing() {
               <p className="text-xs text-muted-foreground mb-3">{PLAN.sublabel}</p>
               <div className="flex flex-wrap items-end gap-x-3 gap-y-1 mb-2">
                 <span className="text-4xl font-bold">$0</span>
-                <span className="text-muted-foreground mb-1">for your first month</span>
+                <span className="text-muted-foreground mb-1">during your first month</span>
               </div>
               <p className="mb-3 text-sm font-medium text-foreground">Then ${PLAN.price}/month</p>
               <p className="text-muted-foreground text-sm">{PLAN.description}</p>
@@ -117,8 +170,12 @@ export default function Pricing() {
           <div className="max-w-2xl mx-auto space-y-6 text-left">
             {[
               {
+                q: "What do I get without a credit card?",
+                a: `You can run one free ${PROMPTS_PER_FREE_SCAN}-prompt visibility report on ${FREE_MODELS_LABEL} with no credit card and no commitment. The report shows your AI visibility score and per-prompt results. It does not automatically start a trial or subscription.`,
+              },
+              {
                 q: "How does the beta offer work?",
-                a: `Your first month includes full Clientory subscription access at no cost. You get ${PROMPTS_PER_PAID_SCAN}-prompt scans, weekly monitoring, competitor tracking, the AI Presence Coach, and alerts from the beginning. After your free month, the subscription is $${BILLING_CONFIG.monthlyPriceUsd}/month.`,
+                a: `After reviewing your free report, you can choose to start a one-month free trial of the complete subscription. The trial includes ${PROMPTS_PER_PAID_SCAN}-prompt scans, weekly monitoring, ${PAID_ONLY_MODELS_LABEL}, competitor tracking, the AI Presence Coach, and alerts. After the free month, the subscription is $${BILLING_CONFIG.monthlyPriceUsd}/month.`,
               },
               {
                 q: "Which AI models do you test?",
@@ -126,7 +183,7 @@ export default function Pricing() {
               },
               {
                 q: "How many prompts does a scan run?",
-                a: `Each scan runs ${PROMPTS_PER_PAID_SCAN} prompts generated from your company profile, covering brand, location, specialty, problem, and audience searches.`,
+                a: `The no-card free report runs ${PROMPTS_PER_FREE_SCAN} prompts. During your free trial and paid subscription, each weekly scan runs ${PROMPTS_PER_PAID_SCAN} prompts generated from your company profile, covering brand, location, specialty, problem, and audience searches.`,
               },
               {
                 q: "What is the AI Presence Coach?",
