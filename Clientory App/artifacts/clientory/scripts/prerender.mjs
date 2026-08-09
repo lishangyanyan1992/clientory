@@ -28,6 +28,8 @@ for (const route of serverEntry.prerenderRoutes) {
   await writeFile(outputPath, serverEntry.render(route.path, assets), "utf8");
 }
 
+await writeFile(path.join(publicDirectory, "404.html"), serverEntry.render("/404", assets), "utf8");
+
 const escapeXml = (value) => value
   .replaceAll("&", "&amp;")
   .replaceAll("<", "&lt;")

@@ -5,10 +5,21 @@
   "installCommand": "sh ./install-vercel.sh",
   "buildCommand": "sh ./build-vercel.sh",
   "outputDirectory": "Clientory App/artifacts/clientory/dist/public",
-  "rewrites": [
+  "redirects": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "source": "/scan/:path*",
+      "destination": "https://app.clientory.org",
+      "permanent": false
+    },
+    {
+      "source": "/firm/:path*",
+      "destination": "https://app.clientory.org",
+      "permanent": false
+    },
+    {
+      "source": "/settings/billing",
+      "destination": "https://app.clientory.org",
+      "permanent": false
     }
   ],
   "headers": [

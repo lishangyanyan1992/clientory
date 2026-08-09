@@ -8,10 +8,9 @@ export const BILLING_CONFIG = {
 export const BILLING_PRICE_LABEL = `$${BILLING_CONFIG.monthlyPriceUsd}/month`;
 
 // Cadence, not credits. A subscription is one scan per week: run it yourself,
-// or it runs automatically if you don't. Scanning more often than weekly
-// wouldn't show real movement, so there is no faster tier to sell. The
-// `scansPerCycle` number (4) is just that weekly cadence over a month — never
-// present it as an allowance the user spends down separately from auto-scans.
+// or it runs automatically if you don't. The `scansPerCycle` number (4) is
+// that weekly cadence over a month — never present it as an allowance the user
+// spends down separately from auto-scans.
 export const BILLING_SCANS_LABEL = "One scan a week — run it yourself, or it runs automatically";
 
 // Prompts run per scan by tier. The scan engine lives in the product app

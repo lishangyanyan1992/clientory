@@ -1,10 +1,10 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight, Github } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AIDashboard from "@/components/AIDashboard";
 import StripeGradient from "@/components/StripeGradient";
-import { CLIENTORY_APP_URL } from "@/lib/app-url";
+import { TrackedAppLink } from "@/components/TrackedAppLink";
 import { PROMPTS_PER_FREE_SCAN } from "@/lib/billing-config";
 import { FREE_MODELS_LABEL } from "@/lib/model-coverage";
 
@@ -37,18 +37,18 @@ export default function Hero() {
 
           {/* Solid navy over the gradient shader — Stripe never sets
               gradient-on-gradient; keeps contrast high and legible. */}
-          <h1 className="mb-8 text-5xl font-bold text-foreground md:text-6xl lg:text-7xl">
-            Be the firm AI recommends.
+          <h1 className="mb-8 text-4xl font-bold leading-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
+            Be the immigration law firm AI recommends.
           </h1>
 
-          <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-muted-foreground md:text-xl">
+          <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-foreground/75 md:text-xl">
             When clients ask ChatGPT, Claude, or Gemini for an immigration lawyer, does your firm
             come up? Clientory scores your AI visibility out of 100, shows which competitors appear
             where you don't, and coaches you on what to fix.
           </p>
 
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <a href={CLIENTORY_APP_URL}>
+            <TrackedAppLink placement="home_hero" offer="free_report">
               <Button
                 size="lg"
                 className="h-14 rounded-full px-8 text-base font-semibold shadow-lg shadow-primary/20 transition-all duration-300 hover:shadow-xl hover:shadow-primary/30"
@@ -56,7 +56,7 @@ export default function Hero() {
                 Try It Now
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-            </a>
+            </TrackedAppLink>
             <Link to="/pricing">
               <Button size="lg" variant="outline" className="h-14 rounded-full px-8 text-base">
                 View Pricing
@@ -64,22 +64,12 @@ export default function Hero() {
             </Link>
           </div>
 
-          <div className="mt-5 flex flex-col items-center justify-center gap-2 text-sm text-muted-foreground sm:flex-row">
+          <div className="mt-5 flex flex-col items-center justify-center gap-1 text-sm text-foreground/75">
             <p>
               Free report: {PROMPTS_PER_FREE_SCAN} prompts on {FREE_MODELS_LABEL} · No credit card
               required
             </p>
-            <span className="hidden sm:inline" aria-hidden="true">·</span>
-            <a
-              href="https://github.com/lishangyanyan1992/clientory-ai-visibility-skill"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Open the Clientory AI Visibility Agent Skill repository on GitHub"
-              className="inline-flex items-center gap-1.5 font-medium text-foreground/80 underline-offset-4 transition-colors hover:text-primary hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <Github className="h-4 w-4" aria-hidden="true" />
-              Open-source AI Visibility Agent Skill
-            </a>
+            <p>Like the report? Get the full subscription free for one month, then $10/month.</p>
           </div>
 
           <motion.div

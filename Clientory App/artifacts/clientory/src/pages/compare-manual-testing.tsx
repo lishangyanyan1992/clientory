@@ -8,7 +8,7 @@ const data: ComparisonPageData = {
   features: [
     { feature: "Built for immigration law", clientory: "yes", competitor: "partial" },
     { feature: "LLM platforms covered", clientory: "ChatGPT, Claude, Gemini (Perplexity, Copilot coming soon)", competitor: "Whichever you manually test" },
-    { feature: "Starting price", clientory: "Free report, then $10/mo", competitor: "API fees + your time" },
+    { feature: "Starting price", clientory: "Free report, one month free, then $10/mo", competitor: "Free consumer access or API fees + your time" },
     { feature: "Industry-specific prompt library", clientory: "yes", competitor: "no" },
     { feature: "Competitor gap vs. local rivals", clientory: "yes", competitor: "no" },
     { feature: "Actionable fix-it recommendations", clientory: "yes", competitor: "no" },
@@ -28,11 +28,11 @@ const data: ComparisonPageData = {
   ],
   methodology: [
     "Manual testing typically involves opening ChatGPT or another AI platform, typing in a few queries, and noting whether your firm appears. While this provides a quick directional signal, it suffers from several limitations: AI responses vary by session, you can't easily test dozens of prompt variations, and there's no systematic way to track changes over time.",
-    "Clientory automates this process with a standardized battery of industry-specific prompts run across all five major AI platforms. Results are scored on five metrics and tracked historically, so you can see whether your optimization efforts are working.",
+    "Clientory automates this process with a standardized battery of immigration-specific prompts run across ChatGPT and Claude, plus Gemini on subscribed scans. Results are graded consistently and tracked historically, so you can see whether your visibility is moving.",
     "Manual testing is not actually free. A thorough pass across several assistants with 20+ prompts takes 3–4 hours, and doing it at any scale means paying for API access to each model on top of the setup time. Repeat that monthly and it is 36–48 hours a year plus usage fees — for a less consistent result than an automated scan.",
   ],
   pricingRows: [
-    { label: "Free report", clientory: "One per firm", competitor: "No — you pay per API call" },
+    { label: "Free starting point", clientory: "One report per company, no card", competitor: "Consumer tools may be free; API testing has usage fees" },
     { label: "Time per audit", clientory: "Minutes", competitor: "3–4 hours" },
     { label: "Consistency", clientory: "Standardized", competitor: "Variable" },
     { label: "Historical tracking", clientory: "Automatic", competitor: "Manual spreadsheets" },

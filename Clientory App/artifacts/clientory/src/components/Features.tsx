@@ -20,7 +20,7 @@ const features = [
     description:
       "See exactly which rival firms show up in the prompts you're missing from — the shortlist you're being left off.",
     tint: "#4f78ec", // blue-indigo
-    badge: null,
+    badge: "Paid",
   },
   {
     icon: MessageSquare,
@@ -34,7 +34,7 @@ const features = [
     icon: RefreshCw,
     title: "One Scan a Week",
     description:
-      "Run it yourself, or skip it and Clientory runs it for you every 7 days. Either way your score stays current — and weekly is as often as AI answers actually move.",
+      "Run it yourself, or skip it and Clientory runs it for you every 7 days. Either way, you get a consistent weekly view of how your visibility changes.",
     tint: "#22b0a8", // teal
     badge: "Paid",
   },

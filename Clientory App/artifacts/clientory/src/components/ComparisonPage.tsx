@@ -7,7 +7,8 @@ import {
   Accordion, AccordionItem, AccordionTrigger, AccordionContent,
 } from "@/components/ui/accordion";
 import { Check, X, AlertTriangle } from "lucide-react";
-import { CLIENTORY_APP_URL } from "@/lib/app-url";
+import { JsonLd, SeoMeta } from "@/components/SeoMeta";
+import { TrackedAppLink } from "@/components/TrackedAppLink";
 
 export interface ComparisonFeature {
   feature: string;
@@ -25,6 +26,7 @@ export interface ComparisonPageData {
   methodology: string[];
   pricingRows: { label: string; clientory: string; competitor: string }[];
   faqs: { question: string; answer: string }[];
+  competitorSource?: { label: string; url: string };
 }
 
 const CellContent = ({ value }: { value: string }) => {
@@ -35,8 +37,8 @@ const CellContent = ({ value }: { value: string }) => {
 };
 
 const ComparisonPage = ({ data }: { data: ComparisonPageData }) => {
-  const title = `Clientory vs. ${data.competitorName}: Which is Right for Professional Service Firms?`;
-  const metaDesc = `Compare Clientory and ${data.competitorName} for GEO monitoring. See features, pricing, and which tool is best for law firms, accounting firms, and consultancies.`;
+  const title = `Clientory vs. ${data.competitorName} for Immigration Law Firms`;
+  const metaDesc = `Compare Clientory and ${data.competitorName} for immigration-law AI visibility, including current model coverage, monitoring, workflow, and pricing.`;
 
   const faqSchema = {
     "@context": "https://schema.org",
@@ -59,11 +61,9 @@ const ComparisonPage = ({ data }: { data: ComparisonPageData }) => {
 
   return (
     <>
-      <title>{title}</title>
-      <meta name="description" content={metaDesc} />
-      <link rel="canonical" href={`https://clientory.org/${data.slug}`} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+      <SeoMeta title={title} description={metaDesc} path={`/${data.slug}`} />
+      <JsonLd data={faqSchema} />
+      <JsonLd data={breadcrumbSchema} />
 
       <MarketingLayout>
         <main className="pt-40 pb-20">
@@ -142,6 +142,22 @@ const ComparisonPage = ({ data }: { data: ComparisonPageData }) => {
           {/* Pricing */}
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold text-foreground">Pricing Comparison</h2>
+            <p className="text-sm text-muted-foreground">
+              Competitor details were checked on August 9, 2026 and may change.
+              {data.competitorSource && (
+                <>
+                  {" "}
+                  <a
+                    href={data.competitorSource.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary underline underline-offset-4"
+                  >
+                    {data.competitorSource.label}
+                  </a>
+                </>
+              )}
+            </p>
             <div className="rounded-xl border border-border overflow-hidden">
               <Table>
                 <TableHeader>
@@ -180,13 +196,16 @@ const ComparisonPage = ({ data }: { data: ComparisonPageData }) => {
           {/* CTA */}
           <section className="rounded-xl p-8 text-center space-y-4" style={{ background: "var(--gradient-primary)" }}>
             <h2 className="text-2xl font-bold text-primary-foreground">
-              See how Clientory tracks your firm's AI visibility — free for 14 days
+              Run your first AI visibility report free — no card required
             </h2>
-            <a href={CLIENTORY_APP_URL}>
+            <TrackedAppLink placement={`comparison_${data.slug}`} offer="free_report">
               <Button size="lg" variant="secondary" className="rounded-full px-8 mt-2">
-                Start Free Trial
+                Run Your Free Report
               </Button>
-            </a>
+            </TrackedAppLink>
+            <p className="text-sm text-primary-foreground/80">
+              Review the report first. Then choose whether to start one month of full subscription access free.
+            </p>
           </section>
           </article>
         </main>

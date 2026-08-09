@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { MarketingLayout } from "@/components/marketing-layout";
-import { CLIENTORY_APP_URL } from "@/lib/app-url";
+import { JsonLd, SeoMeta } from "@/components/SeoMeta";
+import { TrackedAppLink } from "@/components/TrackedAppLink";
 
 const PAGE_URL = "https://clientory.org/geo-for-professional-services";
 
@@ -180,21 +181,14 @@ export default function GeoGuide() {
 
   return (
     <>
-      <title>AI Search Optimization for Law Firms: 2026 GEO Guide</title>
-      <meta
-        name="description"
-        content="A verified GEO and AI search optimization guide for small and mid-sized law firms: technical SEO, local signals, content, measurement, and a 90-day plan."
+      <SeoMeta
+        title="AI Search Optimization for Law Firms: 2026 GEO Guide"
+        description="A verified GEO guide for small and mid-sized law firms covering technical SEO, local signals, trustworthy content, measurement, and a 90-day plan."
+        path="/geo-for-professional-services"
+        type="article"
       />
-      <link rel="canonical" href={PAGE_URL} />
-      <meta property="og:type" content="article" />
-      <meta property="og:title" content="AI Search Optimization for Law Firms: 2026 GEO Guide" />
-      <meta
-        property="og:description"
-        content="A practical, source-backed guide to helping small and mid-sized law firms become easier to discover, verify, and cite in AI search."
-      />
-      <meta property="og:url" content={PAGE_URL} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      <JsonLd data={articleJsonLd} />
+      <JsonLd data={breadcrumbJsonLd} />
 
       <MarketingLayout>
         <main className="pb-20 pt-40">
@@ -482,12 +476,13 @@ export default function GeoGuide() {
                 <p className="mt-3 text-base leading-relaxed text-muted-foreground">
                   Clientory builds a prompt set from an immigration firm’s real practice profile, checks supported AI assistants, records mention quality and competitor gaps, and gives the firm a repeatable baseline. The first report is free; ongoing weekly monitoring is available for firms that want to track change.
                 </p>
-                <a
-                  href={CLIENTORY_APP_URL}
+                <TrackedAppLink
+                  placement="geo_guide_bottom"
+                  offer="free_report"
                   className="mt-5 inline-flex rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
                 >
                   Run a free visibility report
-                </a>
+                </TrackedAppLink>
               </section>
             </article>
           </div>

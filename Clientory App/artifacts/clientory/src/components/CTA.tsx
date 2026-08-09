@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CLIENTORY_APP_URL } from "@/lib/app-url";
+import { TrackedAppLink } from "@/components/TrackedAppLink";
 
 export default function CTA() {
   return (
@@ -29,7 +29,7 @@ export default function CTA() {
               first report and see where your firm stands.
             </p>
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <a href={CLIENTORY_APP_URL}>
+              <TrackedAppLink placement="home_bottom_cta" offer="free_report">
                 <Button
                   size="lg"
                   className="h-14 rounded-full bg-white px-10 text-base font-semibold text-primary shadow-lg hover:bg-white/90"
@@ -37,7 +37,7 @@ export default function CTA() {
                   Try It Now
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
-              </a>
+              </TrackedAppLink>
               <Link to="/pricing">
                 <Button
                   size="lg"

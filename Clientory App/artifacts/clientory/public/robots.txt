@@ -4,6 +4,12 @@ Disallow: /admin
 Disallow: /dashboard
 Disallow: /api
 
+User-agent: OAI-AdsBot
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /api
+
 User-agent: GPTBot
 Allow: /
 Disallow: /admin

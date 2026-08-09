@@ -1,5 +1,6 @@
 import { MarketingLayout } from "@/components/marketing-layout";
 import Founders from "@/components/Founders";
+import { Link } from "react-router-dom";
 import {
   Table,
   TableHeader,
@@ -9,6 +10,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { BILLING_CONFIG } from "@/lib/billing-config";
+import { JsonLd, SeoMeta } from "@/components/SeoMeta";
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -30,25 +32,25 @@ const competitors = [
   {
     tool: "Clientory",
     focus: "Immigration law GEO",
-    price: `Free report, then $${BILLING_CONFIG.monthlyPriceUsd}/mo`,
+    price: `Free report, one month free, then $${BILLING_CONFIG.monthlyPriceUsd}/mo`,
     specific: "Yes",
+    href: "/pricing",
   },
-  { tool: "Otterly.ai", focus: "General GEO monitoring", price: "$29/mo", specific: "No" },
-  { tool: "Peec.ai", focus: "Enterprise marketing teams", price: "€89/mo", specific: "No" },
-  { tool: "Semrush AI Toolkit", focus: "Existing Semrush users", price: "$99/mo", specific: "No" },
-  { tool: "Manual testing", focus: "DIY, no automation", price: "API fees + your time", specific: "Partial" },
+  { tool: "Otterly.ai", focus: "General GEO monitoring", price: "$29/mo", specific: "No", href: "/clientory-vs-otterly" },
+  { tool: "Peec.ai", focus: "Marketing and SEO teams", price: "$95/mo", specific: "No", href: "/clientory-vs-peec" },
+  { tool: "Semrush AI Visibility", focus: "General AI visibility", price: "$99/domain/mo billed annually", specific: "No", href: "/clientory-vs-semrush-ai" },
+  { tool: "Manual testing", focus: "DIY, no automation", price: "API fees + your time", specific: "Partial", href: "/clientory-vs-manual-testing" },
 ];
 
 const About = () => {
   return (
     <>
-      <title>About Clientory — AI Visibility for Immigration Law Firms</title>
-      <meta
-        name="description"
-        content="Clientory is a Generative Engine Optimization (GEO) monitoring platform that tracks how AI assistants mention and recommend independent immigration law firms."
+      <SeoMeta
+        title="About Clientory — AI Visibility for Immigration Law Firms"
+        description="Clientory tracks how ChatGPT, Claude, and Gemini mention and recommend independent immigration law firms."
+        path="/about"
       />
-      <link rel="canonical" href="https://clientory.org/about" />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <JsonLd data={jsonLd} />
 
       <MarketingLayout>
         <main className="pt-40 pb-20">
@@ -129,7 +131,11 @@ const About = () => {
                 <TableBody>
                   {competitors.map((row) => (
                     <TableRow key={row.tool}>
-                      <TableCell className="font-medium text-foreground">{row.tool}</TableCell>
+                      <TableCell className="font-medium text-foreground">
+                        <Link to={row.href} className="text-primary underline-offset-4 hover:underline">
+                          {row.tool}
+                        </Link>
+                      </TableCell>
                       <TableCell className="text-muted-foreground">{row.focus}</TableCell>
                       <TableCell className="text-muted-foreground">{row.price}</TableCell>
                       <TableCell className="text-muted-foreground">{row.specific}</TableCell>
@@ -138,6 +144,9 @@ const About = () => {
                 </TableBody>
               </Table>
             </div>
+            <p className="text-xs text-muted-foreground">
+              Competitor pricing was checked on August 9, 2026 and may change. See the linked comparison pages for current source links.
+            </p>
           </section>
           </article>
 

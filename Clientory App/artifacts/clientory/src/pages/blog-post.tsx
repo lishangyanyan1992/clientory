@@ -4,6 +4,8 @@ import { Calendar, Clock, ArrowLeft, Twitter, Linkedin, Link2 } from "lucide-rea
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MarketingLayout } from "@/components/marketing-layout";
+import { JsonLd, SeoMeta } from "@/components/SeoMeta";
+import { TrackedAppLink } from "@/components/TrackedAppLink";
 import { blogPosts, getReadingTime } from "@/data/blogPosts";
 
 function renderMarkdown(content: string) {
@@ -11,6 +13,10 @@ function renderMarkdown(content: string) {
   return content.split("\n\n").map((block, i) => {
     const trimmed = block.trim();
     const lines = trimmed.split("\n");
+
+    if (/^---+$/.test(trimmed)) {
+      return <hr key={i} className="my-10 border-border" />;
+    }
 
     if (trimmed.startsWith("## ")) {
       return (
@@ -173,6 +179,22 @@ function formatInline(text: string) {
     );
 }
 
+function truncateAtWord(text: string, maxLength: number) {
+  if (text.length <= maxLength) return text;
+  const shortened = text.slice(0, maxLength + 1).replace(/\s+\S*$/, "").trim();
+  return `${shortened}…`;
+}
+
+function getSeoTitle(title: string) {
+  const withoutBrand = title.replace(/\s+\|\s+Clientory$/i, "");
+  const firstClause = withoutBrand.split(/\s+[—–]\s+/)[0];
+  const preferred =
+    firstClause.length >= 28 && firstClause.length <= 48
+      ? firstClause
+      : truncateAtWord(withoutBrand, 48);
+  return `${preferred} | Clientory`;
+}
+
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const post = blogPosts.find((p) => p.slug === slug);
@@ -194,8 +216,9 @@ const BlogPost = () => {
     .slice(0, 2)
     .map((r) => r.post);
 
-  const shareUrl = typeof window !== "undefined" ? window.location.href : "";
   const canonicalUrl = `https://clientory.org/blog/${post.slug}`;
+  const seoTitle = getSeoTitle(post.title);
+  const seoDescription = truncateAtWord(post.excerpt, 155);
   const articleJsonLd = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
@@ -204,20 +227,29 @@ const BlogPost = () => {
     datePublished: post.date,
     dateModified: post.date,
     mainEntityOfPage: canonicalUrl,
-    author: { "@type": "Person", name: post.author ?? "Clientory" },
-    publisher: { "@type": "Organization", name: "Clientory", url: "https://clientory.org" },
+    author: {
+      "@type": "Person",
+      name: post.author ?? "Clientory",
+      url: "https://clientory.org/about",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Clientory",
+      url: "https://clientory.org",
+      logo: { "@type": "ImageObject", url: "https://clientory.org/images/logo-full.png" },
+    },
+    citation: post.sources?.map((source) => source.url),
   };
 
   return (
     <>
-      <title>{`${post.title} | Clientory`}</title>
-      <meta name="description" content={post.excerpt} />
-      <link rel="canonical" href={canonicalUrl} />
-      <meta property="og:type" content="article" />
-      <meta property="og:title" content={post.title} />
-      <meta property="og:description" content={post.excerpt} />
-      <meta property="og:url" content={canonicalUrl} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
+      <SeoMeta
+        title={seoTitle}
+        description={seoDescription}
+        path={`/blog/${post.slug}`}
+        type="article"
+      />
+      <JsonLd data={articleJsonLd} />
       <MarketingLayout>
         <main className="pt-40 pb-20">
         <article className="container mx-auto max-w-3xl px-6">
@@ -250,11 +282,62 @@ const BlogPost = () => {
 
             <div className="prose-custom">{renderMarkdown(post.content)}</div>
 
+            {post.sources && post.sources.length > 0 && (
+              <section
+                className="mt-10 rounded-xl border border-border bg-muted/30 p-5"
+                aria-labelledby="article-sources"
+              >
+                <h2 id="article-sources" className="mb-3 text-lg font-semibold text-foreground">
+                  Sources
+                </h2>
+                <ul className="space-y-2 text-sm">
+                  {post.sources.map((source) => (
+                    <li key={source.url}>
+                      <a
+                        href={source.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary underline underline-offset-4 hover:text-primary/80"
+                      >
+                        {source.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            <aside
+              className="mt-10 rounded-xl border border-primary/20 bg-primary/5 p-5"
+              aria-label="Related Clientory resources"
+            >
+              <p className="font-semibold text-foreground">Continue with Clientory</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Read the{" "}
+                <Link to="/geo-for-professional-services" className="text-primary underline underline-offset-4">
+                  law firm GEO guide
+                </Link>
+                , review{" "}
+                <Link to="/pricing" className="text-primary underline underline-offset-4">
+                  pricing
+                </Link>
+                , or{" "}
+                <TrackedAppLink
+                  placement={`blog_${post.slug}`}
+                  offer="free_report"
+                  className="text-primary underline underline-offset-4"
+                >
+                  run your first report free
+                </TrackedAppLink>
+                .
+              </p>
+            </aside>
+
             {/* Share */}
             <div className="border-t border-border mt-12 pt-8 flex flex-wrap items-center gap-3">
               <span className="text-sm text-muted-foreground mr-2">Share:</span>
               <a
-                href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(post.title)}`}
+                href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(canonicalUrl)}&text=${encodeURIComponent(post.title)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-full border border-border text-muted-foreground hover:text-primary hover:border-primary/30 transition-colors"
@@ -262,7 +345,7 @@ const BlogPost = () => {
                 <Twitter className="w-4 h-4" />
               </a>
               <a
-                href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`}
+                href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(canonicalUrl)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-full border border-border text-muted-foreground hover:text-primary hover:border-primary/30 transition-colors"
@@ -270,7 +353,8 @@ const BlogPost = () => {
                 <Linkedin className="w-4 h-4" />
               </a>
               <button
-                onClick={() => navigator.clipboard.writeText(shareUrl)}
+                onClick={() => navigator.clipboard.writeText(canonicalUrl)}
+                aria-label="Copy article link"
                 className="p-2 rounded-full border border-border text-muted-foreground hover:text-primary hover:border-primary/30 transition-colors"
               >
                 <Link2 className="w-4 h-4" />

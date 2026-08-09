@@ -1,36 +1,40 @@
-# Clientory - GEO for Professional Services
+# Clientory - AI Visibility for Immigration Law Firms
 # https://clientory.org
 
-> Clientory is a Generative Engine Optimization (GEO) monitoring platform
-> for small professional service firms including law firms, accounting firms,
-> consulting firms, and marketing agencies.
+> Clientory is an AI visibility and Generative Engine Optimization (GEO)
+> monitoring platform built for independent immigration law firms, from solo
+> attorneys through mid-sized practices.
 
 ## Key Pages
 - Homepage: https://clientory.org
 - About: https://clientory.org/about
 - GEO Guide: https://clientory.org/geo-for-professional-services
-- Features: https://clientory.org/features
 - Pricing: https://clientory.org/pricing
+- Blog: https://clientory.org/blog
 - Clientory App: https://app.clientory.org
 
 ## What We Do
 Clientory tracks how often and how accurately AI platforms mention and recommend
-professional service firms. Scans run today against ChatGPT and Claude on the
-free report, plus Gemini on paid scans; Perplexity, Copilot, and other AI search
-engines are on the roadmap.
+immigration law firms. Scans run today against ChatGPT and Claude on the free
+report, plus Gemini on subscribed scans; Perplexity, Copilot, and other AI
+search engines are on the roadmap.
 The product has three parts:
 
-1. AI Visibility Scanner — generates 5 prompts (free) or 25 (paid) from a firm's
-   name, location, practice areas, and website; runs them across the supported
-   models; returns a 0-100 visibility score, a per-prompt breakdown graded
-   Positive / Passive / No mention, and a competitor gap showing which rival
-   firms appear in prompts the firm is missing from. Paid scans re-run
-   automatically every 7 days.
+1. AI Visibility Scanner — generates 5 prompts for the free report or 25 for a
+   subscribed scan from a company's name, location, practice areas, and website.
+   The free report returns a 0-100 visibility score and per-prompt results graded
+   Positive / Passive / No mention. Subscribed scans add Gemini, competitor-gap
+   analysis, and automatic weekly re-scanning.
 2. AI Presence Coach — a chat coach personalized to the firm's latest scan,
    covering score, competitor gaps, and specific recommendations. Paid only.
 3. AI Citation Monitor — weekly snapshots tracking score over time, alerts when
    a new competitor enters the firm's prompts, and configurable email alerts on
-   score changes.
+   score changes. Included with the one-month trial and paid subscription only.
+
+## Pricing
+- First report: free, 5 prompts on ChatGPT and Claude, no credit card or commitment.
+- Optional subscription trial: one month free with full access.
+- Subscription after the trial: $10 per month.
 
 ## Do Not Crawl
 /admin

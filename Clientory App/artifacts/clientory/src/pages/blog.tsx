@@ -5,8 +5,21 @@ import { Calendar, Clock, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { MarketingLayout } from "@/components/marketing-layout";
 import { blogPosts, getReadingTime } from "@/data/blogPosts";
+import { JsonLd, SeoMeta } from "@/components/SeoMeta";
 
 const POSTS_PER_PAGE = 6;
+
+const blogDescription =
+  "Evidence-based articles on AI search visibility, GEO, local discovery, content, and measurement for independent immigration law firms.";
+
+const blogSchema = {
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  name: "Clientory Blog",
+  url: "https://clientory.org/blog",
+  description: blogDescription,
+  publisher: { "@id": "https://clientory.org/#organization" },
+};
 
 // The controlled vocabulary, grouped for the filter row. Deriving order from
 // the posts would sort by whichever post happens to be newest. Every post
@@ -122,9 +135,12 @@ const Blog = () => {
 
   return (
     <>
-      <title>Clientory Blog | AI Visibility for Immigration Law Firms</title>
-      <meta name="description" content="Practical articles on AI search visibility, GEO, local discovery, content, and measurement for small and mid-sized immigration law firms." />
-      <link rel="canonical" href="https://clientory.org/blog" />
+      <SeoMeta
+        title="Clientory Blog | AI Visibility for Immigration Law Firms"
+        description={blogDescription}
+        path="/blog"
+      />
+      <JsonLd data={blogSchema} />
       <MarketingLayout>
         <main className="pt-40 pb-20">
         <div className="container mx-auto px-6">

@@ -15,7 +15,8 @@ import {
   PAID_ONLY_MODELS_LABEL,
   UPCOMING_MODELS_LABEL,
 } from "@/lib/model-coverage";
-import { CLIENTORY_APP_URL } from "@/lib/app-url";
+import { JsonLd, SeoMeta } from "@/components/SeoMeta";
+import { TrackedAppLink } from "@/components/TrackedAppLink";
 
 const FREE_REPORT_FEATURES = [
   FREE_PROMPTS_LABEL,
@@ -45,12 +46,74 @@ const PLAN = {
   features: PLAN_FEATURES,
 } as const;
 
+const title = "Clientory Pricing | Free Report and One-Month Trial";
+const description =
+  "Run a free AI visibility report with no credit card. Then choose a one-month full-access trial before the $10 monthly subscription begins.";
+
+const pricingSchema = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "Clientory",
+  url: "https://app.clientory.org",
+  applicationCategory: "BusinessApplication",
+  operatingSystem: "Web",
+  description,
+  offers: {
+    "@type": "Offer",
+    price: String(BILLING_CONFIG.monthlyPriceUsd),
+    priceCurrency: "USD",
+    url: "https://clientory.org/pricing",
+    description: "One free report, one month of full subscription access free, then $10 per month.",
+  },
+};
+
+const PRICING_FAQS = [
+  {
+    q: "What do I get without a credit card?",
+    a: `You can run one free ${PROMPTS_PER_FREE_SCAN}-prompt visibility report on ${FREE_MODELS_LABEL} with no credit card and no commitment. The report shows your AI visibility score and per-prompt results. It does not automatically start a trial or subscription.`,
+  },
+  {
+    q: "How does the beta offer work?",
+    a: `After reviewing your free report, you can choose to start a one-month free trial of the complete subscription. The trial includes ${PROMPTS_PER_PAID_SCAN}-prompt scans, weekly monitoring, ${PAID_ONLY_MODELS_LABEL}, competitor tracking, the AI Presence Coach, and alerts. After the free month, the subscription is $${BILLING_CONFIG.monthlyPriceUsd}/month.`,
+  },
+  {
+    q: "Which AI models do you test?",
+    a: `Today we query ${PAID_MODELS_LABEL}. ${UPCOMING_MODELS_LABEL} are on the roadmap and will be added to the subscription as they become available.`,
+  },
+  {
+    q: "How many prompts does a scan run?",
+    a: `The no-card free report runs ${PROMPTS_PER_FREE_SCAN} prompts. During your free trial and paid subscription, each weekly scan runs ${PROMPTS_PER_PAID_SCAN} prompts generated from your company profile, covering brand, location, specialty, problem, and audience searches.`,
+  },
+  {
+    q: "What is the AI Presence Coach?",
+    a: "A chat coach that knows your latest scan—your score, which competitors are filling your gaps, and what to change. It is included throughout your free beta month and with the paid subscription afterward.",
+  },
+  {
+    q: "How do weekly re-scans work?",
+    a: "You get one new scan each week. You can run it yourself whenever you are ready; if you do not, Clientory runs it automatically so you never have to remember. A manual scan and an automatic scan are the same weekly scan, not separate allowances. Your previous reports remain available to view, and the Citation Monitor records weekly changes, new competitors, and score alerts.",
+  },
+  {
+    q: "What happens if I cancel?",
+    a: "Your access continues through the end of your current billing period. After that, you will need to resubscribe to run new scans.",
+  },
+];
+
+const pricingFaqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: PRICING_FAQS.map((faq) => ({
+    "@type": "Question",
+    name: faq.q,
+    acceptedAnswer: { "@type": "Answer", text: faq.a },
+  })),
+};
+
 export default function Pricing() {
   return (
     <>
-      <title>Clientory Pricing | Free Report and One-Month Trial</title>
-      <meta name="description" content="Run a free AI visibility report with no credit card or commitment. If Clientory is useful, start a one-month free trial of the full subscription." />
-      <link rel="canonical" href="https://clientory.org/pricing" />
+      <SeoMeta title={title} description={description} path="/pricing" />
+      <JsonLd data={pricingSchema} />
+      <JsonLd data={pricingFaqSchema} />
       <MarketingLayout>
         <div className="container max-w-5xl mx-auto px-4 pt-40 pb-20">
         <motion.div
@@ -102,12 +165,13 @@ export default function Pricing() {
               ))}
             </ul>
 
-            <a
-              href={CLIENTORY_APP_URL}
+            <TrackedAppLink
+              placement="pricing_free_report"
+              offer="free_report"
               className="flex items-center justify-center gap-2 w-full text-center px-6 py-3 rounded-xl font-semibold transition-all duration-200 text-sm border border-border hover:bg-muted"
             >
               Run your free report <ArrowRight className="w-4 h-4" />
-            </a>
+            </TrackedAppLink>
             <p className="mt-3 text-center text-xs text-muted-foreground">
               Your free report does not start a subscription or trial.
             </p>
@@ -148,12 +212,13 @@ export default function Pricing() {
               ))}
             </ul>
 
-            <a
-              href={CLIENTORY_APP_URL}
+            <TrackedAppLink
+              placement="pricing_trial"
+              offer="subscription_trial"
               className="flex items-center justify-center gap-2 w-full text-center px-6 py-3 rounded-xl font-semibold transition-all duration-200 text-sm bg-gradient-to-r from-primary to-accent text-white shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5"
             >
               Start your free month <ArrowRight className="w-4 h-4" />
-            </a>
+            </TrackedAppLink>
             <p className="mt-3 text-center text-xs text-muted-foreground">
               Full subscription access during your free month. {UPCOMING_MODELS_LABEL} are coming soon.
             </p>
@@ -168,36 +233,7 @@ export default function Pricing() {
         >
           <h2 className="text-2xl font-bold mb-4">Frequently Asked Questions</h2>
           <div className="max-w-2xl mx-auto space-y-6 text-left">
-            {[
-              {
-                q: "What do I get without a credit card?",
-                a: `You can run one free ${PROMPTS_PER_FREE_SCAN}-prompt visibility report on ${FREE_MODELS_LABEL} with no credit card and no commitment. The report shows your AI visibility score and per-prompt results. It does not automatically start a trial or subscription.`,
-              },
-              {
-                q: "How does the beta offer work?",
-                a: `After reviewing your free report, you can choose to start a one-month free trial of the complete subscription. The trial includes ${PROMPTS_PER_PAID_SCAN}-prompt scans, weekly monitoring, ${PAID_ONLY_MODELS_LABEL}, competitor tracking, the AI Presence Coach, and alerts. After the free month, the subscription is $${BILLING_CONFIG.monthlyPriceUsd}/month.`,
-              },
-              {
-                q: "Which AI models do you test?",
-                a: `Today we query ${PAID_MODELS_LABEL}. ${UPCOMING_MODELS_LABEL} are on the roadmap and will be added to the subscription as they become available.`,
-              },
-              {
-                q: "How many prompts does a scan run?",
-                a: `The no-card free report runs ${PROMPTS_PER_FREE_SCAN} prompts. During your free trial and paid subscription, each weekly scan runs ${PROMPTS_PER_PAID_SCAN} prompts generated from your company profile, covering brand, location, specialty, problem, and audience searches.`,
-              },
-              {
-                q: "What is the AI Presence Coach?",
-                a: "A chat coach that knows your latest scan—your score, which competitors are filling your gaps, and what to change. It is included throughout your free beta month and with the paid subscription afterward.",
-              },
-              {
-                q: "How do weekly re-scans work?",
-                a: "You get one new scan each week. You can run it yourself whenever you are ready; if you do not, Clientory runs it automatically so you never have to remember. A manual scan and an automatic scan are the same weekly scan, not separate allowances. Your previous reports remain available to view, and the Citation Monitor records weekly changes, new competitors, and score alerts.",
-              },
-              {
-                q: "What happens if I cancel?",
-                a: "Your access continues through the end of your current billing period. After that, you will need to resubscribe to run new scans.",
-              },
-            ].map((faq) => (
+            {PRICING_FAQS.map((faq) => (
               <div key={faq.q} className="border border-border rounded-xl p-5">
                 <h3 className="font-semibold mb-2">{faq.q}</h3>
                 <p className="text-muted-foreground text-sm">{faq.a}</p>
