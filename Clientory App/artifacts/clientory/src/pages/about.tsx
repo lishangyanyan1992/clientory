@@ -17,12 +17,12 @@ const jsonLd = {
   name: "Clientory",
   url: "https://clientory.org",
   description:
-    "GEO monitoring and optimization platform for professional service firms",
+    "GEO monitoring and optimization platform for independent immigration law firms",
   areaServed: "United States",
   knowsAbout: [
     "Generative Engine Optimization",
     "AI Search Visibility",
-    "Professional Services Marketing",
+    "Immigration Law Marketing",
     "LLM Visibility Tracking",
   ],
 };
@@ -30,24 +30,24 @@ const jsonLd = {
 const competitors = [
   {
     tool: "Clientory",
-    focus: "Professional services GEO",
+    focus: "Immigration law GEO",
     price: `Free report, then $${BILLING_CONFIG.monthlyPriceUsd}/mo`,
     specific: "Yes",
   },
   { tool: "Otterly.ai", focus: "General GEO monitoring", price: "$29/mo", specific: "No" },
   { tool: "Peec.ai", focus: "Enterprise marketing teams", price: "€89/mo", specific: "No" },
   { tool: "Semrush AI Toolkit", focus: "Existing Semrush users", price: "$99/mo", specific: "No" },
-  { tool: "Manual testing", focus: "DIY, no automation", price: "Free", specific: "Partial" },
+  { tool: "Manual testing", focus: "DIY, no automation", price: "API fees + your time", specific: "Partial" },
 ];
 
 const About = () => {
   return (
     <>
       <Helmet>
-        <title>About Clientory — GEO Monitoring for Professional Service Firms</title>
+        <title>About Clientory — AI Visibility for Immigration Law Firms</title>
         <meta
           name="description"
-          content="Clientory is a Generative Engine Optimization (GEO) monitoring platform that tracks how AI language models mention and recommend professional service firms."
+          content="Clientory is a Generative Engine Optimization (GEO) monitoring platform that tracks how AI assistants mention and recommend independent immigration law firms."
         />
         <link rel="canonical" href="https://clientory.org/about" />
         <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
@@ -66,10 +66,10 @@ const About = () => {
               What Is Clientory
             </h2>
             <p className="text-base text-muted-foreground leading-relaxed">
-              Clientory is a Generative Engine Optimization (GEO) monitoring platform built for small professional service firms. It tracks and analyzes how often and how accurately major AI language models — ChatGPT, Claude, and Gemini today, with Perplexity and Microsoft Copilot coming soon — mention and recommend a firm when answering user queries about professional services.
+              Clientory is a Generative Engine Optimization (GEO) monitoring platform built for independent immigration law firms. It tracks and analyzes how often and how accurately major AI assistants — ChatGPT, Claude, and Gemini today, with Perplexity and Microsoft Copilot coming soon — mention and recommend a firm when someone asks for an immigration lawyer.
             </p>
             <p className="text-base text-muted-foreground leading-relaxed">
-              Clientory is designed for law firms, accounting and finance firms, management consulting firms, and marketing agencies. Unlike general GEO tools built for large enterprises or e-commerce brands, Clientory focuses exclusively on the professional services market and the specific query types prospective clients use when seeking legal, financial, consulting, or marketing help.
+              Clientory is built for the owners and operators of independent immigration practices — solo attorneys through mid-sized firms. Unlike general GEO tools built for large enterprises or e-commerce brands, Clientory focuses exclusively on immigration law and the questions prospective clients actually ask about green cards, visas, naturalization, and removal defense.
             </p>
             <p className="text-base text-muted-foreground leading-relaxed">
               The platform was founded in 2025 and is headquartered in Madison, Wisconsin.
@@ -82,7 +82,7 @@ const About = () => {
               The Problem Clientory Solves
             </h2>
             <p className="text-base text-muted-foreground leading-relaxed">
-              AI platforms such as ChatGPT, Claude, and Perplexity are increasingly the first place prospective clients look for professional service recommendations. When someone asks an AI model for "the best estate planning lawyer near me" or "top accountants for small businesses," the response shapes which firms get contacted. Most small professional service firms have no visibility into whether or how they are being represented in those AI-generated answers. Clientory closes this gap by providing systematic monitoring and analysis of AI mentions across the major language models it supports.
+              AI assistants are increasingly the first place prospective clients look for an immigration lawyer. When someone asks for "the best marriage green card attorney near me" or "an H-1B lawyer for startups," the answer shapes which firms get called. Most immigration firms have no visibility into whether or how they appear in those answers. Clientory closes that gap with systematic monitoring across the AI assistants it supports.
             </p>
           </section>
 
@@ -107,10 +107,10 @@ const About = () => {
               Who Uses Clientory
             </h2>
             <ul className="list-disc list-inside space-y-2 text-base text-muted-foreground leading-relaxed">
-              <li>Law firms seeking to appear in AI recommendations for legal services.</li>
-              <li>Accounting and CPA firms tracking visibility in tax and financial planning queries.</li>
-              <li>Management consulting firms monitoring thought leadership citations.</li>
-              <li>Marketing agencies demonstrating AI visibility expertise to clients.</li>
+              <li>Family and humanitarian immigration practices competing for green card, asylum, and naturalization inquiries.</li>
+              <li>Employment immigration firms tracking visibility for H-1B, PERM, and O-1 queries.</li>
+              <li>Removal defense and litigation practices monitoring how AI describes their work.</li>
+              <li>Growing firms opening in a new metro who need to know whether AI names them there yet.</li>
             </ul>
           </section>
 
@@ -126,7 +126,7 @@ const About = () => {
                     <TableHead className="font-semibold text-foreground">Tool</TableHead>
                     <TableHead className="font-semibold text-foreground">Focus</TableHead>
                     <TableHead className="font-semibold text-foreground">Starting Price</TableHead>
-                    <TableHead className="font-semibold text-foreground">Professional Services Specific?</TableHead>
+                    <TableHead className="font-semibold text-foreground">Immigration-specific?</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

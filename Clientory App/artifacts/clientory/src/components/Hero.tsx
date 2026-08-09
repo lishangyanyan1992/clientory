@@ -98,7 +98,7 @@ export default function Hero() {
             className="mt-12 border-t border-border/50 pt-8"
           >
             <p className="text-sm text-muted-foreground">
-              Designed for owners and operators of small to medium-sized immigration law firms.
+              Built for the owners and operators of independent immigration law firms.
             </p>
           </motion.div>
         </motion.div>

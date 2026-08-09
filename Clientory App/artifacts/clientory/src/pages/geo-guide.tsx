@@ -54,7 +54,7 @@ const faqItems = [
   },
   {
     q: "How is Clientory different from Otterly or Peec?",
-    a: "Clientory is built exclusively for professional service firms — law firms, accounting firms, consulting firms, and marketing agencies. It uses industry-specific test prompts, understands professional services directories, and benchmarks against relevant competitors. Otterly.ai and Peec.ai are general-purpose GEO tools designed for e-commerce brands and enterprise marketing teams respectively. Clientory's pricing starts with a free beta, while Otterly starts at $29/month and Peec at €89/month.",
+    a: "Clientory is built exclusively for immigration law firms. It generates test prompts from your firm profile, grades each answer as Positive, Passive, or No mention, and shows which competing firms fill the gaps. Otterly.ai and Peec.ai are general-purpose GEO tools designed for e-commerce brands and enterprise marketing teams respectively. Clientory gives every firm one free report, then costs $10/month per firm; Otterly starts at $29/month and Peec at €89/month.",
   },
 ];
 
@@ -92,11 +92,11 @@ const articleJsonLd = {
 };
 
 const tools = [
-  { tool: "Clientory", focus: "Professional services GEO", price: "Free beta", specific: "Yes" },
+  { tool: "Clientory", focus: "Immigration law GEO", price: "Free report, then $10/mo", specific: "Yes" },
   { tool: "Otterly.ai", focus: "General GEO monitoring", price: "$29/mo", specific: "No" },
   { tool: "Peec.ai", focus: "Enterprise marketing teams", price: "€89/mo", specific: "No" },
   { tool: "Semrush AI Toolkit", focus: "Existing Semrush users", price: "$99/mo", specific: "No" },
-  { tool: "Manual testing", focus: "DIY, no automation", price: "Free", specific: "N/A" },
+  { tool: "Manual testing", focus: "DIY, no automation", price: "API fees + your time", specific: "N/A" },
 ];
 
 function StatCallout({ stat, source }: { stat: string; source: string }) {

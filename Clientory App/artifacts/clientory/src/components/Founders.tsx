@@ -6,7 +6,7 @@ const founders = [
   {
     name: "Yanyan Li",
     title: "Founder & CEO",
-    bio: "8+ years building, launching, and scaling startups. Focused on product, growth, and bringing AI-powered tools to market for small and mid-sized law firms.",
+    bio: "8+ years building, launching, and scaling startups. Focused on product, growth, and bringing AI-powered tools to market for independent immigration law firms.",
     image: founderYanyan,
     linkedin: "https://www.linkedin.com/in/shangyanyan-li/",
   },

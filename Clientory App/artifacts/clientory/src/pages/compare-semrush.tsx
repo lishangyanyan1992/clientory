@@ -4,21 +4,20 @@ const data: ComparisonPageData = {
   slug: "clientory-vs-semrush-ai",
   competitorName: "Semrush AI Toolkit",
   verdict:
-    "Clientory is a dedicated GEO monitoring tool for professional service firms with deep industry focus. Semrush's AI Toolkit is an add-on to its existing SEO platform — powerful for teams already using Semrush, but not purpose-built for professional services AI visibility.",
+    "Clientory is a dedicated GEO monitoring tool for immigration law firms. Semrush's AI Toolkit is an add-on to its existing SEO platform — powerful for teams already using Semrush, but not purpose-built for immigration AI visibility.",
   features: [
-    { feature: "Built for professional services", clientory: "yes", competitor: "no" },
+    { feature: "Built for immigration law", clientory: "yes", competitor: "no" },
     { feature: "LLM platforms covered", clientory: "ChatGPT, Claude, Gemini (Perplexity, Copilot coming soon)", competitor: "ChatGPT, Gemini (via AI Overviews)" },
-    { feature: "Starting price", clientory: "Free beta", competitor: "$99/mo (requires Semrush subscription)" },
+    { feature: "Starting price", clientory: "Free report, then $10/mo", competitor: "$99/mo (requires Semrush subscription)" },
     { feature: "Industry-specific prompt library", clientory: "yes", competitor: "no" },
     { feature: "Competitor gap vs. local rivals", clientory: "yes", competitor: "partial" },
-    { feature: "Accuracy monitoring", clientory: "yes", competitor: "no" },
     { feature: "Actionable fix-it recommendations", clientory: "yes", competitor: "partial" },
     { feature: "Free trial", clientory: "yes", competitor: "yes" },
   ],
   chooseClientory: [
     "You want a standalone GEO tool without needing an existing SEO platform",
-    "You need professional-services-specific prompt testing and benchmarking",
-    "You want to track mentions across 5 AI platforms, not just AI Overviews",
+    "You need immigration-specific prompt testing and benchmarking",
+    "You want to track mentions inside AI assistants, not just AI Overviews",
     "You're a small firm that doesn't need Semrush's full SEO suite",
   ],
   chooseCompetitor: [
@@ -28,21 +27,21 @@ const data: ComparisonPageData = {
     "You're a marketing agency managing multiple client domains",
   ],
   methodology: [
-    "Clientory runs industry-specific prompts across ChatGPT, Claude, and Gemini, grading each one as Positive, Passive, or No mention and rolling the result into a 0-100 visibility score with a competitor gap. Every prompt is crafted to mirror real prospective client queries for legal, accounting, consulting, and marketing services.",
+    "Clientory runs industry-specific prompts across ChatGPT, Claude, and Gemini, grading each one as Positive, Passive, or No mention and rolling the result into a 0-100 visibility score with a competitor gap. Every prompt mirrors a real prospective client query about visas, green cards, naturalization, or removal defense.",
     "Semrush's AI Toolkit primarily tracks AI Overviews in Google search results and provides some visibility into how AI-generated content appears for your target keywords. It is tightly integrated with Semrush's existing keyword and ranking tools but does not query AI platforms directly with conversational prompts.",
-    "The key difference: Clientory tests what happens when someone asks ChatGPT or Claude for a professional service recommendation. Semrush tracks what happens when Google's AI Overview appears on a traditional search results page. Both are valuable, but they measure different things.",
+    "The key difference: Clientory tests what happens when someone asks ChatGPT or Claude for an immigration lawyer. Semrush tracks what happens when Google's AI Overview appears on a traditional search results page. Both are valuable, but they measure different things.",
   ],
   pricingRows: [
-    { label: "Free tier", clientory: "Yes (beta)", competitor: "No" },
-    { label: "Starter", clientory: "Free beta", competitor: "$99/mo (requires Pro plan)" },
-    { label: "Pro", clientory: "Coming soon", competitor: "$199/mo (requires Guru plan)" },
-    { label: "Enterprise", clientory: "Contact us", competitor: "$399/mo (Business plan)" },
+    { label: "Free report", clientory: "One per firm", competitor: "No" },
+    { label: "Starter", clientory: "Free report, then $10/mo", competitor: "$99/mo (requires Pro plan)" },
+    { label: "Pro tier", clientory: "No tiers — one plan", competitor: "$199/mo (requires Guru plan)" },
+    { label: "Enterprise tier", clientory: "No tiers — one plan", competitor: "$399/mo (Business plan)" },
   ],
   faqs: [
-    { question: "Do I need a Semrush subscription to use their AI tools?", answer: "Yes, Semrush's AI Toolkit requires an active Semrush subscription starting at $99/month for the Pro plan. Clientory is a standalone tool currently free during beta." },
+    { question: "Do I need a Semrush subscription to use their AI tools?", answer: "Yes, Semrush's AI Toolkit requires an active Semrush subscription starting at $99/month for the Pro plan. Clientory is standalone: one free report, then $10/month per firm." },
     { question: "Does Semrush track ChatGPT mentions?", answer: "Semrush primarily tracks AI Overviews in Google Search, not direct mentions in ChatGPT, Claude, or Perplexity conversations. Clientory directly queries ChatGPT, Claude, and Gemini, with Perplexity and Copilot coming soon." },
     { question: "Can I use Clientory alongside Semrush?", answer: "Absolutely. Many firms use Semrush for traditional SEO and Clientory for AI visibility monitoring. The two tools complement each other well." },
-    { question: "Which tool is better for tracking local visibility?", answer: "For AI platform visibility in local professional services, Clientory provides more targeted insights. Semrush excels at traditional local SEO tracking." },
+    { question: "Which tool is better for tracking local visibility?", answer: "For AI visibility in local immigration searches, Clientory gives more targeted insight. Semrush excels at traditional local SEO tracking." },
   ],
 };
 

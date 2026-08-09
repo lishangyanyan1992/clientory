@@ -14,7 +14,7 @@ export default function Home() {
         <title>Clientory | AI Visibility for Immigration Law Firms</title>
         <meta
           name="description"
-          content="Clientory helps small and mid-sized immigration law firms understand whether AI assistants recommend them for green cards, visas, naturalization, and removal defense."
+          content="Clientory helps independent immigration law firms understand whether AI assistants recommend them for green cards, visas, naturalization, and removal defense."
         />
         <link rel="canonical" href="https://clientory.org/" />
       </Helmet>
