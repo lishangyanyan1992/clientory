@@ -23,7 +23,7 @@ const FREE_REPORT_FEATURES = [
   `Tested on ${FREE_MODELS_LABEL}`,
   "AI visibility score out of 100",
   "Per-prompt sentiment breakdown",
-  "One report for your company",
+  "One report for your firm",
 ];
 
 const PLAN_FEATURES = [
@@ -73,7 +73,7 @@ const PRICING_FAQS = [
     a: `You can run one free ${PROMPTS_PER_FREE_SCAN}-prompt visibility report on ${FREE_MODELS_LABEL} with no credit card and no commitment. The report shows your AI visibility score and per-prompt results. It does not automatically start a trial or subscription.`,
   },
   {
-    q: "How does the beta offer work?",
+    q: "How does the free trial work?",
     a: `After reviewing your free report, you can choose to start a one-month free trial of the complete subscription. The trial includes ${PROMPTS_PER_PAID_SCAN}-prompt scans, weekly monitoring, ${PAID_ONLY_MODELS_LABEL}, competitor tracking, the AI Presence Coach, and alerts. After the free month, the subscription is $${BILLING_CONFIG.monthlyPriceUsd}/month.`,
   },
   {
@@ -82,11 +82,11 @@ const PRICING_FAQS = [
   },
   {
     q: "How many prompts does a scan run?",
-    a: `The no-card free report runs ${PROMPTS_PER_FREE_SCAN} prompts. During your free trial and paid subscription, each weekly scan runs ${PROMPTS_PER_PAID_SCAN} prompts generated from your company profile, covering brand, location, specialty, problem, and audience searches.`,
+    a: `The no-card free report runs ${PROMPTS_PER_FREE_SCAN} prompts. During your free trial and paid subscription, each weekly scan runs ${PROMPTS_PER_PAID_SCAN} prompts generated from your firm profile, covering brand, location, specialty, problem, and audience searches.`,
   },
   {
     q: "What is the AI Presence Coach?",
-    a: "A chat coach that knows your latest scan—your score, which competitors are filling your gaps, and what to change. It is included throughout your free beta month and with the paid subscription afterward.",
+    a: "A chat coach that knows your latest scan—your score, which competitors are filling your gaps, and what to change. It is included throughout your free trial month and with the paid subscription afterward.",
   },
   {
     q: "How do weekly re-scans work?",
@@ -127,7 +127,7 @@ export default function Pricing() {
             Free report first. Full subscription free for one month when you are ready.
           </div>
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-            See when AI recommends your company
+            See when AI recommends your firm
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Start with one free report—no credit card, no commitment. See how Clientory works, then choose whether to start a one-month free trial with full subscription access.

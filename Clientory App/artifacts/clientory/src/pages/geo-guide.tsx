@@ -59,7 +59,7 @@ const articleJsonLd = {
   "@type": "Article",
   headline: "AI Search Optimization (GEO) for Law Firms: A Practical 2026 Guide",
   description:
-    "A verified, practical guide to AI search visibility for small and mid-sized law firms, based on current guidance from Google, Bing, OpenAI, Anthropic, and Perplexity.",
+    "A verified, practical guide to AI search visibility for independent law firms, based on current guidance from Google, Bing, OpenAI, Anthropic, and Perplexity.",
   mainEntityOfPage: PAGE_URL,
   author: {
     "@type": "Person",
@@ -183,7 +183,7 @@ export default function GeoGuide() {
     <>
       <SeoMeta
         title="AI Search Optimization for Law Firms: 2026 GEO Guide"
-        description="A verified GEO guide for small and mid-sized law firms covering technical SEO, local signals, trustworthy content, measurement, and a 90-day plan."
+        description="A verified GEO guide for independent law firms covering technical SEO, local signals, trustworthy content, measurement, and a 90-day plan."
         path="/geo-for-professional-services"
         type="article"
       />
@@ -307,7 +307,7 @@ export default function GeoGuide() {
               <section id="law-firm-content" className="scroll-mt-24 space-y-6">
                 <h2 className="text-2xl font-semibold text-foreground">Build Content Around Real Legal-Client Decisions</h2>
                 <p className="text-base leading-relaxed text-muted-foreground">
-                  Small and mid-sized firms rarely need more generic blog volume. They need a complete, credible core website and a smaller set of pages that answer the questions their best-fit clients actually ask.
+                  Independent firms rarely need more generic blog volume. They need a complete, credible core website and a smaller set of pages that answer the questions their best-fit clients actually ask.
                 </p>
                 <div className="space-y-3">
                   <h3 className="text-xl font-medium text-foreground">Complete the core firm pages</h3>
@@ -380,7 +380,7 @@ export default function GeoGuide() {
                   </li>
                 </ol>
                 <div className="rounded-xl border border-border bg-card p-6">
-                  <h3 className="text-lg font-semibold text-foreground">Example prompts for a small or mid-sized law firm</h3>
+                  <h3 className="text-lg font-semibold text-foreground">Example prompts for an independent law firm</h3>
                   <ul className="mt-4 space-y-2 text-sm leading-relaxed text-muted-foreground">
                     <li>“Which immigration law firms in Chicago handle marriage-based adjustment of status and offer service in Spanish?”</li>
                     <li>“What should I look for when choosing an estate-planning attorney for a blended family in Madison?”</li>
