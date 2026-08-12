@@ -32,9 +32,12 @@ The product has three parts:
    score changes. Included with the one-month trial and paid subscription only.
 
 ## Pricing
-- First report: free, 5 prompts on ChatGPT and Claude, no credit card or commitment.
-- Optional subscription trial: one month free with full access.
-- Subscription after the trial: $10 per month.
+- Each user account gets one free report: 5 prompts on ChatGPT and Claude, no
+  credit card or commitment.
+- The optional subscription trial belongs to the user account: one month free
+  with full access.
+- The user-owned subscription after the trial is $10 per month. A company or
+  firm profile is report input, not the owner of billing or access.
 
 ## Do Not Crawl
 /admin

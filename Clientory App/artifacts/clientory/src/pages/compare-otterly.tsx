@@ -44,7 +44,7 @@ const data: ComparisonPageData = {
   faqs: [
     { question: "Is Otterly.ai good for law firms?", answer: "Otterly.ai is a general-purpose GEO tool that can track brand mentions, but it has no immigration-specific prompt generation or local competitor benchmarking. Clientory is built specifically for immigration law firms." },
     { question: "Does Otterly cover Claude and Copilot?", answer: "Yes. Otterly currently includes Microsoft Copilot in its core coverage and offers Claude as a paid add-on. Clientory queries ChatGPT, Claude, and Gemini today, with Perplexity and Copilot coming soon." },
-    { question: "Which tool is cheaper?", answer: "Clientory gives each company one free report, followed by an optional one-month full-access trial and then a $10 monthly subscription. Otterly.ai currently starts at $29 per month." },
+    { question: "Which tool is cheaper?", answer: "Clientory gives each user account one free report, followed by an optional one-month full-access trial and then a $10 monthly subscription. Otterly.ai currently starts at $29 per month." },
     { question: "Can I use both tools together?", answer: "Yes, some firms use Otterly for general brand monitoring and Clientory for immigration-specific insight. Most immigration firms find the focused approach gives more actionable data." },
   ],
 };

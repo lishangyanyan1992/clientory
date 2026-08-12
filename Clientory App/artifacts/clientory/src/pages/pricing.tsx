@@ -23,7 +23,7 @@ const FREE_REPORT_FEATURES = [
   `Tested on ${FREE_MODELS_LABEL}`,
   "AI visibility score out of 100",
   "Per-prompt sentiment breakdown",
-  "One report for your firm",
+  "One free report per user account",
 ];
 
 const PLAN_FEATURES = [
@@ -70,7 +70,7 @@ const pricingSchema = {
 const PRICING_FAQS = [
   {
     q: "What do I get without a credit card?",
-    a: `You can run one free ${PROMPTS_PER_FREE_SCAN}-prompt visibility report on ${FREE_MODELS_LABEL} with no credit card and no commitment. The report shows your AI visibility score and per-prompt results. It does not automatically start a trial or subscription.`,
+    a: `Each user account can run one free ${PROMPTS_PER_FREE_SCAN}-prompt visibility report on ${FREE_MODELS_LABEL} with no credit card and no commitment. The report shows your AI visibility score and per-prompt results. It does not automatically start a trial or subscription.`,
   },
   {
     q: "How does the free trial work?",
@@ -95,6 +95,10 @@ const PRICING_FAQS = [
   {
     q: "What happens if I cancel?",
     a: "Your access continues through the end of your current billing period. After that, you will need to resubscribe to run new scans.",
+  },
+  {
+    q: "Is the subscription tied to a firm or company?",
+    a: "No. Your free report, trial, and subscription belong to your Clientory user account. The firm or business profile tells Clientory what to analyze; it does not own your billing relationship.",
   },
 ];
 

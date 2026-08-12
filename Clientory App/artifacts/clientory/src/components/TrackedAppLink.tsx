@@ -18,10 +18,14 @@ export function TrackedAppLink({
   const posthog = usePostHog();
 
   const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
-    const { attribution, clickId, destination, landingPath } = buildTrackedAppUrl(
-      placement,
-      offer,
-    );
+    const {
+      accountScope,
+      attribution,
+      clickId,
+      destination,
+      funnelVersion,
+      landingPath,
+    } = buildTrackedAppUrl(placement, offer);
 
     // Set the final URL synchronously so normal anchor behavior—including open
     // in new tab—carries the attribution data into the product application.
@@ -29,8 +33,10 @@ export function TrackedAppLink({
     posthog.capture("marketing_cta_clicked", {
       placement,
       offer,
+      account_scope: accountScope,
       click_id: clickId,
       destination,
+      funnel_version: funnelVersion,
       landing_path: landingPath,
       source_page: window.location.pathname,
       source_url: window.location.href,

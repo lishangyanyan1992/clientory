@@ -32,7 +32,7 @@ const data: ComparisonPageData = {
     "Manual testing is not actually free. A thorough pass across several assistants with 20+ prompts takes 3–4 hours, and doing it at any scale means paying for API access to each model on top of the setup time. Repeat that monthly and it is 36–48 hours a year plus usage fees — for a less consistent result than an automated scan.",
   ],
   pricingRows: [
-    { label: "Free starting point", clientory: "One report per company, no card", competitor: "Consumer tools may be free; API testing has usage fees" },
+    { label: "Free starting point", clientory: "One report per user account, no card", competitor: "Consumer tools may be free; API testing has usage fees" },
     { label: "Time per audit", clientory: "Minutes", competitor: "3–4 hours" },
     { label: "Consistency", clientory: "Standardized", competitor: "Variable" },
     { label: "Historical tracking", clientory: "Automatic", competitor: "Manual spreadsheets" },

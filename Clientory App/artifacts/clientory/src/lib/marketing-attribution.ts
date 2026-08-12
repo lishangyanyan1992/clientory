@@ -1,6 +1,8 @@
 import { CLIENTORY_APP_URL } from "@/lib/app-url";
 
 const STORAGE_KEY = "clientory_marketing_attribution_v1";
+export const ACCOUNT_SCOPE = "user";
+export const FUNNEL_VERSION = "user_owned_v1";
 
 const ATTRIBUTION_KEYS = [
   "utm_source",
@@ -99,11 +101,15 @@ export function buildTrackedAppUrl(placement: string, offer: string) {
   destination.searchParams.set("cl_cta_placement", placement);
   destination.searchParams.set("cl_cta_offer", offer);
   destination.searchParams.set("cl_landing_path", landingPath);
+  destination.searchParams.set("cl_account_scope", ACCOUNT_SCOPE);
+  destination.searchParams.set("cl_funnel_version", FUNNEL_VERSION);
 
   return {
+    accountScope: ACCOUNT_SCOPE,
     clickId,
     destination: destination.toString(),
     attribution,
+    funnelVersion: FUNNEL_VERSION,
     landingPath,
   };
 }

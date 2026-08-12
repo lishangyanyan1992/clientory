@@ -15,7 +15,7 @@ Clientory checks whether AI assistants recommend a law firm when prospective cli
 | Tier | Prompts per scan | AI models |
 |---|---|---|
 | Free report | 5 | ChatGPT, Claude |
-| Subscription ($10/mo per firm) | 25 | ChatGPT, Claude, Gemini |
+| Subscription ($10/mo per user account) | 25 | ChatGPT, Claude, Gemini |
 
 Perplexity, Copilot, and other AI search engines are on the roadmap and are **not** live. Marketing copy must not present them as current coverage.
 
@@ -99,12 +99,17 @@ from `clientory.org` to `app.clientory.org`.
 
 - Every marketing route captures `$pageview`.
 - Product CTA clicks capture `marketing_cta_clicked` with the placement, offer,
-  campaign attribution, landing path, and a unique `click_id`.
+  campaign attribution, landing path, a unique `click_id`, and the explicit
+  user-owned funnel version.
 - CTA destination URLs preserve supported UTM/ad-click parameters and add
-  `cl_click_id`, `cl_cta_placement`, `cl_cta_offer`, and `cl_landing_path`.
+  `cl_click_id`, `cl_cta_placement`, `cl_cta_offer`, `cl_landing_path`,
+  `cl_account_scope=user`, and `cl_funnel_version=user_owned_v1`.
 - The product app should retain those parameters, call `posthog.identify` after
   authentication, and capture `signup_completed`, `free_report_started`,
   `free_report_completed`, `trial_started`, and `subscription_started`.
+- Trials, subscriptions, attribution, and conversion identity belong to the
+  permanent user account. A business profile describes what a report analyzes;
+  it does not own billing or PostHog identity.
 - Capture subscription lifecycle events from the billing webhook so they do not
   depend on a browser redirect completing successfully.
 

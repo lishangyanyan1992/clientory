@@ -5,6 +5,8 @@ import { useEffect, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import {
+  ACCOUNT_SCOPE,
+  FUNNEL_VERSION,
   getMarketingAttribution,
   rememberMarketingAttribution,
 } from "@/lib/marketing-attribution";
@@ -25,6 +27,8 @@ function PostHogPageView() {
     posthog.capture("$pageview", {
       $current_url: window.location.href,
       marketing_site: true,
+      account_scope: ACCOUNT_SCOPE,
+      funnel_version: FUNNEL_VERSION,
       page_path: window.location.pathname,
       landing_path: landingPath,
       ...attribution,
