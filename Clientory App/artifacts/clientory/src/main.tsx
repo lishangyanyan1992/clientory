@@ -11,6 +11,11 @@ if (posthogKey) {
   posthog.init(posthogKey, {
     api_host: import.meta.env.VITE_POSTHOG_HOST ?? "https://us.i.posthog.com",
     person_profiles: "identified_only",
+    // Keep the anonymous visitor ID available when a visitor moves from
+    // clientory.org to app.clientory.org. The product app must use the same
+    // PostHog project key and configuration for the identity to carry over.
+    cross_subdomain_cookie: true,
+    persistence: "localStorage+cookie",
     capture_pageview: false, // Captured manually via react-router integration
     capture_pageleave: true,
   });

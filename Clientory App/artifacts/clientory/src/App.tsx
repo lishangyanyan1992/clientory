@@ -4,6 +4,10 @@ import { usePostHog } from "posthog-js/react";
 import { useEffect, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import {
+  getMarketingAttribution,
+  rememberMarketingAttribution,
+} from "@/lib/marketing-attribution";
 import NotFound from "@/pages/not-found";
 
 // Fires a $pageview event whenever the route changes.
@@ -12,7 +16,19 @@ function PostHogPageView() {
   const location = useLocation();
   const posthog = usePostHog();
   useEffect(() => {
-    posthog.capture("$pageview", { $current_url: window.location.href });
+    rememberMarketingAttribution(
+      window.location.search,
+      `${window.location.pathname}${window.location.search}`,
+    );
+    const { attribution, landingPath } = getMarketingAttribution();
+
+    posthog.capture("$pageview", {
+      $current_url: window.location.href,
+      marketing_site: true,
+      page_path: window.location.pathname,
+      landing_path: landingPath,
+      ...attribution,
+    });
   }, [location, posthog]);
   return null;
 }

@@ -91,6 +91,23 @@ All optional — the site builds and runs without any of them.
 
 There are deliberately **no payment or AI provider keys here.** Payments are handled entirely at app.clientory.org, and this is a static build with no server to keep a secret in.
 
+### Marketing analytics contract
+
+The marketing site and product app should use the same PostHog project key and
+host. Cross-subdomain cookies are enabled so the anonymous visitor ID can carry
+from `clientory.org` to `app.clientory.org`.
+
+- Every marketing route captures `$pageview`.
+- Product CTA clicks capture `marketing_cta_clicked` with the placement, offer,
+  campaign attribution, landing path, and a unique `click_id`.
+- CTA destination URLs preserve supported UTM/ad-click parameters and add
+  `cl_click_id`, `cl_cta_placement`, `cl_cta_offer`, and `cl_landing_path`.
+- The product app should retain those parameters, call `posthog.identify` after
+  authentication, and capture `signup_completed`, `free_report_started`,
+  `free_report_completed`, `trial_started`, and `subscription_started`.
+- Capture subscription lifecycle events from the billing webhook so they do not
+  depend on a browser redirect completing successfully.
+
 ---
 
 ## Deployment
