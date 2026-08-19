@@ -18,6 +18,14 @@ if (posthogKey) {
     persistence: "localStorage+cookie",
     capture_pageview: false, // Captured manually via react-router integration
     capture_pageleave: true,
+    disable_session_recording: false,
+    // Keep form values private while still recording navigation, clicks, and
+    // layout changes that help diagnose conversion friction.
+    session_recording: {
+      maskAllInputs: true,
+      recordHeaders: false,
+      recordBody: false,
+    },
   });
 }
 
