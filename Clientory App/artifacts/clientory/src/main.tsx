@@ -4,6 +4,7 @@ import posthog from "posthog-js";
 import { PostHogProvider } from "posthog-js/react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import App from "./App";
+import { sanitizePostHogEvent } from "./lib/posthog-privacy";
 import "./index.css";
 
 const posthogKey = import.meta.env.VITE_POSTHOG_KEY;
@@ -18,6 +19,16 @@ if (posthogKey) {
     persistence: "localStorage+cookie",
     capture_pageview: false, // Captured manually via react-router integration
     capture_pageleave: true,
+    before_send: (event) => {
+      if (!event) {
+        return null;
+      }
+
+      // Public report paths contain bearer-style access tokens. Redact those
+      // path segments from URLs, referrers, and nested custom properties before
+      // any marketing-site event leaves the browser.
+      return sanitizePostHogEvent(event);
+    },
     disable_session_recording: false,
     // Keep form values private while still recording navigation, clicks, and
     // layout changes that help diagnose conversion friction.
