@@ -1,5 +1,4 @@
 import { MarketingLayout } from "@/components/marketing-layout";
-import Founders from "@/components/Founders";
 import { Link } from "react-router-dom";
 import {
   Table,
@@ -150,8 +149,6 @@ const About = () => {
           </section>
           </article>
 
-          {/* Team — moved here from the landing page */}
-          <Founders />
         </main>
       </MarketingLayout>
     </>

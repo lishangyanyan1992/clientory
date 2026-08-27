@@ -232,6 +232,30 @@ export default function Pricing() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.25 }}
+          className="mx-auto mt-8 max-w-4xl rounded-2xl border border-primary/20 bg-primary/5 p-6 text-center"
+        >
+          <p className="text-sm font-medium uppercase tracking-wider text-primary">
+            Included after your free scan
+          </p>
+          <h2 className="mt-2 text-2xl font-bold text-foreground">
+            Free consultation with an AEO/SEO expert
+          </h2>
+          <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+            Run your free Clientory scan first so the consultation is based on real AI visibility data, not generic advice. After your report is ready, an AEO/SEO expert can review where your firm appears, which competitors are winning citations, and what to fix first.
+          </p>
+          <TrackedAppLink
+            placement="pricing_consultation_scan_first"
+            offer="free_report"
+            className="mt-5 inline-flex items-center justify-center gap-2 rounded-xl bg-foreground px-6 py-3 text-sm font-semibold text-background transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+          >
+            Run your free scan first <ArrowRight className="w-4 h-4" />
+          </TrackedAppLink>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
           className="mt-16 text-center"
         >
