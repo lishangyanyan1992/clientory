@@ -2,9 +2,11 @@ import { MarketingLayout } from "@/components/marketing-layout";
 import { Check, Sparkles, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import {
+  BETA_ACCESS_LABEL,
   BILLING_CONFIG,
   BILLING_SCANS_LABEL,
   FREE_PROMPTS_LABEL,
+  PAID_TRIAL_LABEL,
   PAID_PROMPTS_LABEL,
   PROMPTS_PER_FREE_SCAN,
   PROMPTS_PER_PAID_SCAN,
@@ -39,16 +41,16 @@ const PLAN_FEATURES = [
 
 const PLAN = {
   label: "Clientory subscription",
-  sublabel: "One-month free trial with full access",
+  sublabel: `${PAID_TRIAL_LABEL} with full access · Card required`,
   price: BILLING_CONFIG.monthlyPriceUsd,
   description: `Every scan runs ${PROMPTS_PER_PAID_SCAN} prompts across ${PAID_MODELS_LABEL}, re-runs itself weekly, and comes with the Presence Coach and Citation Monitor.`,
-  badge: "First month free",
+  badge: `${BILLING_CONFIG.paidTrialDays}-day trial`,
   features: PLAN_FEATURES,
 } as const;
 
-const title = "Clientory Pricing | Free Report and One-Month Trial";
+const title = "Clientory Pricing | Free Report and 30-Day Paid Trial";
 const description =
-  "Run a free AI visibility report with no credit card. Then choose a one-month full-access trial before the $10 monthly subscription begins.";
+  "Run one free AI visibility report with no credit card. The optional paid plan starts with a card-required 30-day trial, then costs $10 per month.";
 
 const pricingSchema = {
   "@context": "https://schema.org",
@@ -63,7 +65,7 @@ const pricingSchema = {
     price: String(BILLING_CONFIG.monthlyPriceUsd),
     priceCurrency: "USD",
     url: "https://clientory.org/pricing",
-    description: "One free report, one month of full subscription access free, then $10 per month.",
+    description: "One free report with no card; optional 30-day paid-plan trial with a card, then $10 per month.",
   },
 };
 
@@ -73,8 +75,12 @@ const PRICING_FAQS = [
     a: `Each user account can run one free ${PROMPTS_PER_FREE_SCAN}-prompt visibility report on ${FREE_MODELS_LABEL} with no credit card and no commitment. The report shows your AI visibility score and per-prompt results. It does not automatically start a trial or subscription.`,
   },
   {
-    q: "How does the free trial work?",
-    a: `After reviewing your free report, you can choose to start a one-month free trial of the complete subscription. The trial includes ${PROMPTS_PER_PAID_SCAN}-prompt scans, weekly monitoring, ${PAID_ONLY_MODELS_LABEL}, competitor tracking, the AI Presence Coach, and alerts. After the free month, the subscription is $${BILLING_CONFIG.monthlyPriceUsd}/month.`,
+    q: "How does the paid-plan trial work?",
+    a: `After reviewing your free report, you can choose to start a ${BILLING_CONFIG.paidTrialDays}-day trial of the complete paid plan. A credit card is required. The trial includes ${PROMPTS_PER_PAID_SCAN}-prompt scans, weekly monitoring, ${PAID_ONLY_MODELS_LABEL}, competitor tracking, the AI Presence Coach, and alerts. After ${BILLING_CONFIG.paidTrialDays} days, the subscription is $${BILLING_CONFIG.monthlyPriceUsd}/month unless you cancel.`,
+  },
+  {
+    q: "What is beta access?",
+    a: `Beta access is a separate, application-based offer for ${BETA_ACCESS_LABEL} with no credit card. Applying does not create an account or grant access automatically; Clientory reviews each request and invites approved firms. Anyone can still create a regular account and run the free report.`,
   },
   {
     q: "Which AI models do you test?",
@@ -82,11 +88,11 @@ const PRICING_FAQS = [
   },
   {
     q: "How many prompts does a scan run?",
-    a: `The no-card free report runs ${PROMPTS_PER_FREE_SCAN} prompts. During your free trial and paid subscription, each weekly scan runs ${PROMPTS_PER_PAID_SCAN} prompts generated from your firm profile, covering brand, location, specialty, problem, and audience searches.`,
+    a: `The no-card free report runs ${PROMPTS_PER_FREE_SCAN} prompts. During the paid-plan trial and paid subscription, each weekly scan runs ${PROMPTS_PER_PAID_SCAN} prompts generated from your firm profile, covering brand, location, specialty, problem, and audience searches.`,
   },
   {
     q: "What is the AI Presence Coach?",
-    a: "A chat coach that knows your latest scan—your score, which competitors are filling your gaps, and what to change. It is included throughout your free trial month and with the paid subscription afterward.",
+    a: "A chat coach that knows your latest scan—your score, which competitors are filling your gaps, and what to change. It is included throughout the paid-plan trial and with the paid subscription afterward.",
   },
   {
     q: "How do weekly re-scans work?",
@@ -98,7 +104,7 @@ const PRICING_FAQS = [
   },
   {
     q: "Is the subscription tied to a firm or company?",
-    a: "No. Your free report, trial, and subscription belong to your Clientory user account. The firm or business profile tells Clientory what to analyze; it does not own your billing relationship.",
+    a: "No. Your free report, paid-plan trial, and subscription belong to your Clientory user account. The firm or business profile tells Clientory what to analyze; it does not own your billing relationship.",
   },
 ];
 
@@ -128,13 +134,13 @@ export default function Pricing() {
         >
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary font-medium text-sm border border-primary/20 mb-6">
             <Sparkles className="w-3.5 h-3.5" />
-            Free report first. Full subscription free for one month when you are ready.
+            Free report first. Upgrade only when you are ready.
           </div>
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
             See when AI recommends your firm
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Start with one free report—no credit card, no commitment. See how Clientory works, then choose whether to start a one-month free trial with full subscription access.
+            Start with one free report—no credit card, no commitment. The optional paid plan starts with a card-required 30-day trial. Approved beta applicants can instead receive three months free without a card.
           </p>
         </motion.div>
 
@@ -154,7 +160,7 @@ export default function Pricing() {
                 <span className="text-4xl font-bold">$0</span>
               </div>
               <p className="text-muted-foreground text-sm">
-                See your current AI visibility and experience Clientory before deciding whether to start a trial.
+                See your current AI visibility and experience Clientory before deciding whether to start the paid plan.
               </p>
             </div>
 
@@ -199,7 +205,7 @@ export default function Pricing() {
               <p className="text-xs text-muted-foreground mb-3">{PLAN.sublabel}</p>
               <div className="flex flex-wrap items-end gap-x-3 gap-y-1 mb-2">
                 <span className="text-4xl font-bold">$0</span>
-                <span className="text-muted-foreground mb-1">during your first month</span>
+                <span className="text-muted-foreground mb-1">for {BILLING_CONFIG.paidTrialDays} days</span>
               </div>
               <p className="mb-3 text-sm font-medium text-foreground">Then ${PLAN.price}/month</p>
               <p className="text-muted-foreground text-sm">{PLAN.description}</p>
@@ -221,10 +227,10 @@ export default function Pricing() {
               offer="subscription_trial"
               className="flex items-center justify-center gap-2 w-full text-center px-6 py-3 rounded-xl font-semibold transition-all duration-200 text-sm bg-gradient-to-r from-primary to-accent text-white shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5"
             >
-              Start your free month <ArrowRight className="w-4 h-4" />
+              Start the {BILLING_CONFIG.paidTrialDays}-day trial <ArrowRight className="w-4 h-4" />
             </TrackedAppLink>
             <p className="mt-3 text-center text-xs text-muted-foreground">
-              Full subscription access during your free month. {UPCOMING_MODELS_LABEL} are coming soon.
+              Card required. Cancel before the trial ends to avoid the ${PLAN.price}/month charge. {UPCOMING_MODELS_LABEL} are coming soon.
             </p>
           </motion.div>
         </div>
@@ -233,6 +239,31 @@ export default function Pricing() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.25 }}
+          className="mx-auto mt-8 max-w-4xl rounded-2xl border border-border bg-card p-6 text-center"
+        >
+          <p className="text-sm font-medium uppercase tracking-wider text-primary">
+            Optional beta access
+          </p>
+          <h2 className="mt-2 text-2xl font-bold text-foreground">
+            Apply for {BETA_ACCESS_LABEL} — no credit card
+          </h2>
+          <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+            Beta access is reviewed and approved individually. Applying does not create an account
+            or grant access automatically, and regular account creation remains open to everyone.
+          </p>
+          <TrackedAppLink
+            placement="pricing_beta_application"
+            offer="beta_application"
+            className="mt-5 inline-flex items-center justify-center gap-2 rounded-xl border border-primary px-6 py-3 text-sm font-semibold text-primary transition-all duration-200 hover:bg-primary/5"
+          >
+            Apply for Beta Access <ArrowRight className="w-4 h-4" />
+          </TrackedAppLink>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
           className="mx-auto mt-8 max-w-4xl rounded-2xl border border-primary/20 bg-primary/5 p-6 text-center"
         >
           <p className="text-sm font-medium uppercase tracking-wider text-primary">
@@ -256,7 +287,7 @@ export default function Pricing() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
+          transition={{ duration: 0.5, delay: 0.35 }}
           className="mt-16 text-center"
         >
           <h2 className="text-2xl font-bold mb-4">Frequently Asked Questions</h2>

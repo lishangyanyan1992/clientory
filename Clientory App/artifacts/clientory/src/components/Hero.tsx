@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import AIDashboard from "@/components/AIDashboard";
 import StripeGradient from "@/components/StripeGradient";
 import { TrackedAppLink } from "@/components/TrackedAppLink";
-import { PROMPTS_PER_FREE_SCAN } from "@/lib/billing-config";
+import { BILLING_CONFIG, PAID_TRIAL_LABEL, PROMPTS_PER_FREE_SCAN } from "@/lib/billing-config";
 import { FREE_MODELS_LABEL } from "@/lib/model-coverage";
 
 export default function Hero() {
@@ -53,7 +53,7 @@ export default function Hero() {
                 size="lg"
                 className="h-14 rounded-full px-8 text-base font-semibold shadow-lg shadow-primary/20 transition-all duration-300 hover:shadow-xl hover:shadow-primary/30"
               >
-                Try It Now
+                Run Free Report
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </TrackedAppLink>
@@ -69,7 +69,7 @@ export default function Hero() {
               Free report: {PROMPTS_PER_FREE_SCAN} prompts on {FREE_MODELS_LABEL} · No credit card
               required
             </p>
-            <p>Like the report? Get the full subscription free for one month, then $10/month.</p>
+            <p>Paid plan: {PAID_TRIAL_LABEL}, then ${BILLING_CONFIG.monthlyPriceUsd}/month · Card required</p>
           </div>
 
           <motion.div

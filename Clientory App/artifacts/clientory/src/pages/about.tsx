@@ -31,7 +31,7 @@ const competitors = [
   {
     tool: "Clientory",
     focus: "Immigration law GEO",
-    price: `Free report, one month free, then $${BILLING_CONFIG.monthlyPriceUsd}/mo`,
+    price: `Free report; 30-day paid trial, then $${BILLING_CONFIG.monthlyPriceUsd}/mo`,
     specific: "Yes",
     href: "/pricing",
   },

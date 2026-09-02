@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TrackedAppLink } from "@/components/TrackedAppLink";
+import { BETA_ACCESS_LABEL } from "@/lib/billing-config";
 
 export default function CTA() {
   return (
@@ -34,7 +35,7 @@ export default function CTA() {
                   size="lg"
                   className="h-14 rounded-full bg-white px-10 text-base font-semibold text-primary shadow-lg hover:bg-white/90"
                 >
-                  Try It Now
+                  Run Free Report
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </TrackedAppLink>
@@ -48,6 +49,13 @@ export default function CTA() {
                 </Button>
               </Link>
             </div>
+            <TrackedAppLink
+              placement="home_bottom_beta_application"
+              offer="beta_application"
+              className="mt-5 inline-block text-sm font-medium text-white/80 underline underline-offset-4 transition-colors hover:text-white"
+            >
+              Want extended access? Apply for {BETA_ACCESS_LABEL} — no card, approval required.
+            </TrackedAppLink>
           </div>
         </motion.div>
       </div>

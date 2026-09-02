@@ -284,7 +284,7 @@ export default function Notice() {
             </div>
 
             <div className="tear">
-              <p className="tear-t">Run this report for your own firm, free during beta.</p>
+              <p className="tear-t">Run one free report for your own firm. No credit card.</p>
               <a className="btn" href={CLIENTORY_APP_URL}>
                 Request a scan
               </a>

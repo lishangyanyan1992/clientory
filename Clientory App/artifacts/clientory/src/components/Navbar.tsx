@@ -35,7 +35,7 @@ const Navbar = () => {
               <Link to="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Pricing</Link>
               <Link to="/geo-for-professional-services" className="text-sm text-muted-foreground hover:text-foreground transition-colors">GEO Guide</Link>
               <TrackedAppLink placement="desktop_nav" offer="free_report">
-                <Button size="sm" className="rounded-full px-5 bg-primary text-primary-foreground hover:opacity-90">Try It Now</Button>
+                <Button size="sm" className="rounded-full px-5 bg-primary text-primary-foreground hover:opacity-90">Run Free Report</Button>
               </TrackedAppLink>
             </div>
 
@@ -53,7 +53,7 @@ const Navbar = () => {
           <Link to="/pricing" className="block text-sm text-muted-foreground" onClick={() => setOpen(false)}>Pricing</Link>
           <Link to="/geo-for-professional-services" className="block text-sm text-muted-foreground" onClick={() => setOpen(false)}>GEO Guide</Link>
           <TrackedAppLink placement="mobile_nav" offer="free_report" onClick={() => setOpen(false)}>
-            <Button size="sm" className="w-full rounded-full mt-2 bg-primary text-primary-foreground hover:opacity-90">Try It Now</Button>
+            <Button size="sm" className="w-full rounded-full mt-2 bg-primary text-primary-foreground hover:opacity-90">Run Free Report</Button>
           </TrackedAppLink>
         </div>
       )}

@@ -8,11 +8,11 @@ const data: ComparisonPageData = {
   features: [
     { feature: "Built for immigration law", clientory: "yes", competitor: "no" },
     { feature: "AI platforms covered", clientory: "ChatGPT, Claude, Gemini (Perplexity, Copilot coming soon)", competitor: "Choose 3 from ChatGPT, Google AI, Copilot, Perplexity, and Gemini; more models via add-ons or Enterprise" },
-    { feature: "Starting price", clientory: "Free report, one month free, then $10/mo", competitor: "$95/mo" },
+    { feature: "Starting price", clientory: "Free report; 30-day paid trial, then $10/mo", competitor: "$95/mo" },
     { feature: "Industry-specific prompt library", clientory: "yes", competitor: "no" },
     { feature: "Competitor gap vs. local rivals", clientory: "yes", competitor: "partial" },
     { feature: "Actionable fix-it recommendations", clientory: "yes", competitor: "partial" },
-    { feature: "Free trial", clientory: "yes", competitor: "yes" },
+    { feature: "Paid-plan trial", clientory: "30 days, card required", competitor: "yes" },
   ],
   chooseClientory: [
     "You run an independent immigration law firm",
@@ -33,7 +33,7 @@ const data: ComparisonPageData = {
   ],
   pricingRows: [
     { label: "Try before paying", clientory: "One free report, no card", competitor: "Check Peec's current trial offer" },
-    { label: "Starter", clientory: "One month free, then $10/mo", competitor: "$95/mo" },
+    { label: "Starter", clientory: "30-day paid trial, then $10/mo", competitor: "$95/mo" },
     { label: "Pro", clientory: "No additional tiers", competitor: "$245/mo" },
     { label: "Advanced", clientory: "No additional tiers", competitor: "$495/mo" },
   ],

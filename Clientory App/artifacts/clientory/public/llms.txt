@@ -29,15 +29,17 @@ The product has three parts:
    covering score, competitor gaps, and specific recommendations. Paid only.
 3. AI Citation Monitor — weekly snapshots tracking score over time, alerts when
    a new competitor enters the firm's prompts, and configurable email alerts on
-   score changes. Included with the one-month trial and paid subscription only.
+   score changes. Included with the 30-day paid-plan trial and paid subscription only.
 
 ## Pricing
 - Each user account gets one free report: 5 prompts on ChatGPT and Claude, no
   credit card or commitment.
-- The optional subscription trial belongs to the user account: one month free
-  with full access.
+- The optional subscription trial belongs to the user account: 30 days with
+  full access. A credit card is required and billing starts after the trial.
 - The user-owned subscription after the trial is $10 per month. A company or
   firm profile is report input, not the owner of billing or access.
+- Firms can separately apply for approved beta access: 3 months free with no
+  credit card. Applying does not create an account or grant access automatically.
 
 ## Do Not Crawl
 /admin

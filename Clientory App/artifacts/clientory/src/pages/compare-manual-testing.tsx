@@ -8,11 +8,11 @@ const data: ComparisonPageData = {
   features: [
     { feature: "Built for immigration law", clientory: "yes", competitor: "partial" },
     { feature: "LLM platforms covered", clientory: "ChatGPT, Claude, Gemini (Perplexity, Copilot coming soon)", competitor: "Whichever you manually test" },
-    { feature: "Starting price", clientory: "Free report, one month free, then $10/mo", competitor: "Free consumer access or API fees + your time" },
+    { feature: "Starting price", clientory: "Free report; 30-day paid trial, then $10/mo", competitor: "Free consumer access or API fees + your time" },
     { feature: "Industry-specific prompt library", clientory: "yes", competitor: "no" },
     { feature: "Competitor gap vs. local rivals", clientory: "yes", competitor: "no" },
     { feature: "Actionable fix-it recommendations", clientory: "yes", competitor: "no" },
-    { feature: "Free trial", clientory: "yes", competitor: "N/A" },
+    { feature: "Paid-plan trial", clientory: "30 days, card required", competitor: "N/A" },
   ],
   chooseClientory: [
     "You want consistent, repeatable measurements over time",

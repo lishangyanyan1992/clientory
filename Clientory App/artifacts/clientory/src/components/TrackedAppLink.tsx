@@ -5,7 +5,7 @@ import { buildTrackedAppUrl } from "@/lib/marketing-attribution";
 
 type TrackedAppLinkProps = Omit<ComponentPropsWithoutRef<"a">, "href"> & {
   placement: string;
-  offer: "free_report" | "subscription_trial";
+  offer: "free_report" | "subscription_trial" | "beta_application";
 };
 
 export function TrackedAppLink({

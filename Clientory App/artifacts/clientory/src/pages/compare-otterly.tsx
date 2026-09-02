@@ -8,11 +8,11 @@ const data: ComparisonPageData = {
   features: [
     { feature: "Built for immigration law", clientory: "yes", competitor: "no" },
     { feature: "AI platforms covered", clientory: "ChatGPT, Claude, Gemini (Perplexity, Copilot coming soon)", competitor: "ChatGPT, Perplexity, Copilot, and Google AI Overviews; Gemini, Claude, and AI Mode are add-ons" },
-    { feature: "Starting price", clientory: "Free report, then $10/mo", competitor: "$29/mo" },
+    { feature: "Starting price", clientory: "Free report; 30-day paid trial, then $10/mo", competitor: "$29/mo" },
     { feature: "Industry-specific prompt library", clientory: "yes", competitor: "no" },
     { feature: "Automatic gap vs. firms in your prompts", clientory: "yes", competitor: "partial" },
     { feature: "Actionable fix-it recommendations", clientory: "yes", competitor: "partial" },
-    { feature: "Free trial", clientory: "yes", competitor: "yes" },
+    { feature: "Paid-plan trial", clientory: "30 days, card required", competitor: "yes" },
   ],
   chooseClientory: [
     "You run an immigration law firm",
@@ -33,7 +33,7 @@ const data: ComparisonPageData = {
   ],
   pricingRows: [
     { label: "Try before paying", clientory: "One free report, no card", competitor: "Free trial, no card" },
-    { label: "Subscription", clientory: "One month free, then $10/mo", competitor: "Starts at $29/mo" },
+    { label: "Subscription", clientory: "30-day paid trial, then $10/mo", competitor: "Starts at $29/mo" },
     { label: "Paid cadence", clientory: "Weekly", competitor: "Daily" },
     { label: "Pricing basis", clientory: "One simple plan", competitor: "Prompt volume, plan, and model add-ons" },
   ],
@@ -44,7 +44,7 @@ const data: ComparisonPageData = {
   faqs: [
     { question: "Is Otterly.ai good for law firms?", answer: "Otterly.ai is a general-purpose GEO tool that can track brand mentions, but it has no immigration-specific prompt generation or local competitor benchmarking. Clientory is built specifically for immigration law firms." },
     { question: "Does Otterly cover Claude and Copilot?", answer: "Yes. Otterly currently includes Microsoft Copilot in its core coverage and offers Claude as a paid add-on. Clientory queries ChatGPT, Claude, and Gemini today, with Perplexity and Copilot coming soon." },
-    { question: "Which tool is cheaper?", answer: "Clientory gives each user account one free report, followed by an optional one-month full-access trial and then a $10 monthly subscription. Otterly.ai currently starts at $29 per month." },
+    { question: "Which tool is cheaper?", answer: "Clientory gives each user account one free report with no card. Its optional paid plan starts with a card-required 30-day trial and then costs $10 per month. Otterly.ai currently starts at $29 per month." },
     { question: "Can I use both tools together?", answer: "Yes, some firms use Otterly for general brand monitoring and Clientory for immigration-specific insight. Most immigration firms find the focused approach gives more actionable data." },
   ],
 };

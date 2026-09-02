@@ -331,7 +331,7 @@ export default function RollCall() {
               <a className="btn" href={CLIENTORY_APP_URL}>
                 Run a scan for your firm
               </a>
-              <small>Free during beta. No credit card. Results in a few minutes.</small>
+              <small>One free report. No credit card. Results in a few minutes.</small>
             </div>
           </div>
         </section>

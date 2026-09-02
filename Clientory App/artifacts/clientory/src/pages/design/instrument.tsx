@@ -263,7 +263,7 @@ export default function Instrument() {
                   Read a sample report
                 </a>
               </div>
-              <p className="note">Free during beta. No credit card.</p>
+              <p className="note">One free report. No credit card.</p>
             </div>
 
             <div className="score">

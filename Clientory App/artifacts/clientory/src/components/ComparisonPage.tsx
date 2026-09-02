@@ -204,7 +204,7 @@ const ComparisonPage = ({ data }: { data: ComparisonPageData }) => {
               </Button>
             </TrackedAppLink>
             <p className="text-sm text-primary-foreground/80">
-              Review the report first. Then choose whether to start one month of full subscription access free.
+              Review the report first. The optional paid plan starts with a 30-day trial and requires a card.
             </p>
           </section>
           </article>

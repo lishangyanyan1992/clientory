@@ -50,7 +50,7 @@ const homeSchema = {
         "@type": "Offer",
         price: String(BILLING_CONFIG.monthlyPriceUsd),
         priceCurrency: "USD",
-        description: "One free report, then an optional one-month free trial before the monthly subscription begins.",
+        description: "One free report with no card, then an optional card-required 30-day paid-plan trial before the $10 monthly subscription begins.",
         url: "https://clientory.org/pricing",
       },
     },

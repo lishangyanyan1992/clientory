@@ -182,7 +182,7 @@ export default function Territory() {
             <a className="btn" href={CLIENTORY_APP_URL}>
               Run a scan for your firm
             </a>
-            <span className="note">Free during beta. No credit card.</span>
+            <span className="note">One free report. No credit card.</span>
           </div>
         </section>
 

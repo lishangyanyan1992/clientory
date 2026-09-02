@@ -8,11 +8,11 @@ const data: ComparisonPageData = {
   features: [
     { feature: "Built for immigration law", clientory: "yes", competitor: "no" },
     { feature: "AI platforms covered", clientory: "ChatGPT, Claude, Gemini (Perplexity, Copilot coming soon)", competitor: "ChatGPT, Google AI, Gemini, and Perplexity" },
-    { feature: "Starting price", clientory: "Free report, one month free, then $10/mo", competitor: "$99/domain/mo billed annually" },
+    { feature: "Starting price", clientory: "Free report; 30-day paid trial, then $10/mo", competitor: "$99/domain/mo billed annually" },
     { feature: "Industry-specific prompt library", clientory: "yes", competitor: "no" },
     { feature: "Competitor gap vs. local rivals", clientory: "yes", competitor: "partial" },
     { feature: "Actionable fix-it recommendations", clientory: "yes", competitor: "partial" },
-    { feature: "Free trial", clientory: "yes", competitor: "yes" },
+    { feature: "Paid-plan trial", clientory: "30 days, card required", competitor: "yes" },
   ],
   chooseClientory: [
     "You want a focused product without a larger marketing-suite workflow",
@@ -33,7 +33,7 @@ const data: ComparisonPageData = {
   ],
   pricingRows: [
     { label: "Try before paying", clientory: "One free report, no card", competitor: "Check Semrush's current trial offer" },
-    { label: "Subscription", clientory: "One month free, then $10/mo", competitor: "$99/domain/mo billed annually" },
+    { label: "Subscription", clientory: "30-day paid trial, then $10/mo", competitor: "$99/domain/mo billed annually" },
     { label: "Custom prompts", clientory: "25 per weekly scan", competitor: "25 with daily tracking" },
     { label: "Pricing basis", clientory: "One simple plan", competitor: "Per domain" },
   ],
@@ -42,7 +42,7 @@ const data: ComparisonPageData = {
     url: "https://www.semrush.com/pricing/ai/",
   },
   faqs: [
-    { question: "Do I need a separate Semrush SEO subscription?", answer: "Semrush currently sells AI Visibility as a per-domain product. Confirm its checkout terms for your account. Clientory is standalone: one free report, an optional free month, and then $10 per month." },
+    { question: "Do I need a separate Semrush SEO subscription?", answer: "Semrush currently sells AI Visibility as a per-domain product. Confirm its checkout terms for your account. Clientory is standalone: one free report with no card, followed by an optional card-required 30-day paid trial and then $10 per month." },
     { question: "Does Semrush track ChatGPT mentions?", answer: "Yes. Semrush's current AI Visibility coverage includes ChatGPT, Google AI, Gemini, and Perplexity. Clientory directly queries ChatGPT, Claude, and Gemini, with Perplexity and Copilot coming soon." },
     { question: "Can I use Clientory alongside Semrush?", answer: "Absolutely. Many firms use Semrush for traditional SEO and Clientory for AI visibility monitoring. The two tools complement each other well." },
     { question: "Which tool is better for tracking local visibility?", answer: "For AI visibility in local immigration searches, Clientory gives more targeted insight. Semrush excels at traditional local SEO tracking." },
