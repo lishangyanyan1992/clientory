@@ -19,6 +19,7 @@ import {
 } from "@/lib/model-coverage";
 import { JsonLd, SeoMeta } from "@/components/SeoMeta";
 import { TrackedAppLink } from "@/components/TrackedAppLink";
+import { CLIENTORY_BETA_APPLICATION_PATH } from "@/lib/app-url";
 
 const FREE_REPORT_FEATURES = [
   FREE_PROMPTS_LABEL,
@@ -252,6 +253,8 @@ export default function Pricing() {
             or grant access automatically, and regular account creation remains open to everyone.
           </p>
           <TrackedAppLink
+            ctaName="apply_beta_access"
+            destinationPath={CLIENTORY_BETA_APPLICATION_PATH}
             placement="pricing_beta_application"
             offer="beta_application"
             className="mt-5 inline-flex items-center justify-center gap-2 rounded-xl border border-primary px-6 py-3 text-sm font-semibold text-primary transition-all duration-200 hover:bg-primary/5"

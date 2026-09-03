@@ -1,4 +1,4 @@
-import { CLIENTORY_APP_URL } from "@/lib/app-url";
+import { getClientoryAppUrl } from "@/lib/app-url";
 
 const STORAGE_KEY = "clientory_marketing_attribution_v1";
 export const ACCOUNT_SCOPE = "user";
@@ -88,8 +88,12 @@ function createClickId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-export function buildTrackedAppUrl(placement: string, offer: string) {
-  const destination = new URL(CLIENTORY_APP_URL);
+export function buildTrackedAppUrl(
+  placement: string,
+  offer: string,
+  destinationPath = "",
+) {
+  const destination = new URL(getClientoryAppUrl(destinationPath));
   const { attribution, landingPath } = getMarketingAttribution();
   const clickId = createClickId();
 
@@ -108,6 +112,7 @@ export function buildTrackedAppUrl(placement: string, offer: string) {
     accountScope: ACCOUNT_SCOPE,
     clickId,
     destination: destination.toString(),
+    destinationPath: `${destination.pathname}${destination.search}`,
     attribution,
     funnelVersion: FUNNEL_VERSION,
     landingPath,
