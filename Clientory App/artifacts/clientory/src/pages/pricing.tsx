@@ -6,7 +6,6 @@ import {
   BILLING_CONFIG,
   BILLING_SCANS_LABEL,
   FREE_PROMPTS_LABEL,
-  PAID_TRIAL_LABEL,
   PAID_PROMPTS_LABEL,
   PROMPTS_PER_FREE_SCAN,
   PROMPTS_PER_PAID_SCAN,
@@ -42,16 +41,16 @@ const PLAN_FEATURES = [
 
 const PLAN = {
   label: "Clientory subscription",
-  sublabel: `${PAID_TRIAL_LABEL} with full access · Card required`,
+  sublabel: "Full access · Billed monthly · Card required",
   price: BILLING_CONFIG.monthlyPriceUsd,
   description: `Every scan runs ${PROMPTS_PER_PAID_SCAN} prompts across ${PAID_MODELS_LABEL}, re-runs itself weekly, and comes with the Presence Coach and Citation Monitor.`,
-  badge: `${BILLING_CONFIG.paidTrialDays}-day trial`,
+  badge: "Full access",
   features: PLAN_FEATURES,
 } as const;
 
-const title = "Clientory Pricing | Free Report and 30-Day Paid Trial";
+const title = "Clientory Pricing | Free Report and $20/Month Plan";
 const description =
-  "Run one free AI visibility report with no credit card. The optional paid plan starts with a card-required 30-day trial, then costs $10 per month.";
+  `Run one free AI visibility report with no credit card. Upgrade for $${BILLING_CONFIG.monthlyPriceUsd} per month and get immediate access to the complete paid plan.`;
 
 const pricingSchema = {
   "@context": "https://schema.org",
@@ -66,18 +65,18 @@ const pricingSchema = {
     price: String(BILLING_CONFIG.monthlyPriceUsd),
     priceCurrency: "USD",
     url: "https://clientory.org/pricing",
-    description: "One free report with no card; optional 30-day paid-plan trial with a card, then $10 per month.",
+    description: `One free report with no card; upgrade for $${BILLING_CONFIG.monthlyPriceUsd} per month with immediate billing.`,
   },
 };
 
 const PRICING_FAQS = [
   {
     q: "What do I get without a credit card?",
-    a: `Each user account can run one free ${PROMPTS_PER_FREE_SCAN}-prompt visibility report on ${FREE_MODELS_LABEL} with no credit card and no commitment. The report shows your AI visibility score and per-prompt results. It does not automatically start a trial or subscription.`,
+    a: `Each user account can run one free ${PROMPTS_PER_FREE_SCAN}-prompt visibility report on ${FREE_MODELS_LABEL} with no credit card and no commitment. The report shows your AI visibility score and per-prompt results. It does not automatically start a subscription.`,
   },
   {
-    q: "How does the paid-plan trial work?",
-    a: `After reviewing your free report, you can choose to start a ${BILLING_CONFIG.paidTrialDays}-day trial of the complete paid plan. A credit card is required. The trial includes ${PROMPTS_PER_PAID_SCAN}-prompt scans, weekly monitoring, ${PAID_ONLY_MODELS_LABEL}, competitor tracking, the AI Presence Coach, and alerts. After ${BILLING_CONFIG.paidTrialDays} days, the subscription is $${BILLING_CONFIG.monthlyPriceUsd}/month unless you cancel.`,
+    q: "When will I be charged for the paid plan?",
+    a: `You are charged $${BILLING_CONFIG.monthlyPriceUsd} when you upgrade, and the subscription renews monthly until you cancel. There is no paid-plan trial. The subscription includes ${PROMPTS_PER_PAID_SCAN}-prompt scans, weekly monitoring, ${PAID_ONLY_MODELS_LABEL}, competitor tracking, the AI Presence Coach, and alerts.`,
   },
   {
     q: "What is beta access?",
@@ -89,11 +88,11 @@ const PRICING_FAQS = [
   },
   {
     q: "How many prompts does a scan run?",
-    a: `The no-card free report runs ${PROMPTS_PER_FREE_SCAN} prompts. During the paid-plan trial and paid subscription, each weekly scan runs ${PROMPTS_PER_PAID_SCAN} prompts generated from your firm profile, covering brand, location, specialty, problem, and audience searches.`,
+    a: `The no-card free report runs ${PROMPTS_PER_FREE_SCAN} prompts. With a paid subscription, each weekly scan runs ${PROMPTS_PER_PAID_SCAN} prompts generated from your firm profile, covering brand, location, specialty, problem, and audience searches.`,
   },
   {
     q: "What is the AI Presence Coach?",
-    a: "A chat coach that knows your latest scan—your score, which competitors are filling your gaps, and what to change. It is included throughout the paid-plan trial and with the paid subscription afterward.",
+    a: "A chat coach that knows your latest scan—your score, which competitors are filling your gaps, and what to change. It is included with the paid subscription.",
   },
   {
     q: "How do weekly re-scans work?",
@@ -105,7 +104,7 @@ const PRICING_FAQS = [
   },
   {
     q: "Is the subscription tied to a firm or company?",
-    a: "No. Your free report, paid-plan trial, and subscription belong to your Clientory user account. The firm or business profile tells Clientory what to analyze; it does not own your billing relationship.",
+    a: "No. Your free report and subscription belong to your Clientory user account. The firm or business profile tells Clientory what to analyze; it does not own your billing relationship.",
   },
 ];
 
@@ -141,7 +140,7 @@ export default function Pricing() {
             See when AI recommends your firm
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Start with one free report—no credit card, no commitment. The optional paid plan starts with a card-required 30-day trial. Approved beta applicants can instead receive three months free without a card.
+            Start with one free report—no credit card, no commitment. Upgrade for ${BILLING_CONFIG.monthlyPriceUsd} per month when you are ready; your card is charged immediately. Approved beta applicants can instead receive three months free without a card.
           </p>
         </motion.div>
 
@@ -184,7 +183,7 @@ export default function Pricing() {
               Run your free report <ArrowRight className="w-4 h-4" />
             </TrackedAppLink>
             <p className="mt-3 text-center text-xs text-muted-foreground">
-              Your free report does not start a subscription or trial.
+              Your free report does not start a subscription.
             </p>
           </motion.div>
 
@@ -204,11 +203,10 @@ export default function Pricing() {
             <div className="mb-6">
               <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-1">{PLAN.label}</p>
               <p className="text-xs text-muted-foreground mb-3">{PLAN.sublabel}</p>
-              <div className="flex flex-wrap items-end gap-x-3 gap-y-1 mb-2">
-                <span className="text-4xl font-bold">$0</span>
-                <span className="text-muted-foreground mb-1">for {BILLING_CONFIG.paidTrialDays} days</span>
+              <div className="flex flex-wrap items-end gap-x-2 gap-y-1 mb-3">
+                <span className="text-4xl font-bold">${PLAN.price}</span>
+                <span className="text-muted-foreground mb-1">/month</span>
               </div>
-              <p className="mb-3 text-sm font-medium text-foreground">Then ${PLAN.price}/month</p>
               <p className="text-muted-foreground text-sm">{PLAN.description}</p>
             </div>
 
@@ -224,14 +222,14 @@ export default function Pricing() {
             </ul>
 
             <TrackedAppLink
-              placement="pricing_trial"
-              offer="subscription_trial"
+              placement="pricing_subscription"
+              offer="subscription"
               className="flex items-center justify-center gap-2 w-full text-center px-6 py-3 rounded-xl font-semibold transition-all duration-200 text-sm bg-gradient-to-r from-primary to-accent text-white shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5"
             >
-              Start the {BILLING_CONFIG.paidTrialDays}-day trial <ArrowRight className="w-4 h-4" />
+              Upgrade for ${PLAN.price}/month <ArrowRight className="w-4 h-4" />
             </TrackedAppLink>
             <p className="mt-3 text-center text-xs text-muted-foreground">
-              Card required. Cancel before the trial ends to avoid the ${PLAN.price}/month charge. {UPCOMING_MODELS_LABEL} are coming soon.
+              Card required. You will be charged ${PLAN.price} immediately and monthly until you cancel. {UPCOMING_MODELS_LABEL} are coming soon.
             </p>
           </motion.div>
         </div>

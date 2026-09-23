@@ -1,6 +1,6 @@
 export const PLAN_STATIC_CONFIG = {
   scansPerCycle: 4,
-  monthlyPriceUsd: 10,
+  monthlyPriceUsd: 20,
   features: {
     free: {
       reportHistory: false,

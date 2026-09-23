@@ -204,7 +204,7 @@ const ComparisonPage = ({ data }: { data: ComparisonPageData }) => {
               </Button>
             </TrackedAppLink>
             <p className="text-sm text-primary-foreground/80">
-              Review the report first. The optional paid plan starts with a 30-day trial and requires a card.
+              Review the report first. Upgrade for $20/month when you are ready; your card is charged immediately.
             </p>
           </section>
           </article>

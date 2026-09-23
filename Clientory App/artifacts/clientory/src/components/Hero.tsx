@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import AIDashboard from "@/components/AIDashboard";
 import StripeGradient from "@/components/StripeGradient";
 import { TrackedAppLink } from "@/components/TrackedAppLink";
-import { BILLING_CONFIG, PAID_TRIAL_LABEL, PROMPTS_PER_FREE_SCAN } from "@/lib/billing-config";
+import { BILLING_CONFIG, PROMPTS_PER_FREE_SCAN } from "@/lib/billing-config";
 import { FREE_MODELS_LABEL } from "@/lib/model-coverage";
 
 export default function Hero() {
@@ -69,7 +69,7 @@ export default function Hero() {
               Free report: {PROMPTS_PER_FREE_SCAN} prompts on {FREE_MODELS_LABEL} · No credit card
               required
             </p>
-            <p>Paid plan: {PAID_TRIAL_LABEL}, then ${BILLING_CONFIG.monthlyPriceUsd}/month · Card required</p>
+            <p>Paid plan: ${BILLING_CONFIG.monthlyPriceUsd}/month · Charged when you upgrade · Card required</p>
           </div>
 
           <motion.div
