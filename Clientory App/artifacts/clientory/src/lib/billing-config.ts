@@ -4,10 +4,8 @@ export const BILLING_CONFIG = {
   monthlyPriceUsd: PLAN_STATIC_CONFIG.monthlyPriceUsd,
   scansPerCycle: PLAN_STATIC_CONFIG.scansPerCycle,
   freeTotalScans: PLAN_STATIC_CONFIG.features.free.scansTotal,
-  betaAccessDays: 90,
 } as const;
 export const BILLING_PRICE_LABEL = `$${BILLING_CONFIG.monthlyPriceUsd}/month`;
-export const BETA_ACCESS_LABEL = `${BILLING_CONFIG.betaAccessDays / 30} months free`;
 
 // Cadence, not credits. A subscription is one scan per week: run it yourself,
 // or it runs automatically if you don't. The `scansPerCycle` number (4) is

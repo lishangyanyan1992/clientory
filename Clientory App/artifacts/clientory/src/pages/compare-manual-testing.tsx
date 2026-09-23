@@ -12,7 +12,6 @@ const data: ComparisonPageData = {
     { feature: "Industry-specific prompt library", clientory: "yes", competitor: "no" },
     { feature: "Competitor gap vs. local rivals", clientory: "yes", competitor: "no" },
     { feature: "Actionable fix-it recommendations", clientory: "yes", competitor: "no" },
-    { feature: "Paid-plan trial", clientory: "None", competitor: "N/A" },
   ],
   chooseClientory: [
     "You want consistent, repeatable measurements over time",

@@ -2,7 +2,6 @@ import { MarketingLayout } from "@/components/marketing-layout";
 import { Check, Sparkles, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import {
-  BETA_ACCESS_LABEL,
   BILLING_CONFIG,
   BILLING_SCANS_LABEL,
   FREE_PROMPTS_LABEL,
@@ -18,7 +17,6 @@ import {
 } from "@/lib/model-coverage";
 import { JsonLd, SeoMeta } from "@/components/SeoMeta";
 import { TrackedAppLink } from "@/components/TrackedAppLink";
-import { CLIENTORY_BETA_APPLICATION_PATH } from "@/lib/app-url";
 
 const FREE_REPORT_FEATURES = [
   FREE_PROMPTS_LABEL,
@@ -76,11 +74,7 @@ const PRICING_FAQS = [
   },
   {
     q: "When will I be charged for the paid plan?",
-    a: `You are charged $${BILLING_CONFIG.monthlyPriceUsd} when you upgrade, and the subscription renews monthly until you cancel. There is no paid-plan trial. The subscription includes ${PROMPTS_PER_PAID_SCAN}-prompt scans, weekly monitoring, ${PAID_ONLY_MODELS_LABEL}, competitor tracking, the AI Presence Coach, and alerts.`,
-  },
-  {
-    q: "What is beta access?",
-    a: `Beta access is a separate, application-based offer for ${BETA_ACCESS_LABEL} with no credit card. Applying does not create an account or grant access automatically; Clientory reviews each request and invites approved firms. Anyone can still create a regular account and run the free report.`,
+    a: `You are charged $${BILLING_CONFIG.monthlyPriceUsd} when you upgrade, and the subscription renews monthly until you cancel. The subscription includes ${PROMPTS_PER_PAID_SCAN}-prompt scans, weekly monitoring, ${PAID_ONLY_MODELS_LABEL}, competitor tracking, the AI Presence Coach, and alerts.`,
   },
   {
     q: "Which AI models do you test?",
@@ -140,7 +134,7 @@ export default function Pricing() {
             See when AI recommends your firm
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Start with one free report—no credit card, no commitment. Upgrade for ${BILLING_CONFIG.monthlyPriceUsd} per month when you are ready; your card is charged immediately. Approved beta applicants can instead receive three months free without a card.
+            Start with one free report—no credit card, no commitment. Upgrade for ${BILLING_CONFIG.monthlyPriceUsd} per month when you are ready; your card is charged immediately.
           </p>
         </motion.div>
 
@@ -238,33 +232,6 @@ export default function Pricing() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.25 }}
-          className="mx-auto mt-8 max-w-4xl rounded-2xl border border-border bg-card p-6 text-center"
-        >
-          <p className="text-sm font-medium uppercase tracking-wider text-primary">
-            Optional beta access
-          </p>
-          <h2 className="mt-2 text-2xl font-bold text-foreground">
-            Apply for {BETA_ACCESS_LABEL} — no credit card
-          </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-            Beta access is reviewed and approved individually. Applying does not create an account
-            or grant access automatically, and regular account creation remains open to everyone.
-          </p>
-          <TrackedAppLink
-            ctaName="apply_beta_access"
-            destinationPath={CLIENTORY_BETA_APPLICATION_PATH}
-            placement="pricing_beta_application"
-            offer="beta_application"
-            className="mt-5 inline-flex items-center justify-center gap-2 rounded-xl border border-primary px-6 py-3 text-sm font-semibold text-primary transition-all duration-200 hover:bg-primary/5"
-          >
-            Apply for Beta Access <ArrowRight className="w-4 h-4" />
-          </TrackedAppLink>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
           className="mx-auto mt-8 max-w-4xl rounded-2xl border border-primary/20 bg-primary/5 p-6 text-center"
         >
           <p className="text-sm font-medium uppercase tracking-wider text-primary">

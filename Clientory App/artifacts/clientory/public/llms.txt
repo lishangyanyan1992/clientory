@@ -38,9 +38,6 @@ The product has three parts:
   month. A credit card is required and billing starts immediately on upgrade.
 - The user-owned subscription is $20 per month. A company or
   firm profile is report input, not the owner of billing or access.
-- Firms can separately apply for approved beta access: 3 months free with no
-  credit card. Applying does not create an account or grant access automatically.
-
 ## Do Not Crawl
 /admin
 /dashboard

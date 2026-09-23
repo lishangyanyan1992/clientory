@@ -12,7 +12,6 @@ const data: ComparisonPageData = {
     { feature: "Industry-specific prompt library", clientory: "yes", competitor: "no" },
     { feature: "Automatic gap vs. firms in your prompts", clientory: "yes", competitor: "partial" },
     { feature: "Actionable fix-it recommendations", clientory: "yes", competitor: "partial" },
-    { feature: "Paid-plan trial", clientory: "None", competitor: "yes" },
   ],
   chooseClientory: [
     "You run an immigration law firm",
@@ -32,7 +31,7 @@ const data: ComparisonPageData = {
     "For immigration firms, Clientory's prompts are generated from the firm profile, so setup is a form rather than a prompt-writing exercise. Otterly may require significant manual prompt creation to reach comparable coverage of the queries prospective clients actually use.",
   ],
   pricingRows: [
-    { label: "Try before paying", clientory: "One free report, no card", competitor: "Free trial, no card" },
+    { label: "Free starting point", clientory: "One free report, no card", competitor: "See current offer" },
     { label: "Subscription", clientory: "$20/mo, billed immediately on upgrade", competitor: "Starts at $29/mo" },
     { label: "Paid cadence", clientory: "Weekly", competitor: "Daily" },
     { label: "Pricing basis", clientory: "One simple plan", competitor: "Prompt volume, plan, and model add-ons" },

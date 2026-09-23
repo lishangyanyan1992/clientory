@@ -3,8 +3,6 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TrackedAppLink } from "@/components/TrackedAppLink";
-import { CLIENTORY_BETA_APPLICATION_PATH } from "@/lib/app-url";
-import { BETA_ACCESS_LABEL } from "@/lib/billing-config";
 
 export default function CTA() {
   return (
@@ -50,15 +48,6 @@ export default function CTA() {
                 </Button>
               </Link>
             </div>
-            <TrackedAppLink
-              ctaName="apply_beta_access"
-              destinationPath={CLIENTORY_BETA_APPLICATION_PATH}
-              placement="home_bottom_beta_application"
-              offer="beta_application"
-              className="mt-5 inline-block text-sm font-medium text-white/80 underline underline-offset-4 transition-colors hover:text-white"
-            >
-              Want extended access? Apply for {BETA_ACCESS_LABEL} — no card, approval required.
-            </TrackedAppLink>
           </div>
         </motion.div>
       </div>

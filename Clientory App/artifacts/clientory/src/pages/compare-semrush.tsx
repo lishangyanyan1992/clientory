@@ -12,7 +12,6 @@ const data: ComparisonPageData = {
     { feature: "Industry-specific prompt library", clientory: "yes", competitor: "no" },
     { feature: "Competitor gap vs. local rivals", clientory: "yes", competitor: "partial" },
     { feature: "Actionable fix-it recommendations", clientory: "yes", competitor: "partial" },
-    { feature: "Paid-plan trial", clientory: "None", competitor: "yes" },
   ],
   chooseClientory: [
     "You want a focused product without a larger marketing-suite workflow",
@@ -32,7 +31,7 @@ const data: ComparisonPageData = {
     "The key difference is specialization and workflow. Clientory generates an immigration-focused prompt set from a firm profile and highlights the competing firms filling its gaps. Semrush offers broader per-domain AI research and monitoring for general marketing teams.",
   ],
   pricingRows: [
-    { label: "Try before paying", clientory: "One free report, no card", competitor: "Check Semrush's current trial offer" },
+    { label: "Free starting point", clientory: "One free report, no card", competitor: "See current offer" },
     { label: "Subscription", clientory: "$20/mo, billed immediately on upgrade", competitor: "$99/domain/mo billed annually" },
     { label: "Custom prompts", clientory: "25 per weekly scan", competitor: "25 with daily tracking" },
     { label: "Pricing basis", clientory: "One simple plan", competitor: "Per domain" },

@@ -7,7 +7,7 @@ type TrackedAppLinkProps = Omit<ComponentPropsWithoutRef<"a">, "href"> & {
   ctaName?: string;
   destinationPath?: string;
   placement: string;
-  offer: "free_report" | "subscription" | "beta_application" | "free_ai_audit";
+  offer: "free_report" | "subscription" | "free_ai_audit";
 };
 
 export function TrackedAppLink({

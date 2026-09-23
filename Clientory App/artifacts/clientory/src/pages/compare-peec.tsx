@@ -12,7 +12,6 @@ const data: ComparisonPageData = {
     { feature: "Industry-specific prompt library", clientory: "yes", competitor: "no" },
     { feature: "Competitor gap vs. local rivals", clientory: "yes", competitor: "partial" },
     { feature: "Actionable fix-it recommendations", clientory: "yes", competitor: "partial" },
-    { feature: "Paid-plan trial", clientory: "None", competitor: "yes" },
   ],
   chooseClientory: [
     "You run an independent immigration law firm",
@@ -32,7 +31,7 @@ const data: ComparisonPageData = {
     "For a solo practitioner or a 10-attorney immigration firm, Clientory's targeted approach delivers faster, more relevant insight than Peec's enterprise-oriented platform.",
   ],
   pricingRows: [
-    { label: "Try before paying", clientory: "One free report, no card", competitor: "Check Peec's current trial offer" },
+    { label: "Free starting point", clientory: "One free report, no card", competitor: "See current offer" },
     { label: "Starter", clientory: "$20/mo, billed immediately on upgrade", competitor: "$95/mo" },
     { label: "Pro", clientory: "No additional tiers", competitor: "$245/mo" },
     { label: "Advanced", clientory: "No additional tiers", competitor: "$495/mo" },
