@@ -1,0 +1,6 @@
+# Findings that live only in git history and have been dealt with.
+# Format: <commit>:<file>:<rule-id>:<line>
+
+# Old Replit EMAIL_TOKEN_SECRET. The file was deleted on 2026-11-03; the value
+# remains in this historical commit and must be rotated wherever it is used.
+a91483e8b94325885d2c97671778b5a871d266f1:Clientory App/.replit:generic-api-key:31
