@@ -43,6 +43,7 @@ overrides:
   protobufjs: '>=7.5.6'
   path-to-regexp: '>=8.4.0'
   lodash: '>=4.17.24'
+  dompurify: '>=3.4.17'
   '@esbuild-kit/esm-loader': npm:tsx@^4.21.0
   '@expo/ngrok-bin>@expo/ngrok-bin-darwin-arm64': '-'
   '@expo/ngrok-bin>@expo/ngrok-bin-darwin-x64': '-'

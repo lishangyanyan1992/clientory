@@ -5,10 +5,14 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  schedule:
+    - cron: '0 13 * * *'   # daily dependency audit (see audit job)
+  workflow_dispatch:
 
 jobs:
   secret-scan:
     name: Secret Scan (gitleaks)
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -24,6 +28,7 @@ jobs:
 
   typecheck:
     name: Type Check
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
 
     steps:
@@ -51,6 +56,28 @@ jobs:
       - name: Build marketing site
         working-directory: 'Clientory App/artifacts/clientory'
         run: PORT=3000 BASE_PATH=/ pnpm run build
+
+  # New advisories get published against unchanged code, so the audit does not
+  # run on ordinary pushes (e.g. blog posts). It runs daily, on demand, and on
+  # pull requests — which is where Dependabot's fix PRs arrive.
+  audit:
+    name: Dependency Audit
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '11'
 
       - name: Audit dependencies
         working-directory: 'Clientory App'

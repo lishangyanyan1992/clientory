@@ -1,0 +1,22 @@
+version: 2
+updates:
+  # npm/pnpm workspace. Security fixes arrive as their own PRs as soon as an
+  # advisory is published (requires "Dependabot security updates" in repo
+  # settings). Routine version bumps are batched weekly into one PR.
+  - package-ecosystem: npm
+    directory: "/Clientory App"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ["*"]
